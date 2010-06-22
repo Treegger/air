@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.treegger.air</groupId>
+	<artifactId>airim</artifactId>
+	<version>1.0</version>
+
+	<name>Treegger IM AIR</name>
+
+	<packaging>swf</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<flex.sdk.version>4.0.0.14159</flex.sdk.version>
+		<flexmojos.version>3.6.1</flexmojos.version>
+	</properties>
+
+	<build>
+		<sourceDirectory>src/main/flex</sourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.sonatype.flexmojos</groupId>
+				<artifactId>flexmojos-maven-plugin</artifactId>
+				<version>${flexmojos.version}</version>
+				<extensions>true</extensions>
+
+				<dependencies>
+					<dependency>
+						<groupId>com.adobe.flex</groupId>
+						<artifactId>compiler</artifactId>
+						<version>${flex.sdk.version}</version>
+						<type>pom</type>
+					</dependency>
+				</dependencies>
+
+				<configuration>
+					<sourceFile>main.mxml</sourceFile>
+
+					<defaultLocale>fr_FR</defaultLocale>
+
+					<compiledLocales>
+						<locale>fr_FR</locale>
+					</compiledLocales>
+
+					<generateHtmlWrapper>true</generateHtmlWrapper>
+					<flexBuilderOutputFolderPath>target</flexBuilderOutputFolderPath>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>flexmojos-repository</id>
+			<url>http://repository.sonatype.org/content/groups/forge</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>flexmojos-repository</id>
+			<url>http://repository.sonatype.org/content/groups/forge</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.adobe.flex.framework</groupId>
+			<artifactId>flex-framework</artifactId>
+			<version>${flex.sdk.version}</version>
+			<type>pom</type>
+		</dependency>
+	</dependencies>
+</project>
+
+
