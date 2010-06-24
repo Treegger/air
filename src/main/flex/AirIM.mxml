@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="200" height="70" creationComplete="checkForUpdate()">
+	<mx:Script>
+	<![CDATA[
+		import flash.events.ErrorEvent;
+		import air.update.ApplicationUpdaterUI;
+		import air.update.events.UpdateEvent;
+		import mx.controls.Alert;
+		
+		private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
+	
+		private function checkForUpdate():void {
+			setApplicationVersion(); // Find the current version so we can show it below			
+			appUpdater.updateURL = "http://ws.treegger.com/air/update.xml"; // Server-side XML file describing update
+			appUpdater.isCheckForUpdateVisible = false; // We won't ask permission to check for an update
+			appUpdater.addEventListener(UpdateEvent.INITIALIZED, onUpdate); // Once initialized, run onUpdate
+			appUpdater.addEventListener(ErrorEvent.ERROR, onError); // If something goes wrong, run onError
+			appUpdater.initialize(); // Initialize the update framework
+		}
+	
+		private function onError(event:ErrorEvent):void {
+			Alert.show(event.toString());
+		}
+		
+		private function onUpdate(event:UpdateEvent):void {
+			appUpdater.checkNow(); // Go check for an update now
+		}
+	
+		// Find the current version for our Label below
+		private function setApplicationVersion():void {
+			var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
+			var ns:Namespace = appXML.namespace();
+			ver.text = "Current version is " + appXML.ns::version;
+		}
+	]]>
+	</mx:Script>
+	
+	<mx:VBox backgroundColor="blue" x="0" y="0" width="100%" height="100%">
+		<mx:Label color="white" id="ver" />
+	</mx:VBox>
+
+</mx:WindowedApplication>
