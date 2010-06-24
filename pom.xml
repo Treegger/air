@@ -8,14 +8,17 @@
 	<artifactId>airim</artifactId>
 	<version>1.0</version>
 
-	<name>Treegger IM AIR</name>
+	<name>Treegger AIR IM</name>
 
-	<packaging>swf</packaging>
+	<packaging>air</packaging>
 
 	<properties>
+		<application.name>AirIM</application.name>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<flex.sdk.version>4.0.0.14159</flex.sdk.version>
-		<flexmojos.version>3.6.1</flexmojos.version>
+		<flexmojos.version>3.7.1</flexmojos.version>
+		<keystore.file>${basedir}/cert.p12</keystore.file>
+		<keystore.password>secret</keystore.password>
 	</properties>
 
 	<build>
@@ -34,21 +37,48 @@
 						<version>${flex.sdk.version}</version>
 						<type>pom</type>
 					</dependency>
+					<dependency>
+						<groupId>com.adobe.flex.compiler</groupId>
+						<artifactId>adt</artifactId>
+						<version>${flex.sdk.version}</version>
+						<scope>compile</scope>
+					</dependency>
 				</dependencies>
 
 				<configuration>
-					<sourceFile>main.mxml</sourceFile>
+					<sourceFile>${application.name}.mxml</sourceFile>
+					<descriptorTemplate>${basedir}/src/main/flex/${application.name}-app.xml</descriptorTemplate>
 
-					<defaultLocale>fr_FR</defaultLocale>
+					<defaultLocale>en_US</defaultLocale>
 
 					<compiledLocales>
-						<locale>fr_FR</locale>
+						<locale>en_US</locale>
 					</compiledLocales>
 
-					<generateHtmlWrapper>true</generateHtmlWrapper>
 					<flexBuilderOutputFolderPath>target</flexBuilderOutputFolderPath>
+
+					<keystore>${keystore.file}</keystore>
+					<storepass>${keystore.password}</storepass>
+
+					<includeFileSets>
+						<fileSet>
+							<directory>src/main/resources/embedded</directory>
+							<includes>
+								<include>*.*</include>
+							</includes>
+						</fileSet>
+					</includeFileSets>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>sign-air</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
+
+
 		</plugins>
 	</build>
 
@@ -66,13 +96,29 @@
 		</pluginRepository>
 	</pluginRepositories>
 
+
 	<dependencies>
+
+
 		<dependency>
 			<groupId>com.adobe.flex.framework</groupId>
-			<artifactId>flex-framework</artifactId>
+			<artifactId>air-framework</artifactId>
 			<version>${flex.sdk.version}</version>
 			<type>pom</type>
 		</dependency>
+		<dependency>
+			<groupId>com.adobe.flex.framework</groupId>
+			<artifactId>applicationupdater</artifactId>
+			<version>${flex.sdk.version}</version>
+			<type>swc</type>
+		</dependency>
+		<dependency>
+			<groupId>com.adobe.flex.framework</groupId>
+			<artifactId>applicationupdater_ui</artifactId>
+			<version>${flex.sdk.version}</version>
+			<type>swc</type>
+		</dependency>
+
 	</dependencies>
 </project>
 
