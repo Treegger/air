@@ -98,8 +98,6 @@
 
 
 	<dependencies>
-
-
 		<dependency>
 			<groupId>com.adobe.flex.framework</groupId>
 			<artifactId>air-framework</artifactId>
@@ -118,6 +116,14 @@
 			<version>${flex.sdk.version}</version>
 			<type>swc</type>
 		</dependency>
+
+		<dependency>
+			<groupId>com.netease</groupId>
+			<artifactId>protobuf</artifactId>
+			<version>0.8.8</version>
+			<type>swc</type>
+		</dependency>
+		
 
 	</dependencies>
 </project>
