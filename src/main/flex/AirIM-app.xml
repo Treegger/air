@@ -44,13 +44,13 @@
 		<content>[This value will be overwritten by Flash Builder in the output app.xml]</content>
 		
 		<!-- The title of the main window. Optional. -->
-		<!-- <title></title> -->
+		<title>AirIM</title>
 
 		<!-- The type of system chrome to use (either "standard" or "none"). Optional. Default standard. -->
-		<!-- <systemChrome></systemChrome> -->
+		<systemChrome>none</systemChrome>
 
 		<!-- Whether the window is transparent. Only applicable when systemChrome is none. Optional. Default false. -->
-		<!-- <transparent></transparent> -->
+		<transparent>true</transparent>
 
 		<!-- Whether the window is initially visible. Optional. Default false. -->
 		<!-- <visible></visible> -->
@@ -62,7 +62,7 @@
 		<!-- <maximizable></maximizable> -->
 
 		<!-- Whether the user can resize the window. Optional. Default true. -->
-		<!-- <resizable></resizable> -->
+		<resizable>true</resizable> -->
 
 		<!-- The window's initial width in pixels. Optional. -->
 		<!-- <width></width> -->
