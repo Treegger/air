@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-						creationComplete="checkForUpdate()" xmlns:s="library://ns.adobe.com/flex/spark">
-	<mx:Script>
+<s:WindowedApplication 
+   	xmlns:s="library://ns.adobe.com/flex/spark"
+   	xmlns:fx="http://ns.adobe.com/mxml/2009"
+	creationComplete="creationCompleteHandler()" 
+	backgroundAlpha="0"
+	showStatusBar="false"
+	useNativeDragManager="true"
+	
+	
+>
+	<fx:Script>
 	<![CDATA[
 		import air.update.ApplicationUpdaterUI;
 		import air.update.events.UpdateEvent;
@@ -10,7 +18,10 @@
 		
 		import flash.events.ErrorEvent;
 		
+		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
+		
+		import spark.filters.DropShadowFilter;
 		
 		private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
 	
@@ -18,8 +29,25 @@
 		
 		private function creationCompleteHandler():void
 		{
-			checkForUpdate();
+			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			var shadowFilter:DropShadowFilter = new DropShadowFilter();
+			shadowFilter.color = 0x000000;
+			shadowFilter.alpha = 0.4;
+			shadowFilter.blurX = 5;
+			shadowFilter.blurY = 5;
+			shadowFilter.distance = 5;
+			filters = [shadowFilter];
+
+			this.height = box.height+4;
+			this.width = box.width+4;
+			//checkForUpdate();
 		}
+		
+		private function onMouseDown(evt:MouseEvent):void
+		{
+			stage.nativeWindow.startMove();
+		}
+		
 		
 		private function checkForUpdate():void {
 			setApplicationVersion(); // Find the current version so we can show it below			
@@ -46,18 +74,33 @@
 		}
 		
 	]]>
-	</mx:Script>
+	</fx:Script>
 	
-	<mx:VBox backgroundColor="blue" x="0" y="0" width="100%" height="100%">
-		<mx:Label color="white" id="ver" />
-		<s:Button label="Connect" click="treeggerService.connect()"/>
-		<mx:HBox>
-			<s:TextInput id="user" />
-			<mx:ComboBox id="socialNetwork" dataProvider="{['Twitter','Foursquare']}"/>
-			<s:TextInput id="password" displayAsPassword="true"/>
+		<s:VGroup gap="1" id="box">
+			<s:Label id="ver" />
+			<s:Button label="Connect" click="treeggerService.connect()"/>
+			<s:HGroup>
+				<s:TextInput id="user" />
+				<s:ComboBox id="socialNetwork" dataProvider="{new ArrayCollection(['Twitter','Foursquare'])}" selectedIndex="0"/>
+				<s:TextInput id="password" displayAsPassword="true"/>
+				
+				<s:Button label="Auth" click="treeggerService.authenticate( user.text, socialNetwork.selectedItem.toString().toLocaleLowerCase(), password.text, 'AirIM' )"/>
+				
+			</s:HGroup>
 			
-			<s:Button label="Auth" click="treeggerService.authenticate( user.text, socialNetwork.selectedItem.toString().toLocaleLowerCase(), password.text, 'AirIM' )"/>
-		</mx:HBox>
-	</mx:VBox>
-
-</mx:WindowedApplication>
+			
+			<s:List id="rosterList" borderVisible="false" contentBackgroundAlpha="0"
+					rollOver="event.preventDefault(); event.stopPropagation()" itemRenderer="RosterItem">
+				<s:dataProvider>
+					<s:ArrayList>
+						<fx:Object firstName="Ann"  lastName="Green" />
+						<fx:Object firstName="Tom"  lastName="Smith" />
+						<fx:Object firstName="John" lastName="Black" />
+						<fx:Object firstName="Jane" lastName="White" />
+						<fx:Object firstName="Bill" lastName="Jones" />
+					</s:ArrayList>
+				</s:dataProvider>
+			</s:List>
+		</s:VGroup>
+	
+</s:WindowedApplication>
