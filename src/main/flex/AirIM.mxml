@@ -74,10 +74,40 @@
 			NativeApplication.nativeApplication.addEventListener(Event.USER_IDLE, onUserIdle);
 			NativeApplication.nativeApplication.addEventListener(Event.USER_PRESENT, onUserPresent); 
 		
+			createMenu();
+			
 			
 			//checkForUpdate();
 		}
 
+		private function createMenu():void
+		{
+			var airIMmenu:NativeMenu = new NativeMenu();
+			
+			const preferenceMenuItem:NativeMenuItem = new NativeMenuItem("Preferences...");
+			airIMmenu.addItem( preferenceMenuItem ) ;
+			airIMmenu.addItem(new NativeMenuItem( "", true ) );
+			const quitMenuItem:NativeMenuItem = airIMmenu.addItem(new NativeMenuItem("Quit AirIM"));
+			quitMenuItem.keyEquivalent = "q";
+			quitMenuItem.addEventListener(Event.SELECT, quitApplicationHandler );
+			contextMenu = airIMmenu;
+			
+			if( NativeApplication.supportsMenu )
+			{
+				const mainMenu:NativeMenuItem = NativeApplication.nativeApplication.menu.getItemAt(0);
+				mainMenu.submenu.addItemAt(new NativeMenuItem("Preferences..."), 2);
+				mainMenu.submenu.items[mainMenu.submenu.items.length-1].addEventListener( Event.SELECT, quitApplicationHandler )
+				// = mainMenu;
+			}
+			
+		}
+		
+		private function quitApplicationHandler( event:Event = null ):void
+		{
+			trace( "Quit" );
+			NativeApplication.nativeApplication.exit(0);	
+		}
+		
 		private function notifyDockIcon():void
 		{
 			if( NativeApplication.supportsDockIcon )
