@@ -18,7 +18,28 @@
 				<s:SolidColor color="0xffffff" alpha="1" alpha.hovered="0.8"/>
 			</s:fill>
 		</s:Rect>
-		<s:Label text="{data.lastName} {data.firstName}" top="5" bottom="2" left="10" right="10"/>
+		<s:Group>
+			<s:Ellipse left="10" top="5" width="10" height="10">
+				<s:fill>
+					<s:SolidColor color="0xff0000" alpha="1" alpha.hovered="0.8"/>
+				</s:fill>			
+				<s:filters>
+					<s:BevelFilter angle="45" distance="3"
+								   highlightAlpha="0.8"
+								   highlightColor="0xffffff"
+								   shadowAlpha="0.4"
+								   shadowColor="0x000000"
+								   type="inner"/>
+				</s:filters>
+			</s:Ellipse>
+			<s:Ellipse left="10" top="5" width="10" height="10">
+				<s:stroke>
+					<s:SolidColorStroke color="0x000000" alpha="0.3" weight="1"/>
+				</s:stroke>
+			</s:Ellipse>
+			
+		</s:Group>
+		<s:Label text="{data.lastName} {data.firstName}" top="5" bottom="2" left="25" right="10"/>
 		
 	</s:Group>
-</s:ItemRenderer>
+</s:ItemRenderer> 
