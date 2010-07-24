@@ -105,7 +105,7 @@
 		private function quitApplicationHandler( event:Event = null ):void
 		{
 			trace( "Quit" );
-			NativeApplication.nativeApplication.exit(0);	
+			//NativeApplication.nativeApplication.exit(0);	
 		}
 		
 		private function notifyDockIcon():void
