@@ -17,11 +17,22 @@
 		import com.treegger.service.TreeggerService;
 		
 		import flash.events.ErrorEvent;
+		import flash.text.engine.ElementFormat;
+		import flash.text.engine.FontDescription;
+		import flash.text.engine.TextBlock;
+		import flash.text.engine.TextElement;
+		import flash.text.engine.TextLine;
 		
 		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
 		
+		import spark.filters.BevelFilter;
 		import spark.filters.DropShadowFilter;
+		
+		
+		[Embed(source="icons/logo-128x128.png")]
+		[Bindable]
+		private var ApplicationLogo:Class;     
 		
 		private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
 	
@@ -40,7 +51,112 @@
 
 			this.height = box.height+4;
 			this.width = box.width+4;
+			
+			
+			
+			// Active / Inactive app 
+			nativeApplication.addEventListener(Event.ACTIVATE, onApplicationActivate); 
+			nativeApplication.addEventListener(Event.DEACTIVATE, onApplicationDeactivate);
+			
+			
+			nativeApplication.autoExit = false;
+			if( NativeApplication.supportsDockIcon )
+			{
+				nativeApplication.addEventListener( InvokeEvent.INVOKE, onShowWindow );				
+			}
+			else if( NativeApplication.supportsSystemTrayIcon )
+			{
+				SystemTrayIcon( NativeApplication.nativeApplication.icon ).addEventListener( ScreenMouseEvent.CLICK, onShowWindow );
+			}
+			
+			
+			//NativeApplication.nativeApplication.idleThreshold = 2 * 60; // In seconds -- the default is 5 minutes.
+			NativeApplication.nativeApplication.addEventListener(Event.USER_IDLE, onUserIdle);
+			NativeApplication.nativeApplication.addEventListener(Event.USER_PRESENT, onUserPresent); 
+		
+			
 			//checkForUpdate();
+		}
+
+		private function notifyDockIcon():void
+		{
+			if( NativeApplication.supportsDockIcon )
+			{
+				
+				var unseenCount:uint = 10// Function for counting the number of unread messages. 
+				var unreadCountSprite:Sprite = new Sprite(); 
+				unreadCountSprite.width = 128; 
+				unreadCountSprite.height = 128; 
+				unreadCountSprite.x = 0; 
+				unreadCountSprite.y = 0; 
+				var padding:uint = 16; 
+				// Use FTE APIs to get the best looking text. 
+				var fontDesc:FontDescription = new FontDescription("Arial", "bold"); 
+				var elementFormat:ElementFormat = new ElementFormat(fontDesc, 26, 0xFFFFFF); 
+				var textElement:TextElement = new TextElement(String(unseenCount), elementFormat); 
+				var textBlock:TextBlock = new TextBlock(textElement); 
+				var textLine:TextLine = textBlock.createTextLine(); 
+				
+				var diameter:uint = padding;
+				if( textLine.textWidth < textLine.textHeight ) diameter += textLine.textHeight;  
+				else diameter += textLine.textWidth;
+				
+				textLine.x = 128 - diameter/2 - textLine.textWidth/2 - 4; 
+				textLine.y = diameter/2 + textLine.textHeight/2 - 3;
+				
+				
+				unreadCountSprite.graphics.beginFill(0xE92200); 
+				unreadCountSprite.graphics.drawEllipse( 128 - diameter - 4, 0, diameter, diameter); 
+				unreadCountSprite.graphics.endFill(); 
+				unreadCountSprite.addChild(textLine); 
+				var shadow:DropShadowFilter = new DropShadowFilter(3, 45, 0, .75); 
+				var bevel:BevelFilter = new BevelFilter(1); 
+				unreadCountSprite.filters = [shadow.clone(),bevel.clone()];
+				
+				var unreadCountData:BitmapData = new BitmapData(128, 128, true, 0x00000000);  
+				// The Dynamic128IconClass referenced below is embedded. 
+				var appData:BitmapData = (new ApplicationLogo).bitmapData;  
+				unreadCountData.draw( appData );
+				unreadCountData.draw( unreadCountSprite );
+				var appIcon:Bitmap = new Bitmap(unreadCountData); 
+				// If you do want to change the system tray icon on Windows, as well, add a 16x16 icon to the array below. 
+				InteractiveIcon(NativeApplication.nativeApplication.icon).bitmaps = [appIcon];
+				
+				var dock:DockIcon = NativeApplication.nativeApplication.icon as DockIcon;
+				dock.bounce(NotificationType.INFORMATIONAL);
+				
+				var screen:Screen = Screen.mainScreen;
+				
+				var notif:Notification = new Notification("None of your friend are online");
+				notif.bounds = new Rectangle(screen.visibleBounds.width - notif.width - 2, screen.visibleBounds.y + 2, notif.width, notif.height );
+				notif.alwaysInFront = true;
+				notif.visible = true;
+				
+			}
+
+		}
+		
+		private function onUserIdle(e:Event):void 
+		{ 
+			// No keyboard or mouse input for 2 minutes. 
+		}
+		private function onUserPresent(e:Event):void 
+		{
+			// The user is back! 
+		}
+		
+		private function onShowWindow(e:Event):void 
+		{
+			nativeWindow.activate(); 
+		}
+		
+		private function onApplicationActivate(e:Event):void 
+		{
+			stage.frameRate = 24; 
+		}  
+		private function onApplicationDeactivate(e:Event):void 
+		{
+			stage.frameRate = 10; 
 		}
 		
 		private function onMouseDown(evt:MouseEvent):void
@@ -78,6 +194,7 @@
 	
 		<s:VGroup gap="1" id="box">
 			<s:Label id="ver" />
+			<s:Button label="Bounce" click="notifyDockIcon()"/>
 			<s:Button label="Connect" click="treeggerService.connect()"/>
 			<s:HGroup>
 				<s:TextInput id="user" />
