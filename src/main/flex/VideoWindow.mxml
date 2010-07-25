@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Window 
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	transparent="false"
+	systemChrome="standard"
+	title="Video"
+	maximizable="true"
+	resizable="true"
+	type="normal"
+	showStatusBar="false"
+	creationComplete="creationCompleteHandler( event )" 
+	close="hangup()"
+	height="{cameraHeight}" width="{cameraWidth}" 
+>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.media.Camera;
+			
+			private var connectUrl:String = "rtmfp://stratus.rtmfp.net";
+			private const developerKey:String = "";
+			
+			private const cameraWidth:int=640;
+			private const cameraHeight:int=480;
+			
+			
+			// this is the connection to rtmfp server
+			private var netConnection:NetConnection;
+			// after connection to rtmfp server, publish listener stream to wait for incoming call 
+			private var listenerStream:NetStream;
+			// caller's incoming stream that is connected to callee's listener stream
+			private var controlStream:NetStream;
+			// outgoing media stream (audio, video, text and some control messages)
+			private var outgoingStream:NetStream;
+			// incoming media stream (audio, video, text and some control messages)
+			private var incomingStream:NetStream;
+			
+			// ID management serice
+			private var p2pId:String;
+			
+			private var remoteVideo:Video;
+
+			private function connect():void
+			{
+				netConnection = new NetConnection();
+				netConnection.addEventListener( NetStatusEvent.NET_STATUS, netConnectionHandler);
+				
+				try
+				{
+					netConnection.connect( connectUrl + "/" + developerKey );
+				}
+				catch (e:ArgumentError)
+				{
+					trace( e );
+					return;
+				}
+				
+			}
+			private function netConnectionHandler(event:NetStatusEvent):void
+			{
+				trace("NetConnection event: " + event.info.code + "\n");
+				
+				switch (event.info.code)
+				{
+					case "NetConnection.Connect.Success":
+						connectSuccess();
+						break;
+					
+					case "NetStream.Connect.Closed":
+						hangup();
+						break;
+				}
+			}
+			private function connectSuccess():void
+			{
+				trace("Connected, my ID: " + netConnection.nearID + "\n");
+				// should send id to peer
+			}
+
+			
+			private function handeshake( remoteId:String ):void
+			{
+				incomingStream = new NetStream(netConnection, remoteId );
+				incomingStream.addEventListener(NetStatusEvent.NET_STATUS, incomingStreamHandler);
+				incomingStream.play("media-caller");
+
+				// caller publishes media stream
+				outgoingStream = new NetStream(netConnection, NetStream.DIRECT_CONNECTIONS);
+				outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, outgoingStreamHandler );
+				outgoingStream.publish("media-caller");
+
+				// set volume for incoming stream
+				//var st:SoundTransform = new SoundTransform(speakerVolumeSlider.value);
+				//incomingStream.soundTransform = st;
+				
+				//incomingStream.receiveAudio(false);
+				//incomingStream.receiveVideo(false);
+				
+				remoteVideo = new Video();
+				remoteVideo.width = cameraWidth;
+				remoteVideo.height = cameraHeight;
+				remoteVideo.attachNetStream(incomingStream);
+				remoteVideoDisplay.addChild(remoteVideo);
+
+				var camera:Camera = getCamera();
+				if( camera )
+				{
+					camera.setMode( cameraWidth, cameraHeight, 25 );
+					camera.setQuality( 0, 90 );	
+					width = camera.width;
+					height = camera.height;
+					localVideoDisplay.attachCamera(camera);
+				}
+
+				//outgoingStream.attachAudio(mic);
+				outgoingStream.attachCamera(camera);
+			}
+			
+			private function hangup():void
+			{
+				trace("Hanging up call");
+				
+				if (incomingStream)
+				{
+					incomingStream.close();
+					incomingStream.removeEventListener(NetStatusEvent.NET_STATUS, incomingStreamHandler);
+				}
+				
+				if (outgoingStream)
+				{
+					outgoingStream.close();
+					outgoingStream.removeEventListener(NetStatusEvent.NET_STATUS, outgoingStreamHandler);
+				}
+				
+				
+				incomingStream = null;
+				outgoingStream = null;
+				controlStream = null;
+				
+			}
+			
+			private function outgoingStreamHandler(event:NetStatusEvent):void
+			{
+				trace("Outgoing stream event: " + event.info.code + "\n");
+				switch (event.info.code)
+				{
+					case "NetStream.Play.Start":
+						/*
+						if (callState == CallCalling)
+						{
+							outgoingStream.send("onIncomingCall", userNameInput.text);
+						}
+						*/
+						break;
+				}
+			}
+			
+			private function incomingStreamHandler(event:NetStatusEvent):void
+			{
+				trace("Incoming stream event: " + event.info.code + "\n");
+				switch (event.info.code)
+				{
+					case "NetStream.Play.UnpublishNotify":
+						hangup();
+						break;
+				}
+			}
+			
+			private function creationCompleteHandler( event:Event ):void
+			{
+				connect();				
+			}
+			
+			private function getMicrophone():Microphone
+			{
+				for( var i:int; i<Microphone.names.length; i++ )
+				{
+					var mic:Microphone = Microphone.getMicrophone( i );
+					if( mic ) return mic;
+				}
+				return null;				
+			}
+			
+			private function getCamera():Camera
+			{
+				for( var i:int=0; i<Camera.names.length; i++ )
+				{
+					var camera:Camera = Camera.getCamera( i.toString() );
+					if( camera ) return camera;
+				}
+				return null;
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Group width="100%" height="100%">
+		<mx:VideoDisplay id="remoteVideoDisplay" width="100%" height="100%"/>
+		<mx:VideoDisplay id="localVideoDisplay" width="25%" height="25%" right="0" bottom="0"/>		
+		<s:HGroup>
+			<s:TextInput id="remoteId" />
+			<s:Button label="Call Remote" click="handeshake( remoteId.text )"/>
+		</s:HGroup>
+	</s:Group>
+</s:Window>
