@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
-				xmlns:s="library://ns.adobe.com/flex/spark"
-				autoDrawBackground="false" 
-
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	autoDrawBackground="false" 
+	doubleClickEnabled="true"
+	doubleClick="doubleClickHandler(event)"
 >
+	
+	<fx:Script>
+		<![CDATA[
+			private function doubleClickHandler( event:Event ):void
+			{
+				new ChatWindow().open(true)		
+			}
+		]]>
+	</fx:Script>
 	<fx:Declarations>
 	</fx:Declarations>
 
@@ -21,10 +31,10 @@
 		<s:Group>
 			<s:Ellipse left="10" top="5" width="10" height="10">
 				<s:fill>
-					<s:SolidColor color="0xff0000" alpha="1" alpha.hovered="0.8"/>
+					<s:SolidColor color="0xdd0000" alpha="1" alpha.hovered="0.8"/>
 				</s:fill>			
 				<s:filters>
-					<s:BevelFilter angle="45" distance="3"
+					<s:BevelFilter angle="45" distance="5"
 								   highlightAlpha="0.8"
 								   highlightColor="0xffffff"
 								   shadowAlpha="0.4"
