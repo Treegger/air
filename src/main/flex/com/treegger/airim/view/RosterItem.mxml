@@ -43,10 +43,10 @@
 			</s:stroke>
 		</s:Rect>
 
-		<component:StatusBullet color="{getContactColor( data as Contact )}"/>
+		<component:StatusBullet left="5" top="3" width="10" height="10" color="{getContactColor( data as Contact )}"/>
 			
 		
-		<s:Label text="{(data as Contact).name}" top="3" bottom="1" left="25" right="10"/>
+		<s:Label text="{(data as Contact).name}" top="3" bottom="1" left="19" right="5"/>
 		
 	</s:Group>
 </s:ItemRenderer> 
