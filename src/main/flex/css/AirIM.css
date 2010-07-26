@@ -2,3 +2,7 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
 
+s|Window
+{
+	background-color: #dddddd;
+}

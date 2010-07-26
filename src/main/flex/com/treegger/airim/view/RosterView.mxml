@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+	 >
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import com.treegger.airim.controller.ChatController;
+			import com.treegger.airim.controller.PreferencesController;
+			
+			import mx.collections.ArrayCollection;
+			
+			[Inject][Bindable]
+			public var chatController:ChatController;
+
+			[Inject]
+			public var preferenceController:PreferencesController;
+
+			
+			[PostConstruct]
+			public function authenticate():void
+			{
+				if( !chatController.authenticated )
+				{
+					chatController.authenticate( preferenceController.userAccount );
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:List id="rosterList" width="100%" borderVisible="false" 
+			contentBackgroundAlpha="0"
+			rollOver="event.preventDefault(); event.stopPropagation()" 
+			itemRenderer="com.treegger.airim.view.RosterItem"
+			dataProvider="{chatController.contacts}"
+			>
+		<s:layout>
+			<s:VerticalLayout horizontalAlign="left" gap="1"/>
+		</s:layout>
+	</s:List>
+
+</s:Group>

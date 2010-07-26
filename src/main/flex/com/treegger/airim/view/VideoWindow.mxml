@@ -12,7 +12,7 @@
 	showStatusBar="false"
 	creationComplete="creationCompleteHandler( event )" 
 	close="hangup()"
-	height="{cameraHeight}" width="{cameraWidth}" 
+	height="{cameraHeight}" width="{cameraWidth}"
 >
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
@@ -20,13 +20,15 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.treegger.airim.PrivateProperties;
+			
 			import flash.media.Camera;
 			
 			private var connectUrl:String = "rtmfp://stratus.rtmfp.net";
-			private const developerKey:String = "";
+			private const developerKey:String = PrivateProperties.STRATUS_DEVELOPER_KEY;
 			
-			private const cameraWidth:int=640;
-			private const cameraHeight:int=480;
+			private const cameraWidth:int=640/2;
+			private const cameraHeight:int=480/2;
 			
 			
 			// this is the connection to rtmfp server
@@ -43,7 +45,7 @@
 			// ID management serice
 			private var p2pId:String;
 			
-			private var remoteVideo:Video;
+			private var remoteVideo:Video = new Video();
 
 			private function connect():void
 			{
@@ -101,24 +103,43 @@
 				//incomingStream.receiveAudio(false);
 				//incomingStream.receiveVideo(false);
 				
-				remoteVideo = new Video();
-				remoteVideo.width = cameraWidth;
-				remoteVideo.height = cameraHeight;
+				remoteVideo.smoothing = true;
+				//remoteVideo.width = remoteVideoDisplay.width;
+				//remoteVideo.height = remoteVideoDisplay.height;
 				remoteVideo.attachNetStream(incomingStream);
 				remoteVideoDisplay.addChild(remoteVideo);
 
+				bindCamera();
+			}
+
+			private function bindCamera():void
+			{
 				var camera:Camera = getCamera();
 				if( camera )
 				{
-					camera.setMode( cameraWidth, cameraHeight, 25 );
-					camera.setQuality( 0, 90 );	
-					width = camera.width;
-					height = camera.height;
+					if( qualityInput.selectedItem == "High" )
+					{
+						camera.setMode( cameraWidth*2, cameraHeight*2, 25 );
+						camera.setQuality( 0, 90 );
+					}
+					else if( qualityInput.selectedItem == "Normal" )
+					{
+						camera.setMode( cameraWidth, cameraHeight, 15 );
+						camera.setQuality( 0, 90 );
+					}
+					else if( qualityInput.selectedItem == "Low" )
+					{
+						camera.setMode( cameraWidth/2, cameraHeight/2, 10 );
+						camera.setQuality( 0, 90 );
+					}
 					localVideoDisplay.attachCamera(camera);
 				}
-
+				
 				//outgoingStream.attachAudio(mic);
-				outgoingStream.attachCamera(camera);
+				if( outgoingStream )
+				{
+					outgoingStream.attachCamera(camera);
+				}
 			}
 			
 			private function hangup():void
@@ -195,15 +216,23 @@
 				}
 				return null;
 			}
+			
+			private function qualityChangeHandler( event:Event ):void
+			{
+				bindCamera();
+			}
 		]]>
 	</fx:Script>
 	
 	<s:Group width="100%" height="100%">
-		<mx:VideoDisplay id="remoteVideoDisplay" width="100%" height="100%"/>
+		<mx:VideoDisplay id="remoteVideoDisplay" width="100%" height="100%" resize="remoteVideo.width=remoteVideoDisplay.width; remoteVideo.height=remoteVideoDisplay.height"/>
 		<mx:VideoDisplay id="localVideoDisplay" width="25%" height="25%" right="0" bottom="0"/>		
-		<s:HGroup>
+		<s:HGroup alpha="0.4">
 			<s:TextInput id="remoteId" />
 			<s:Button label="Call Remote" click="handeshake( remoteId.text )"/>
+			<s:ComboBox id="qualityInput" change="qualityChangeHandler(event)" selectedIndex="1">
+				<s:ArrayCollection source="['High', 'Normal', 'Low']" />
+			</s:ComboBox>
 		</s:HGroup>
 	</s:Group>
 </s:Window>

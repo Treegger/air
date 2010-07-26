@@ -20,7 +20,7 @@ package com.treegger.websocket
 		{
 		}
 		
-		
+		public var onMessage:Function;
 						
 						
 						
@@ -58,8 +58,20 @@ package com.treegger.websocket
 				socket.writeBytes( message );
 				socket.flush();
 			}
+			else
+			{
+				enqueue( message );
+			}
 		}
 
+		
+		private const messageQueue:Array = [];
+		private function enqueue( message:ByteArray ):void
+		{
+			messageQueue.push( message );
+		}
+		
+		
 						
 		public function connect( scheme:String, host:String, port:int, path:String ):void
 		{
@@ -101,8 +113,15 @@ package com.treegger.websocket
 					const data:String = socket.readUTFBytes( event.bytesLoaded );
 					if( data.indexOf("HTTP/1.1 101 Web Socket Protocol Handshake") == 0 )
 					{
-						handshaked = true;
 						trace( "Handshaked." );
+						
+						handshaked = true;
+						
+						while( messageQueue.length > 0 )
+						{
+							send( messageQueue.pop() )
+						}
+						
 					}
 				}
 				else
@@ -119,7 +138,7 @@ package com.treegger.websocket
 							const byteArray:ByteArray = decodeBinaryFrame();
 							const wsMessage:WebSocketMessage = new WebSocketMessage();
 							wsMessage.readExternal( byteArray );
-							trace( "Read msg: "+  wsMessage );
+							if( onMessage != null  ) onMessage( wsMessage )
 						}
 						else
 						{
