@@ -1,6 +1,7 @@
 package com.treegger.airim.controller
 {
 	import com.treegger.protobuf.AuthenticateRequest;
+	import com.treegger.protobuf.Ping;
 	import com.treegger.protobuf.Presence;
 	import com.treegger.protobuf.Roster;
 	import com.treegger.protobuf.RosterItem;
@@ -10,7 +11,9 @@ package com.treegger.airim.controller
 	
 	import flash.events.DataEvent;
 	import flash.events.EventDispatcher;
+	import flash.events.TimerEvent;
 	import flash.utils.ByteArray;
+	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
 
@@ -31,11 +34,29 @@ package com.treegger.airim.controller
 		public function ChatController()
 		{
 			wsConnector = new WSConnector();
+			wsConnector.onHandshake = onHandshake;
 			wsConnector.onMessage = onMessage;
 			wsConnector.connect( "wss", "xmpp.treegger.com", 443, "/tg-1.0" );
 			
 		}
 		
+		private var pingTimer:Timer;
+		private function onHandshake():void
+		{
+			 pingTimer = new Timer( 30*1000 );
+			 pingTimer.addEventListener(TimerEvent.TIMER, ping );
+		}
+		
+		private var pingId:int = 0;
+		private function ping():void
+		{
+			const ping:Ping = new Ping();
+			ping.id = pingId.toString();
+			pingId++;
+			const wsMessage:WebSocketMessage = new WebSocketMessage();
+			wsMessage.ping = ping;
+			send( wsMessage );			
+		}
 		
 		private function onMessage( message:WebSocketMessage ):void
 		{
@@ -135,11 +156,15 @@ package com.treegger.airim.controller
 			authReq.resource = 'AirIM';
 			
 			wsMessage.authenticateRequest = authReq;
-			
+			trace( "Authenticating: " +  authReq.username );
+			send( wsMessage );			
+		}
+		
+		
+		private function send( wsMessage:WebSocketMessage ):void
+		{
 			const buffer:ByteArray = new ByteArray()
 			wsMessage.writeExternal( buffer );
-			
-			trace( "Authenticating: " +  authReq.username );
 			wsConnector.send( buffer );
 		}
 	}

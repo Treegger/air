@@ -21,6 +21,7 @@ package com.treegger.websocket
 		}
 		
 		public var onMessage:Function;
+		public var onHandshake:Function;
 						
 						
 						
@@ -116,6 +117,8 @@ package com.treegger.websocket
 						trace( "Handshaked." );
 						
 						handshaked = true;
+						
+						if( onHandshake != null ) onHandshake();
 						
 						while( messageQueue.length > 0 )
 						{
