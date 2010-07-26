@@ -17,8 +17,9 @@
 
 			private function getContactColor( contact:Contact ):uint
 			{
-				if( contact.available ) return 0x00bb00;
-				else if( contact.away ) return 0xe84848;
+				if( contact.available ) return 0x00aa00;
+				else if( contact.away ) return 0xFF8000;
+				else if( contact.dnd ) return 0xff0000;
 				return 0xeeeeee
 			}
 			
