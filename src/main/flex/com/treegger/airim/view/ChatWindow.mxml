@@ -11,8 +11,15 @@
 		 showStatusBar="false"
 		 width="600"
 		 height="400"
-		 backgroundColor="0xdddddd"
 		 >
+	
+	<fx:Script>
+		<![CDATA[
+			
+			
+			
+		]]>
+	</fx:Script>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>

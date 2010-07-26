@@ -124,6 +124,13 @@
 			<type>swc</type>
 		</dependency>
 		
+		<dependency>
+			<groupId>org.swizframework</groupId>
+			<artifactId>swiz-framework</artifactId>
+			<version>1.0.0-RC1</version>
+			<type>swc</type>
+		</dependency>
+		
 
 	</dependencies>
 </project>

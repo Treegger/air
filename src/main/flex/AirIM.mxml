@@ -2,10 +2,13 @@
 <s:WindowedApplication 
    	xmlns:s="library://ns.adobe.com/flex/spark"
    	xmlns:fx="http://ns.adobe.com/mxml/2009"
-	creationComplete="creationCompleteHandler()" 
+	xmlns:swiz="http://swiz.swizframework.org" 
+	xmlns:local="*"
+	
+	creationComplete="creationCompleteHandler(event)" 
 	backgroundAlpha="0"
 	showStatusBar="false"
-	useNativeDragManager="true"
+	useNativeDragManager="true" xmlns:view="com.treegger.airim.view.*" 
 	
 	
 >
@@ -14,7 +17,10 @@
 		import air.update.ApplicationUpdaterUI;
 		import air.update.events.UpdateEvent;
 		
-		import com.treegger.service.TreeggerService;
+		import com.treegger.airim.controller.ChatController;
+		import com.treegger.airim.controller.PreferencesController;
+		import com.treegger.airim.view.Notification;
+		import com.treegger.airim.view.PreferencesWindow;
 		
 		import flash.events.ErrorEvent;
 		import flash.text.engine.ElementFormat;
@@ -26,6 +32,8 @@
 		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
 		
+		import org.swizframework.core.SwizManager;
+		
 		import spark.filters.BevelFilter;
 		import spark.filters.DropShadowFilter;
 		
@@ -36,24 +44,27 @@
 		
 		private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
 	
-		private const treeggerService:TreeggerService = new TreeggerService();
 		
-		private function creationCompleteHandler():void
+		private function creationCompleteHandler( event:Event ):void
 		{
+			var preferencesController:PreferencesController = new PreferencesController();
+			if( !preferencesController.userAccount )
+			{
+				openPreferencesWindow();
+			}
+						
+			
 			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			
+			
 			var shadowFilter:DropShadowFilter = new DropShadowFilter();
 			shadowFilter.color = 0x000000;
-			shadowFilter.alpha = 0.4;
-			shadowFilter.blurX = 5;
-			shadowFilter.blurY = 5;
+			shadowFilter.alpha = 0.2;
+			shadowFilter.blurX = 10;
+			shadowFilter.blurY = 10;
 			shadowFilter.distance = 5;
 			filters = [shadowFilter];
 
-			this.height = box.height+4;
-			this.width = box.width+4;
-			
-			
-			
 			// Active / Inactive app 
 			nativeApplication.addEventListener(Event.ACTIVATE, onApplicationActivate); 
 			nativeApplication.addEventListener(Event.DEACTIVATE, onApplicationDeactivate);
@@ -85,7 +96,11 @@
 			var airIMmenu:NativeMenu = new NativeMenu();
 			
 			const preferenceMenuItem:NativeMenuItem = new NativeMenuItem("Preferences...");
+			preferenceMenuItem.addEventListener(Event.SELECT, preferencesSelectedHandler );
 			airIMmenu.addItem( preferenceMenuItem ) ;
+			
+			
+			
 			airIMmenu.addItem(new NativeMenuItem( "", true ) );
 			const quitMenuItem:NativeMenuItem = airIMmenu.addItem(new NativeMenuItem("Quit AirIM"));
 			quitMenuItem.keyEquivalent = "q";
@@ -95,11 +110,25 @@
 			if( NativeApplication.supportsMenu )
 			{
 				const mainMenu:NativeMenuItem = NativeApplication.nativeApplication.menu.getItemAt(0);
-				mainMenu.submenu.addItemAt(new NativeMenuItem("Preferences..."), 2);
+				const preferenceMenuItem2:NativeMenuItem = new NativeMenuItem("Preferences...");
+				preferenceMenuItem2.addEventListener(Event.SELECT, preferencesSelectedHandler );
+				mainMenu.submenu.addItemAt( preferenceMenuItem2, 2 );
 				mainMenu.submenu.items[mainMenu.submenu.items.length-1].addEventListener( Event.SELECT, quitApplicationHandler )
 				// = mainMenu;
 			}
 			
+		}
+		
+		private function preferencesSelectedHandler( event:Event ):void
+		{
+			openPreferencesWindow();
+		}
+
+		private function openPreferencesWindow():void
+		{
+			const window:PreferencesWindow = new PreferencesWindow() ;
+			SwizManager.setUp(window);
+			window.open(true);
 		}
 		
 		private function quitApplicationHandler( event:Event = null ):void
@@ -154,15 +183,14 @@
 				
 				var dock:DockIcon = NativeApplication.nativeApplication.icon as DockIcon;
 				dock.bounce(NotificationType.INFORMATIONAL);
-				
-				var screen:Screen = Screen.mainScreen;
-				
-				var notif:Notification = new Notification("None of your friend are online");
-				notif.bounds = new Rectangle(screen.visibleBounds.width - notif.width - 2, screen.visibleBounds.y + 2, notif.width, notif.height );
-				notif.alwaysInFront = true;
-				notif.visible = true;
-				
 			}
+			
+			var screen:Screen = Screen.mainScreen;
+			
+			var notif:Notification = new Notification("None of your friend are online");
+			notif.bounds = new Rectangle(screen.visibleBounds.width - notif.width - 2, screen.visibleBounds.y + 2, notif.width, notif.height );
+			notif.alwaysInFront = true;
+			notif.visible = true;
 
 		}
 		
@@ -216,38 +244,37 @@
 		private function setApplicationVersion():void {
 			var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
 			var ns:Namespace = appXML.namespace();
-			ver.text = "Current version is " + appXML.ns::version;
+			//ver.text = "Current version is " + appXML.ns::version;
 		}
 		
 	]]>
 	</fx:Script>
 	
-		<s:VGroup gap="1" id="box">
-			<s:Label id="ver" />
-			<s:Button label="Bounce" click="notifyDockIcon()"/>
-			<s:Button label="Connect" click="treeggerService.connect()"/>
-			<s:HGroup>
-				<s:TextInput id="user" />
-				<s:ComboBox id="socialNetwork" dataProvider="{new ArrayCollection(['Twitter','Foursquare'])}" selectedIndex="0"/>
-				<s:TextInput id="password" displayAsPassword="true"/>
-				
-				<s:Button label="Auth" click="treeggerService.authenticate( user.text, socialNetwork.selectedItem.toString().toLocaleLowerCase(), password.text, 'AirIM' )"/>
-				
-			</s:HGroup>
+	<fx:Style source="css/AirIM.css" />
+	
+	<fx:Declarations>
+		<swiz:Swiz>
+			<swiz:beanProviders>
+				<local:Beans/>
+			</swiz:beanProviders>
 			
-			
-			<s:List id="rosterList" borderVisible="false" contentBackgroundAlpha="0"
-					rollOver="event.preventDefault(); event.stopPropagation()" itemRenderer="RosterItem">
-				<s:dataProvider>
-					<s:ArrayList>
-						<fx:Object firstName="Ann"  lastName="Green" />
-						<fx:Object firstName="Tom"  lastName="Smith" />
-						<fx:Object firstName="John" lastName="Black" />
-						<fx:Object firstName="Jane" lastName="White" />
-						<fx:Object firstName="Bill" lastName="Jones" />
-					</s:ArrayList>
-				</s:dataProvider>
-			</s:List>
-		</s:VGroup>
+			<swiz:config>
+				<swiz:SwizConfig
+					setUpEventType="{ Event.ADDED_TO_STAGE }" 
+					setUpEventPhase="{ EventPhase.CAPTURING_PHASE }" 
+					setUpEventPriority="50"
+					tearDownEventType="{ Event.REMOVED_FROM_STAGE }" 
+					tearDownEventPhase="{ EventPhase.CAPTURING_PHASE }" 
+					tearDownEventPriority="50"
+
+					viewPackages="com.treegger.airim.view"
+					
+					defaultDispatcher="global" />
+			</swiz:config>
+		</swiz:Swiz>
+	</fx:Declarations>
+
+	
+	<view:RosterView id="rosterView" resize="height = rosterView.height+4; width = rosterView.width+100;" />
 	
 </s:WindowedApplication>
