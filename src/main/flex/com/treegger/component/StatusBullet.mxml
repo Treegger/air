@@ -13,7 +13,7 @@
 		]]>
 	</fx:Script>
 	
-	<s:Ellipse left="10" top="3" width="10" height="10">
+	<s:Ellipse width="{width}" height="{height}">
 		<s:fill>
 			<s:SolidColor color="{color}" alpha="1" />
 		</s:fill>			
@@ -26,7 +26,7 @@
 						   type="inner"/>
 		</s:filters>
 	</s:Ellipse>
-	<s:Ellipse left="10" top="3" width="10" height="10">
+	<s:Ellipse width="{width}" height="{height}">
 		<s:stroke>
 			<s:SolidColorStroke color="0x000000" alpha="0.3" weight="1"/>
 		</s:stroke>
