@@ -1,4 +1,4 @@
-package com.treegger.airim.view
+package com.treegger.component
 {
 	import flash.display.NativeWindow;
 	import flash.display.NativeWindowInitOptions;
