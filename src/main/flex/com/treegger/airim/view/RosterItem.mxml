@@ -12,13 +12,12 @@
 			import com.treegger.protobuf.RosterItem;
 			private function doubleClickHandler( event:Event ):void
 			{
-				//new ChatWindow().open(true);
-				new VideoWindow().open(true);
+				new ChatWindow().open(true);
 			}
 
 			private function getContactColor( contact:Contact ):uint
 			{
-				if( contact.available ) return 0x00cc00;
+				if( contact.available ) return 0x00bb00;
 				else if( contact.away ) return 0xe84848;
 				return 0xeeeeee
 			}
