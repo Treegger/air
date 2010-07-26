@@ -11,7 +11,7 @@
 		 type="normal"
 		 showStatusBar="false"
 		 width="600"
-		 height="400" 
+		 height="400" xmlns:component="com.treegger.component.*" 
 		 >
 	
 	<fx:Script>
@@ -22,7 +22,12 @@
 				new VideoWindow().open(true);
 
 			}
+		
 			
+			private function enterHandler( event:Event ):void
+			{
+				textInput.text = "";
+			}
 		]]>
 	</fx:Script>
 	
@@ -37,122 +42,10 @@
 		
 		<s:TextArea width="100%" height="100%"/>
 		
-		<s:TextInput width="100%"/>
-		
-		<mx:Spacer height="2"/>
-		
-		<s:Group width="100%" height="3">
-			<s:Rect width="100%" height="100%">
-				<s:fill>
-					<s:SolidColor color="0xeeeeee" alpha="1" />
-				</s:fill>
-			</s:Rect>
-			<s:Line left="0" bottom="-1" right="0">
-				<s:stroke>
-					<s:SolidColorStroke color="0xaaaaaa" weight="1"/>
-				</s:stroke>
-			</s:Line>
-
-			<s:filters>
-			<s:DropShadowFilter color="0x888888" alpha="0.6" distance="3" blurX="2" blurY="2"/>
-			</s:filters>
-		</s:Group>
+		<s:TextInput id="textInput" width="100%" enter="enterHandler( event )"/>
 		
 		
-		<s:HGroup gap="0">
-			<mx:Spacer width="3"/> 
-			
-			<s:List   
-					allowMultipleSelection="false"
-					dragEnabled="false"
-					dragMoveEnabled="false"
-					dropEnabled="false"
-					borderVisible="false"
-					contentBackgroundAlpha="0"
-					selectedIndex="0"
-					>
-				<s:layout>
-					<s:HorizontalLayout  horizontalAlign="left" gap="0"/>
-				</s:layout>
-				
-				
-				<s:itemRenderer>
-					<fx:Component>
-						<s:ItemRenderer
-							autoDrawBackground="false" 
-							height="24"
-							>
-							
-							<s:states>
-								<s:State name="normal" />
-								<s:State name="hovered" />
-								<s:State name="selected" />
-							</s:states>
-							
-							<s:Group includeIn="selected" width="100%" bottom="2" top="0">
-								<s:Rect width="100%" height="100%">
-									<s:fill>
-										<s:SolidColor color="0xeeeeee" alpha="1" />
-									</s:fill>
-								</s:Rect>
-	
-								<s:Line width="100%" bottom="0">
-									<s:stroke>
-										<s:SolidColorStroke color="0xaaaaaa" weight="1"/>
-									</s:stroke>
-								</s:Line>
-								<s:Line left="0" bottom="-1" top="-1">
-									<s:stroke>
-										<s:SolidColorStroke color="0xaaaaaa" weight="1"/>
-									</s:stroke>
-								</s:Line>
-								<s:Line right="0" bottom="-1" top="-1">
-									<s:stroke>
-										<s:SolidColorStroke color="0xaaaaaa" weight="1"/>
-									</s:stroke>
-								</s:Line>
-								
-								
-								<s:Label text="{data}" height="16" top="6" left="10" right="10"/>
-								<s:filters>
-									<s:DropShadowFilter color="0x888888" alpha="0.6" distance="3" blurX="2" blurY="2"/>
-								</s:filters>
-							</s:Group>
-		
-							<s:Group includeIn="normal" width="100%" height="100%" >
-								<s:Line right="0" height="100%">
-									<s:stroke>
-										<s:SolidColorStroke color="0xaaaaaa" alpha="0.4" weight="1"/>
-									</s:stroke>
-								</s:Line>
-								<s:Label text="{data}" height="16" top="8" left="10" right="10"/>
-							</s:Group>
-							
-							<s:Group includeIn="hovered" width="100%" height="100%">
-								<s:Rect left="0" top="2" right="0" bottom="0">
-									<s:fill>
-										<s:SolidColor color="0xcccccc" alpha="0.4"/>
-									</s:fill>
-								</s:Rect>
-								<s:Line right="0" height="100%">
-									<s:stroke>
-										<s:SolidColorStroke color="0xaaaaaa" alpha="0.4" weight="1"/>
-									</s:stroke>
-								</s:Line>
-								<s:Label text="{data}" height="16" top="8" left="10" right="10"/>
-							</s:Group>
-	
-		
-						</s:ItemRenderer>
-					</fx:Component>
-				</s:itemRenderer>
-				
-				<s:dataProvider>
-					<s:ArrayCollection source="['Appetizers', 'Entrees', 'Desserts']" />
-				</s:dataProvider>
-			</s:List>
-
-		</s:HGroup>
+		<component:TabBar width="100%" gap="0"/>
 	</s:VGroup>
 	
 </s:Window>
