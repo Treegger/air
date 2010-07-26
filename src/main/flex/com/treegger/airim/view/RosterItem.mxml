@@ -3,7 +3,7 @@
 	xmlns:s="library://ns.adobe.com/flex/spark"
 	autoDrawBackground="false" 
 	doubleClickEnabled="true"
-	doubleClick="doubleClickHandler(event)" xmlns:view="com.treegger.airim.view.*"
+	doubleClick="doubleClickHandler(event)" xmlns:view="com.treegger.airim.view.*" xmlns:component="com.treegger.component.*"
 >
 	
 	<fx:Script>
@@ -43,7 +43,7 @@
 			</s:stroke>
 		</s:Rect>
 
-		<view:StatusBullet color="{getContactColor( data as Contact )}"/>
+		<component:StatusBullet color="{getContactColor( data as Contact )}"/>
 			
 		
 		<s:Label text="{(data as Contact).name}" top="3" bottom="1" left="25" right="10"/>
