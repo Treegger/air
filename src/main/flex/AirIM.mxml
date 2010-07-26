@@ -19,7 +19,7 @@
 		
 		import com.treegger.airim.controller.ChatController;
 		import com.treegger.airim.controller.PreferencesController;
-		import com.treegger.airim.view.Notification;
+		import com.treegger.component.Notification;
 		import com.treegger.airim.view.PreferencesWindow;
 		
 		import flash.events.ErrorEvent;
