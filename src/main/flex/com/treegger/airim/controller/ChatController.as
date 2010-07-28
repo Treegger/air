@@ -5,6 +5,7 @@ package com.treegger.airim.controller
 	import com.treegger.protobuf.Presence;
 	import com.treegger.protobuf.Roster;
 	import com.treegger.protobuf.RosterItem;
+	import com.treegger.protobuf.TextMessage;
 	import com.treegger.protobuf.WebSocketMessage;
 	import com.treegger.util.preferences.UserAccount;
 	import com.treegger.websocket.WSConnector;
@@ -45,16 +46,18 @@ package com.treegger.airim.controller
 		{
 			 pingTimer = new Timer( 30*1000 );
 			 pingTimer.addEventListener(TimerEvent.TIMER, ping );
+			 pingTimer.start();
 		}
 		
 		private var pingId:int = 0;
-		private function ping():void
+		private function ping(event:TimerEvent):void
 		{
 			const ping:Ping = new Ping();
 			ping.id = pingId.toString();
 			pingId++;
 			const wsMessage:WebSocketMessage = new WebSocketMessage();
 			wsMessage.ping = ping;
+			trace( "Ping id " + ping.id );
 			send( wsMessage );			
 		}
 		
@@ -62,7 +65,8 @@ package com.treegger.airim.controller
 		{
 			if( message.hasAuthenticateResponse )
 			{
-				_autheticated = message.authenticateResponse.hasSessionId;
+				authenticated = message.authenticateResponse.hasSessionId;
+				
 				dispatchEvent( new ChatEvent( ChatEvent.AUTHENTICATION ) );
 			}
 			else if( message.hasRoster )
@@ -107,6 +111,20 @@ package com.treegger.airim.controller
 					if( !foundContact ) contacts.addItem( contact );
 				}
 			}
+			else if( message.hasTextMessage )
+			{
+				
+				const textMessage:TextMessage = message.textMessage;
+				const targetContact:Contact = findContactByJID( textMessage.fromUser );
+				if( targetContact )
+				{
+					targetContact.textMessages.addItem( textMessage );
+					
+					const chatEvent:ChatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE );
+					chatEvent.targetContact = targetContact;					
+					dispatchEvent( chatEvent );
+				}
+			}
 		}
 
 		private function findRosterItemByJID( jid:String ):RosterItem
@@ -121,7 +139,7 @@ package com.treegger.airim.controller
 			return null;
 		}
 		
-		private function findContactByJID( jid:String ):Contact
+		public function findContactByJID( jid:String ):Contact
 		{
 			for each( var contact:Contact in contacts )
 			{
@@ -140,21 +158,53 @@ package com.treegger.airim.controller
 			return jid;
 		}
 		
+		private var currentUser:String;
+			
 		private var _autheticated:Boolean = false;
 		public function get authenticated():Boolean
 		{
 			return _autheticated;
 		}
+		public function set authenticated( value:Boolean ):void
+		{
+			_autheticated = value;
+			if( !value )
+			{
+				currentUser = null;
+			}
+			
+		}
+		
+		public function sendTextMessage( to:String, body:String, type:String ):void
+		{
+			if( authenticated )
+			{
+				const textMessage:TextMessage = new TextMessage();
+				textMessage.fromUser = currentUser;
+				textMessage.toUser = to;
+				textMessage.body = body;
+				textMessage.type = type;
+				
+				
+				const wsMessage:WebSocketMessage = new WebSocketMessage();
+				wsMessage.textMessage = textMessage;
+				trace( "TextMessage: " +  textMessage );
+				send( wsMessage );
+			}
+			
+		}
 		
 		
 		public function authenticate( userAccount:UserAccount ):void
 		{
-			const wsMessage:WebSocketMessage = new WebSocketMessage();
 			const authReq:AuthenticateRequest = new AuthenticateRequest();
-			authReq.username = userAccount.username+'@'+userAccount.socialNetwork.toLocaleLowerCase();
+			
+			currentUser = userAccount.username+'@'+userAccount.socialNetwork.toLocaleLowerCase();
+			authReq.username = currentUser;
 			authReq.password = userAccount.password;
 			authReq.resource = 'AirIM';
 			
+			const wsMessage:WebSocketMessage = new WebSocketMessage();
 			wsMessage.authenticateRequest = authReq;
 			trace( "Authenticating: " +  authReq.username );
 			send( wsMessage );			

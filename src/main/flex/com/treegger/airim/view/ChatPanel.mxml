@@ -1,38 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
 		gap="2"
 		width="100%"
-		height="100%" xmlns:mx="library://ns.adobe.com/flex/mx"
+		height="100%" 
+		creationComplete="creationComplete()"
 		 >
 	<fx:Script>
 		<![CDATA[
+			import com.treegger.airim.controller.ChatController;
 			import com.treegger.airim.controller.Contact;
+			import com.treegger.protobuf.TextMessage;
 			
 			import spark.components.Label;
 			
 			public var contact:Contact;
 			
+			[Inject]
+			public var chatController:ChatController;
+			
+			private function creationComplete():void
+			{
+				displayPendingTextMessage();
+			}
+			
+			private var lastChatItem:ChatItem;
+			
+			private function pushText( fromSelf:Boolean, text:String ):void
+			{
+				var title:String = "You";
+				if( !fromSelf ) title = contact.name;
+
+				
+				if( lastChatItem == null || lastChatItem.title != title )
+				{
+						lastChatItem = new ChatItem();
+						lastChatItem.title = title;
+						lastChatItem.titleColor = 0xffffff;
+						lastChatItem.color = 0x000000;
+						
+						if( fromSelf )
+						{
+							lastChatItem.backgroundColor = 0xaa8a8a;
+						}
+						else
+						{
+							lastChatItem.backgroundColor = 0x8a8aaa;
+						}
+						
+						lastChatItem.percentWidth = 100;
+						areaInput.addElement( lastChatItem );
+				}
+				
+				
+				lastChatItem.addText( text );
+				
+			}
+			
 			private function enterHandler( event:Event ):void
 			{
-				const chatItem:ChatItem = new ChatItem();
-				chatItem.title = contact.name;
-				chatItem.text = textInput.text;
-				chatItem.titleColor = 0xffffff;
-				chatItem.color = 0x000000;
-				chatItem.backgroundColor = 0xaa8a8a;
-				chatItem.percentWidth = 100;
-				
-				areaInput.addElement( chatItem );
-				
-				textInput.text = "";
-				
+				if( textInput.text )
+				{
+					const text:String = textInput.text;
+					pushText( true, text );
+					chatController.sendTextMessage( contact.jid, text , null );
+					
+					textInput.text = "";
+				}
 			}
-			private function getHeight( areaHeight:int, scrollerHeight:int ):int
+			public function displayPendingTextMessage():void
 			{
-				if( areaHeight > scrollerHeight ) return areaHeight;
-				else return scrollerHeight;
+				if( initialized )
+				{
+					for each( var textMessage:TextMessage in contact.textMessages )
+					{
+						pushText( false, textMessage.body );
+					}
+					contact.textMessages.removeAll();
+				}
 			}
+			
+			
 
 		]]>
 	</fx:Script>

@@ -7,6 +7,7 @@
 
 	<fx:Script>
 		<![CDATA[
+			import mx.controls.Spacer;
 			[Bindable]
 			public var titleColor:uint;
 			[Bindable]
@@ -15,8 +16,14 @@
 			public var backgroundColor:uint;
 			[Bindable]
 			public var title:String;
-			[Bindable]
-			public var text:String;
+
+			public function addText( text:String ):void
+			{
+				const chatTextItem:ChatTextItem = new ChatTextItem();
+				chatTextItem.text = text;
+				chatTextItem.backgroundColor = backgroundColor;
+				textGroup.addElement( chatTextItem );
+			}
 		]]>
 	</fx:Script>
 	<s:Group width="100%">
@@ -31,16 +38,18 @@
 			</s:fill>
 		</s:Rect>
 
-		<s:Label text="{title}" height="15" left="5" verticalAlign="middle" fontWeight="bold" color="{titleColor}"/> 
+		<s:Label text="{title}" left="5" verticalCenter="1" fontWeight="bold" color="{titleColor}"/> 
 	</s:Group>
 	
-	<s:Group height="100%" width="100%">
+	<s:Group height="100%" width="100%" bottom="2">
 		<s:Rect height="100%" width="100%">
 			<s:fill>
 				<s:SolidColor color="{backgroundColor}" alpha=".3"/>
 			</s:fill>
 		</s:Rect>
-		<s:Label text="{text}" left="5" top="2" bottom="2" right="5" color="{color}"/> 
+		
+		<s:VGroup id="textGroup" width="100%" gap="0" />
+		 
 	</s:Group>	
 	
 </s:VGroup>

@@ -79,23 +79,27 @@
 			}
 			
 			private const chatPanels:Object = {};
+			
+			[Bindable]
+			public var currentChatPannel:ChatPanel;
+			
 			private var _selectedContact:Contact;
-
 			[Bindable( event='selectedContactChanged' )]
 			public function set selectedContact( contact:Contact ):void
 			{
 				_selectedContact = contact;
 				if( this.initialized )
 				{
-					var chatPanel:ChatPanel = chatPanels[contact.jid] as ChatPanel;
-					if( chatPanel == null )
+					currentChatPannel = chatPanels[contact.jid] as ChatPanel;
+					if( currentChatPannel == null )
 					{
-						chatPanel = new ChatPanel();
-						chatPanel.contact = contact;
-						chatPanels[contact.jid] = chatPanel;
+						currentChatPannel = new ChatPanel();
+						SwizManager.setUp( currentChatPannel );
+						currentChatPannel.contact = contact;
+						chatPanels[contact.jid] = currentChatPannel;
 					}
 					chatPanelStack.removeAllElements();
-					chatPanelStack.addElement( chatPanel );
+					chatPanelStack.addElement( currentChatPannel );
 				}
 				dispatchEvent( new Event( 'selectedContactChanged' ) );
 			}

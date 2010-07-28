@@ -1,6 +1,8 @@
 package com.treegger.airim.controller
 {
 	import flash.events.EventDispatcher;
+	
+	import mx.collections.ArrayCollection;
 
 	[Bindable]
 	public class Contact extends EventDispatcher
@@ -23,6 +25,8 @@ package com.treegger.airim.controller
 			return _show;
 		}
 		
+		
+		public var textMessages:ArrayCollection = new ArrayCollection();
 		
 		
 		public function get available():Boolean

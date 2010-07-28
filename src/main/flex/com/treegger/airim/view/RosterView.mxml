@@ -11,20 +11,41 @@
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.controller.ChatController;
+			import com.treegger.airim.controller.ChatEvent;
 			import com.treegger.airim.controller.Contact;
 			import com.treegger.airim.controller.PreferencesController;
+			import com.treegger.protobuf.TextMessage;
 			
 			import mx.collections.ArrayCollection;
 			import mx.events.DynamicEvent;
 			
 			import org.swizframework.core.SwizManager;
+			import org.swizframework.events.ChainEvent;
 			
-			[Inject][Bindable]
-			public var chatController:ChatController;
 
 			[Inject]
 			public var preferenceController:PreferencesController;
 
+			private var _chatController:ChatController;
+			[Inject][Bindable]
+			public function set chatController( value:ChatController ):void
+			{
+				_chatController = value;
+				
+				_chatController.addEventListener( ChatEvent.TEXTMESSAGE, function( event:ChatEvent ):void
+				{
+					const chatWindow:ChatWindow = openChatWindowForContact( event.targetContact );
+					chatWindow.selectedContact = event.targetContact;
+					if( chatWindow.currentChatPannel )
+						chatWindow.currentChatPannel.displayPendingTextMessage();
+					
+				});
+			}
+			public function get chatController():ChatController
+			{
+				return _chatController;	
+			}
+			
 			
 			[PostConstruct]
 			public function authenticate():void
@@ -41,21 +62,28 @@
 			{
 				rosterList.addEventListener( "contactDoubleClick", function( event:DynamicEvent ):void
 				{
-					if( !chatWindow )
-					{
-						chatWindow = new ChatWindow();
-						chatWindow.addEventListener( Event.CLOSE, function( event:Event ):void{ chatWindow = null; } );
-						SwizManager.setUp( chatWindow );
-					}
-					
-					chatWindow.addChatContact( event.contact as Contact );
-					chatWindow.open( true );
-					
+					openChatWindowForContact( event.contact );	
 					event.stopPropagation();
 					
 				});
+				
 			}
+
 			
+			private function openChatWindowForContact( contact:Contact ):ChatWindow
+			{
+				if( !chatWindow )
+				{
+					chatWindow = new ChatWindow();
+					chatWindow.addEventListener( Event.CLOSE, function( event:Event ):void{ chatWindow = null; } );
+					SwizManager.setUp( chatWindow );
+				}
+				
+				chatWindow.addChatContact( contact );
+				chatWindow.open( true );
+				return chatWindow;
+
+			}
 		]]>
 	</fx:Script>
 	<fx:Declarations>

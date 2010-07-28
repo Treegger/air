@@ -47,6 +47,8 @@
 		
 		private function creationCompleteHandler( event:Event ):void
 		{
+			notifyDockIcon();
+			
 			var preferencesController:PreferencesController = new PreferencesController();
 			if( !preferencesController.userAccount )
 			{
