@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
 	xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:view="com.treegger.airim.view.*" 
+	xmlns:component="com.treegger.component.*"
+	
 	autoDrawBackground="false" 
 	doubleClickEnabled="true"
-	doubleClick="doubleClickHandler(event)" xmlns:view="com.treegger.airim.view.*" xmlns:component="com.treegger.component.*"
+	doubleClick="doubleClickHandler()" 
+	
 >
 	
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.controller.Contact;
 			import com.treegger.protobuf.RosterItem;
-			private function doubleClickHandler( event:Event ):void
-			{
-				new ChatWindow().open(true);
-			}
-
-			private function getContactColor( contact:Contact ):uint
-			{
-				if( contact.available ) return 0x00aa00;
-				else if( contact.away ) return 0xFF8000;
-				else if( contact.dnd ) return 0xff0000;
-				return 0xeeeeee
-			}
 			
+			import mx.events.DynamicEvent;
+
+			
+			private function doubleClickHandler():void
+			{
+				const event:DynamicEvent = new DynamicEvent( "contactDoubleClick", true );
+				event.contact = data;
+				dispatchEvent( event ); 
+			}
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -43,7 +44,7 @@
 			</s:stroke>
 		</s:Rect>
 
-		<component:StatusBullet left="5" top="3" width="10" height="10" color="{getContactColor( data as Contact )}"/>
+		<component:StatusBullet left="5" top="3" width="10" height="10" color="{( data as Contact ).statusColor}" closable="false"/>
 			
 		
 		<s:Label text="{(data as Contact).name}" top="3" bottom="1" left="19" right="5"/>

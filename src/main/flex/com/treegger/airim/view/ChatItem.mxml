@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 gap="0"
+		 >
+
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public var titleColor:uint;
+			[Bindable]
+			public var color:uint;
+			[Bindable]
+			public var backgroundColor:uint;
+			[Bindable]
+			public var title:String;
+			[Bindable]
+			public var text:String;
+		]]>
+	</fx:Script>
+	<s:Group width="100%">
+		<s:Rect height="10" width="100%" radiusX="5" radiusY="5">
+			<s:fill>
+				<s:SolidColor color="{backgroundColor}" alpha="1"/>
+			</s:fill>
+		</s:Rect>
+		<s:Rect y="5" height="10" width="100%">
+			<s:fill>
+				<s:SolidColor color="{backgroundColor}" alpha="1" />
+			</s:fill>
+		</s:Rect>
+
+		<s:Label text="{title}" height="15" left="5" verticalAlign="middle" fontWeight="bold" color="{titleColor}"/> 
+	</s:Group>
+	
+	<s:Group height="100%" width="100%">
+		<s:Rect height="100%" width="100%">
+			<s:fill>
+				<s:SolidColor color="{backgroundColor}" alpha=".3"/>
+			</s:fill>
+		</s:Rect>
+		<s:Label text="{text}" left="5" top="2" bottom="2" right="5" color="{color}"/> 
+	</s:Group>	
+	
+</s:VGroup>

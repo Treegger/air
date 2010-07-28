@@ -2,15 +2,22 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 
+		 
+		 creationComplete="creationCompleteHandler()"
 	 >
 	
 	
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.controller.ChatController;
+			import com.treegger.airim.controller.Contact;
 			import com.treegger.airim.controller.PreferencesController;
 			
 			import mx.collections.ArrayCollection;
+			import mx.events.DynamicEvent;
+			
+			import org.swizframework.core.SwizManager;
 			
 			[Inject][Bindable]
 			public var chatController:ChatController;
@@ -22,10 +29,31 @@
 			[PostConstruct]
 			public function authenticate():void
 			{
-				if( !chatController.authenticated )
+				if( preferenceController.userAccount && !chatController.authenticated )
 				{
 					chatController.authenticate( preferenceController.userAccount );
 				}
+			}
+			
+			private var chatWindow:ChatWindow; 
+			
+			private function creationCompleteHandler():void
+			{
+				rosterList.addEventListener( "contactDoubleClick", function( event:DynamicEvent ):void
+				{
+					if( !chatWindow )
+					{
+						chatWindow = new ChatWindow();
+						chatWindow.addEventListener( Event.CLOSE, function( event:Event ):void{ chatWindow = null; } );
+						SwizManager.setUp( chatWindow );
+					}
+					
+					chatWindow.addChatContact( event.contact as Contact );
+					chatWindow.open( true );
+					
+					event.stopPropagation();
+					
+				});
 			}
 			
 		]]>

@@ -1,36 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx">
-
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 mouseOver="mouseOverHandler(event)"
+		 autoDrawBackground="false" 
+		 >
+	<fx:Metadata>
+		[Event(name="close", type="flash.events.Event")]		
+	</fx:Metadata>
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.controller.Contact;
 			
+			import mx.collections.ArrayList;
+			
 			[Bindable]
 			public var color:uint;
 			
+			public var closable:Boolean;
+		
+			
+			private function clickCloseHandler():void
+			{
+				if( closable )
+				{
+					dispatchEvent( new Event("close") );
+				}
+			}
+			
+			private var isDown:Boolean;
+			private function mouseDownHandler( event:Event ):void
+			{
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				isDown = true;
+			}
+			private function mouseUpHandler( event:Event ):void
+			{
+				event.preventDefault();
+				event.stopImmediatePropagation();				
+				if( isDown )
+				{
+					clickCloseHandler();					
+				}
+			}
+			
+			private function mouseOverHandler( event:Event ):void
+			{
+				isDown = false;
+				if( closable ){
+					currentState = 'hoveredClosable'; 
+					event.preventDefault();
+				}
+			}
 		]]>
 	</fx:Script>
 	
-	<s:Ellipse width="{width}" height="{height}">
-		<s:fill>
-			<s:SolidColor color="{color}" alpha="1" />
-		</s:fill>			
-		<s:filters>
-			<s:BevelFilter angle="45" distance="5"
-						   highlightAlpha="0.8"
-						   highlightColor="0xffffff"
-						   shadowAlpha="0.4"
-						   shadowColor="0x000000"
-						   type="inner"/>
-		</s:filters>
-	</s:Ellipse>
+	
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hoveredClosable" />
+	</s:states>
+
+	<s:Group includeIn="normal">
+		<s:Ellipse width="{width}" height="{height}">
+			<s:fill>
+				<s:SolidColor color="{color}" alpha="1" />
+			</s:fill>			
+			<s:filters>
+				<s:BevelFilter angle="45" distance="5"
+							   highlightAlpha="0.8"
+							   highlightColor="0xffffff"
+							   shadowAlpha="0.4"
+							   shadowColor="0x000000"
+							   type="inner"/>
+			</s:filters>
+		</s:Ellipse>
+		
+	</s:Group>
+	
+	<s:Group includeIn="hoveredClosable" mouseDown="mouseDownHandler( event )" mouseUp="mouseUpHandler( event )">
+		<s:Ellipse width="{width}" height="{height}">
+			<s:fill>
+				<s:SolidColor color="0x888888" alpha="1" />
+			</s:fill>
+		</s:Ellipse>
+		
+		<s:Line xFrom="3" yFrom="3" xTo="7" yTo="7">
+			<s:stroke>
+				<s:SolidColorStroke color="0xdddddd" alpha="1" weight="2" />
+			</s:stroke>
+		</s:Line>
+
+		<s:Line xFrom="3" yFrom="7" xTo="7" yTo="3">
+			<s:stroke>
+				<s:SolidColorStroke color="0xdddddd" alpha="1" weight="2" />
+			</s:stroke>
+		</s:Line>
+		
+	</s:Group>
+	
 	<s:Ellipse width="{width}" height="{height}">
 		<s:stroke>
 			<s:SolidColorStroke color="0x000000" alpha="0.3" weight="1"/>
 		</s:stroke>
 	</s:Ellipse>
-	
-	
-</s:Group>
+</s:ItemRenderer>

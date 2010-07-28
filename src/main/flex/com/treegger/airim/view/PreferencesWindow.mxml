@@ -10,7 +10,7 @@
 	resizable="false"
 	type="normal"
 	showStatusBar="false"
-	height="200" width="320"
+	height="190" width="320"
 	creationComplete="creationCompleteHandler(event)"
 	>
 	<fx:Script>
@@ -99,7 +99,10 @@
 		
 		<s:HGroup verticalAlign="middle" width="100%">
 			<s:Label width="100"  text="Password" fontWeight="bold"/>
-			<s:TextInput id="passwordInput"  width="100%" displayAsPassword="true" text="{userAccount.password}" change="userAccount.password = passwordInput.text" />
+			<s:TextInput id="passwordInput"  width="100%" displayAsPassword="true" 
+						 text="{userAccount.password}" 
+						 change="userAccount.password = passwordInput.text"
+						 enter="saveHandler( event )"/>
 		</s:HGroup>
 		
 		<s:HGroup verticalAlign="middle" width="100%">

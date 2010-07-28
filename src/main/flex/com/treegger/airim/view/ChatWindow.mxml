@@ -3,30 +3,113 @@
 	xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:component="com.treegger.component.*" 
+		 xmlns:view="com.treegger.airim.view.*"
+		 
+		 
 		 transparent="false"
 		 systemChrome="standard"
-		 title="Chat"
 		 maximizable="true"
 		 resizable="true"
 		 type="normal"
 		 showStatusBar="false"
 		 width="600"
-		 height="400" xmlns:component="com.treegger.component.*" 
+		 height="400"
+		 
+		 creationComplete="creationComplete()"
+		 title="{selectedContact.name}"
 		 >
 	
 	<fx:Script>
 		<![CDATA[
+			import com.treegger.airim.controller.ChatController;
+			import com.treegger.airim.controller.Contact;
+			import com.treegger.component.TabEvent;
+			
+			import mx.collections.ArrayCollection;
+			
+			import org.swizframework.core.SwizManager;
+			
+
+			
+			[Inject][Bindable]
+			public var chatController:ChatController;
+
+			[Bindable]
+			private var activeChatContacts:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var selectedActiveChatContactIndex:int;
+			
+			public function addChatContact( contact:Contact ):void
+			{
+				if( !activeChatContacts.contains( contact ) ) activeChatContacts.addItem( contact );
+				selectedActiveChatContactIndex = activeChatContacts.length-1;
+				selectedContact = contact;
+			}
 			
 			private function videoClickHandler():void
 			{
-				new VideoWindow().open(true);
+				const videoWindow:VideoWindow = new VideoWindow();
+				SwizManager.setUp( videoWindow );
+				videoWindow.open(true);
 
 			}
 		
-			
-			private function enterHandler( event:Event ):void
+			private function tabCloseHandler( event:TabEvent ):void
 			{
-				textInput.text = "";
+				trace( "Tab Close for contact " +( event.data as Contact ).name );
+				const index:int = activeChatContacts.getItemIndex( event.data as Contact );
+				activeChatContacts.removeItemAt( index );
+				if( activeChatContacts.length == 0 )
+				{
+					close();
+				}
+				else
+				{
+					if( index > 0 ) selectedActiveChatContactIndex = index - 1;
+					else selectedActiveChatContactIndex = index;
+					selectedContact = activeChatContacts.getItemAt( selectedActiveChatContactIndex ) as Contact;			
+				}
+			}
+			
+			private function tabClickHandler( event:TabEvent ):void
+			{
+				trace( "Tab Click for contact " +( event.data as Contact ).name );
+				selectedContact = event.data as Contact;
+			}
+			
+			private const chatPanels:Object = {};
+			private var _selectedContact:Contact;
+
+			[Bindable( event='selectedContactChanged' )]
+			public function set selectedContact( contact:Contact ):void
+			{
+				_selectedContact = contact;
+				if( this.initialized )
+				{
+					var chatPanel:ChatPanel = chatPanels[contact.jid] as ChatPanel;
+					if( chatPanel == null )
+					{
+						chatPanel = new ChatPanel();
+						chatPanel.contact = contact;
+						chatPanels[contact.jid] = chatPanel;
+					}
+					chatPanelStack.removeAllElements();
+					chatPanelStack.addElement( chatPanel );
+				}
+				dispatchEvent( new Event( 'selectedContactChanged' ) );
+			}
+			public function get selectedContact():Contact 
+			{ 
+				return _selectedContact; 
+			}
+			
+			private function creationComplete():void
+			{
+				if( _selectedContact )
+				{
+					selectedContact = _selectedContact;
+				}
 			}
 		]]>
 	</fx:Script>
@@ -40,12 +123,14 @@
 			</s:Group>
 		</s:HGroup>
 		
-		<s:TextArea width="100%" height="100%"/>
+		<s:Group id="chatPanelStack" width="100%" height="100%">
+		</s:Group>		
 		
-		<s:TextInput id="textInput" width="100%" enter="enterHandler( event )"/>
-		
-		
-		<component:TabBar width="100%" gap="0"/>
+		<component:TabBar id="tabBar" width="100%" gap="0" 
+						  dataProvider="{activeChatContacts}"
+						  selectedIndex="{selectedActiveChatContactIndex}"
+						  tabClose="tabCloseHandler( event )"
+						  tabClick="tabClickHandler( event )"/>
 	</s:VGroup>
 	
 </s:Window>

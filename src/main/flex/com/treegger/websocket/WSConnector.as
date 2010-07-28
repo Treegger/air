@@ -104,7 +104,7 @@ package com.treegger.websocket
 			
 			socket.addEventListener( IOErrorEvent.IO_ERROR, function ( event:Event ):void
 			{
-				trace("Error.");
+				trace("IO Error on socket.");
 			} );
 			
 			socket.addEventListener( ProgressEvent.SOCKET_DATA, function ( event:ProgressEvent ):void
