@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 autoDrawBackground="false" 
+		 width="40"
+		 >
+	
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hovered" />
+		<s:State name="selected" />
+	</s:states>
+
+	<s:Group includeIn="normal" width="100%">
+		<s:Rect height="100%" width="100%">
+			<s:fill>
+				<mx:SolidColor alpha="0.2" color="0x000000"/>
+			</s:fill>
+		</s:Rect>
+		<s:Label verticalCenter="0" horizontalCenter="0" text="{data}" color="0xffffff" alpha=".5" top="5" bottom="5" fontSize="9"/>
+	</s:Group>
+
+	<s:Group includeIn="hovered" width="100%">
+		<s:Rect height="100%" width="100%">
+			<s:fill>
+				<mx:SolidColor alpha="0.2" color="0xffffff"/>
+			</s:fill>
+		</s:Rect>
+		<s:Label verticalCenter="0" horizontalCenter="0" text="{data}" color="0xffffff" alpha=".9" top="5" bottom="5" fontSize="9"/>
+	</s:Group>
+
+	<s:Group includeIn="selected" width="100%">
+		<s:Rect height="100%" width="100%" >
+			<s:fill>
+				<mx:SolidColor alpha="0.6" color="0xffffff"/>
+			</s:fill>
+		</s:Rect>
+		<s:Label verticalCenter="0" horizontalCenter="0" text="{data}" color="0x000000" alpha="1" top="5" bottom="5" fontSize="9"/>
+	</s:Group>
+
+</s:ItemRenderer>

@@ -41,6 +41,13 @@ package com.treegger.airim.controller
 			
 		}
 		
+		public function close():void
+		{
+			pingTimer.stop();
+			wsConnector.close();
+			authenticated = false;
+		}
+		
 		private var pingTimer:Timer;
 		private function onHandshake():void
 		{
@@ -66,7 +73,7 @@ package com.treegger.airim.controller
 			if( message.hasAuthenticateResponse )
 			{
 				authenticated = message.authenticateResponse.hasSessionId;
-				
+				sendPresence();
 				dispatchEvent( new ChatEvent( ChatEvent.AUTHENTICATION ) );
 			}
 			else if( message.hasRoster )
@@ -118,11 +125,24 @@ package com.treegger.airim.controller
 				const targetContact:Contact = findContactByJID( textMessage.fromUser );
 				if( targetContact )
 				{
-					targetContact.textMessages.addItem( textMessage );
-					
-					const chatEvent:ChatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE );
-					chatEvent.targetContact = targetContact;					
-					dispatchEvent( chatEvent );
+					var chatEvent:ChatEvent;
+					if( textMessage.type == "stratus" )
+					{
+						targetContact.stratusId = textMessage.thread;
+
+						chatEvent = new ChatEvent( ChatEvent.STRATUSVIDEO );
+						chatEvent.targetContact = targetContact;					
+						dispatchEvent( chatEvent );
+
+					}
+					else
+					{
+						targetContact.textMessages.addItem( textMessage );
+						
+						chatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE );
+						chatEvent.targetContact = targetContact;					
+						dispatchEvent( chatEvent );
+					}
 				}
 			}
 		}
@@ -175,7 +195,7 @@ package com.treegger.airim.controller
 			
 		}
 		
-		public function sendTextMessage( to:String, body:String, type:String ):void
+		public function sendTextMessage( to:String, body:String, type:String = null, thread:String = null ):void
 		{
 			if( authenticated )
 			{
@@ -184,6 +204,7 @@ package com.treegger.airim.controller
 				textMessage.toUser = to;
 				textMessage.body = body;
 				textMessage.type = type;
+				textMessage.thread = thread;
 				
 				
 				const wsMessage:WebSocketMessage = new WebSocketMessage();
@@ -194,6 +215,25 @@ package com.treegger.airim.controller
 			
 		}
 		
+		public function sendPresence(  type:String=null, show:String=null, status:String=null ):void
+		{
+			if( authenticated )
+			{
+				const presence:Presence = new Presence();
+				presence.from = currentUser;
+				presence.type = type;
+				presence.show = show;
+				presence.status = status;
+				
+				
+				
+				const wsMessage:WebSocketMessage = new WebSocketMessage();
+				wsMessage.presence = presence;
+				trace( "Presence: " +  presence );
+				send( wsMessage );
+			}
+			
+		}
 		
 		public function authenticate( userAccount:UserAccount ):void
 		{

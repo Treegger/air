@@ -28,6 +28,7 @@ package com.treegger.airim.controller
 		
 		public var textMessages:ArrayCollection = new ArrayCollection();
 		
+		public var stratusId:String;
 		
 		public function get available():Boolean
 		{

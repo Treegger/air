@@ -4,6 +4,6 @@
 	xmlns:swiz="http://swiz.swizframework.org" xmlns:service="com.treegger.service.*" xmlns:controller="com.treegger.airim.controller.*" >
 	
 	<controller:PreferencesController />
-	<controller:ChatController />
+	<controller:ChatController id="chatController" />
 	
 </swiz:BeanProvider>

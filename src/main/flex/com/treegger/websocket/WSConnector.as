@@ -72,8 +72,11 @@ package com.treegger.websocket
 			messageQueue.push( message );
 		}
 		
-		
-						
+		public function close():void
+		{
+			socket.close();
+		}
+			
 		public function connect( scheme:String, host:String, port:int, path:String ):void
 		{
 			if( scheme == "wss" )

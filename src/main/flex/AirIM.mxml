@@ -2,14 +2,15 @@
 <s:WindowedApplication 
    	xmlns:s="library://ns.adobe.com/flex/spark"
    	xmlns:fx="http://ns.adobe.com/mxml/2009"
-	xmlns:swiz="http://swiz.swizframework.org" 
+	xmlns:swiz="http://swiz.swizframework.org"
+	xmlns:view="com.treegger.airim.view.*"
 	xmlns:local="*"
 	
 	creationComplete="creationCompleteHandler(event)" 
 	backgroundAlpha="0"
 	showStatusBar="false"
-	useNativeDragManager="true" xmlns:view="com.treegger.airim.view.*" 
-	
+	useNativeDragManager="true"  
+	autoExit="true"
 	
 >
 	<fx:Script>
@@ -19,8 +20,8 @@
 		
 		import com.treegger.airim.controller.ChatController;
 		import com.treegger.airim.controller.PreferencesController;
-		import com.treegger.component.Notification;
 		import com.treegger.airim.view.PreferencesWindow;
+		import com.treegger.component.Notification;
 		
 		import flash.events.ErrorEvent;
 		import flash.text.engine.ElementFormat;
@@ -49,6 +50,7 @@
 		{
 			notifyDockIcon();
 			
+
 			var preferencesController:PreferencesController = new PreferencesController();
 			if( !preferencesController.userAccount )
 			{
@@ -103,6 +105,7 @@
 			
 			
 			
+			
 			airIMmenu.addItem(new NativeMenuItem( "", true ) );
 			const quitMenuItem:NativeMenuItem = airIMmenu.addItem(new NativeMenuItem("Quit AirIM"));
 			quitMenuItem.keyEquivalent = "q";
@@ -115,7 +118,7 @@
 				const preferenceMenuItem2:NativeMenuItem = new NativeMenuItem("Preferences...");
 				preferenceMenuItem2.addEventListener(Event.SELECT, preferencesSelectedHandler );
 				mainMenu.submenu.addItemAt( preferenceMenuItem2, 2 );
-				mainMenu.submenu.items[mainMenu.submenu.items.length-1].addEventListener( Event.SELECT, quitApplicationHandler )
+				mainMenu.submenu.items[mainMenu.submenu.items.length-1].addEventListener( Event.SELECT, teardown )
 				// = mainMenu;
 			}
 			
@@ -133,10 +136,22 @@
 			window.open(true);
 		}
 		
+		private function teardown( event:Event = null ):void
+		{
+			swizBean.chatController.sendPresence( "unavailable" );
+			swizBean.chatController.close();			
+		}
+		
 		private function quitApplicationHandler( event:Event = null ):void
 		{
 			trace( "Quit" );
-			//NativeApplication.nativeApplication.exit(0);	
+			for each( var win:NativeWindow in NativeApplication.nativeApplication.openedWindows ) 
+			{
+				win.dispatchEvent( new Event( Event.CLOSING, false, true ) );
+				win.close();
+			}
+			teardown();
+			exit();
 		}
 		
 		private function notifyDockIcon():void
@@ -198,16 +213,19 @@
 		
 		private function onUserIdle(e:Event):void 
 		{ 
-			// No keyboard or mouse input for 2 minutes. 
+			// No keyboard or mouse input for n minutes. 
+			swizBean.chatController.sendPresence( null, "away" );
+
 		}
 		private function onUserPresent(e:Event):void 
 		{
-			// The user is back! 
+			// The user is back!
+			swizBean.chatController.sendPresence();
 		}
 		
 		private function onShowWindow(e:Event):void 
 		{
-			nativeWindow.activate(); 
+			if( !nativeWindow.closed ) nativeWindow.activate(); 
 		}
 		
 		private function onApplicationActivate(e:Event):void 
@@ -221,7 +239,7 @@
 		
 		private function onMouseDown(evt:MouseEvent):void
 		{
-			stage.nativeWindow.startMove();
+			if( !nativeWindow.closed ) stage.nativeWindow.startMove();
 		}
 		
 		
@@ -257,7 +275,7 @@
 	<fx:Declarations>
 		<swiz:Swiz>
 			<swiz:beanProviders>
-				<local:Beans/>
+				<local:Beans id="swizBean"/>
 			</swiz:beanProviders>
 			
 			<swiz:config>

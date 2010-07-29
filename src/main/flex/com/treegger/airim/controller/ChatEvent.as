@@ -9,6 +9,7 @@ package com.treegger.airim.controller
 		public static const AUTHENTICATION:String = "AUTHENTICATION";
 		public static const ROSTER:String = "ROSTER";
 		public static const TEXTMESSAGE:String = "TEXTMESSAGE";
+		public static const STRATUSVIDEO:String = "STRATUSVIDEO";
 
 		public var targetContact:Contact;
 		

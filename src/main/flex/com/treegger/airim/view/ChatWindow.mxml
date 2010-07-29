@@ -13,11 +13,13 @@
 		 resizable="true"
 		 type="normal"
 		 showStatusBar="false"
-		 width="600"
+		 width="640"
 		 height="400"
 		 
 		 creationComplete="creationComplete()"
 		 title="{selectedContact.name}"
+		 
+		 activate="if( currentChatPannel ) currentChatPannel.textInput.setFocus()"
 		 >
 	
 	<fx:Script>
@@ -27,6 +29,7 @@
 			import com.treegger.component.TabEvent;
 			
 			import mx.collections.ArrayCollection;
+			import mx.events.CloseEvent;
 			
 			import org.swizframework.core.SwizManager;
 			
@@ -43,16 +46,33 @@
 			public function addChatContact( contact:Contact ):void
 			{
 				if( !activeChatContacts.contains( contact ) ) activeChatContacts.addItem( contact );
-				selectedActiveChatContactIndex = activeChatContacts.length-1;
+				
 				selectedContact = contact;
 			}
 			
-			private function videoClickHandler():void
-			{
-				const videoWindow:VideoWindow = new VideoWindow();
-				SwizManager.setUp( videoWindow );
-				videoWindow.open(true);
+			private const videoWindows:Object = {};
 
+			public function openVideoWindow():VideoWindow
+			{
+				var videoWindow:VideoWindow = videoWindows[selectedContact.jid]
+				if( !videoWindow )
+				{
+					videoWindow = new VideoWindow();
+					videoWindow.contact = selectedContact;
+					videoWindows[selectedContact.jid] = videoWindow;
+					SwizManager.setUp( videoWindow );
+					videoWindow.open(true);
+					videoWindow.activate();
+					videoWindow.addEventListener( Event.CLOSE,  closeVideoWindowHandler );
+				}
+				return videoWindow;
+			}
+			
+			private function closeVideoWindowHandler( event:Event ):void
+			{
+				var target:VideoWindow = event.currentTarget as VideoWindow;
+				videoWindows[target.contact.jid] = null;
+				target.removeEventListener(Event.CLOSE, closeVideoWindowHandler );
 			}
 		
 			private function tabCloseHandler( event:TabEvent ):void
@@ -66,9 +86,8 @@
 				}
 				else
 				{
-					if( index > 0 ) selectedActiveChatContactIndex = index - 1;
-					else selectedActiveChatContactIndex = index;
-					selectedContact = activeChatContacts.getItemAt( selectedActiveChatContactIndex ) as Contact;			
+					if( index > 0 ) selectedContact = activeChatContacts.getItemAt( index - 1 ) as Contact;
+					else selectedContact = activeChatContacts.getItemAt( index ) as Contact;
 				}
 			}
 			
@@ -88,6 +107,8 @@
 			public function set selectedContact( contact:Contact ):void
 			{
 				_selectedContact = contact;
+				selectedActiveChatContactIndex = activeChatContacts.getItemIndex( contact );
+				
 				if( this.initialized )
 				{
 					currentChatPannel = chatPanels[contact.jid] as ChatPanel;
@@ -98,6 +119,7 @@
 						currentChatPannel.contact = contact;
 						chatPanels[contact.jid] = currentChatPannel;
 					}
+					if( currentChatPannel.initialized ) currentChatPannel.textInput.setFocus()
 					chatPanelStack.removeAllElements();
 					chatPanelStack.addElement( currentChatPannel );
 				}
@@ -122,7 +144,7 @@
 		
 		<s:HGroup paddingTop="4" paddingBottom="4" paddingLeft="8" paddingRight="8" gap="8" horizontalAlign="right" width="100%">
 			<s:BitmapImage source="@Embed('icons/folder.png')" />
-			<s:Group click="videoClickHandler()">
+			<s:Group click="openVideoWindow()">
 				<s:BitmapImage source="@Embed('icons/video.png')" />
 			</s:Group>
 		</s:HGroup>

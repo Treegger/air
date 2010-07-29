@@ -38,7 +38,12 @@
 					chatWindow.selectedContact = event.targetContact;
 					if( chatWindow.currentChatPannel )
 						chatWindow.currentChatPannel.displayPendingTextMessage();
-					
+				});
+				_chatController.addEventListener( ChatEvent.STRATUSVIDEO, function( event:ChatEvent ):void
+				{
+					const chatWindow:ChatWindow = openChatWindowForContact( event.targetContact );
+					chatWindow.selectedContact = event.targetContact;
+					chatWindow.openVideoWindow().remoteVideoRequestHandler();
 				});
 			}
 			public function get chatController():ChatController
@@ -64,7 +69,6 @@
 				{
 					openChatWindowForContact( event.contact );	
 					event.stopPropagation();
-					
 				});
 				
 			}
@@ -81,6 +85,7 @@
 				
 				chatWindow.addChatContact( contact );
 				chatWindow.open( true );
+				chatWindow.activate();
 				return chatWindow;
 
 			}

@@ -5,7 +5,6 @@
 	xmlns:s="library://ns.adobe.com/flex/spark"
 	transparent="false"
 	systemChrome="standard"
-	title="Video"
 	maximizable="true"
 	resizable="true"
 	type="normal"
@@ -13,6 +12,7 @@
 	creationComplete="creationCompleteHandler( event )" 
 	close="hangup()"
 	height="{cameraHeight}" width="{cameraWidth}"
+	title="{contact.name}"
 >
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
@@ -21,47 +21,54 @@
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.PrivateProperties;
+			import com.treegger.airim.controller.ChatController;
+			import com.treegger.airim.controller.Contact;
+			import com.treegger.component.AlphaButton;
 			
 			import flash.media.Camera;
+			import flash.net.sendToURL;
 			
 			private var connectUrl:String = "rtmfp://stratus.rtmfp.net";
 			private const developerKey:String = PrivateProperties.STRATUS_DEVELOPER_KEY;
 			
+			[Inject]
+			public var chatController:ChatController;
+			
 			private const cameraWidth:int=640/2;
 			private const cameraHeight:int=480/2;
+			
+			private var stratusIdSent:Boolean = false;
 			
 			
 			// this is the connection to rtmfp server
 			private var netConnection:NetConnection;
-			// after connection to rtmfp server, publish listener stream to wait for incoming call 
-			private var listenerStream:NetStream;
-			// caller's incoming stream that is connected to callee's listener stream
-			private var controlStream:NetStream;
 			// outgoing media stream (audio, video, text and some control messages)
 			private var outgoingStream:NetStream;
 			// incoming media stream (audio, video, text and some control messages)
 			private var incomingStream:NetStream;
 			
-			// ID management serice
-			private var p2pId:String;
-			
 			private var remoteVideo:Video = new Video();
 
+			[Bindable]
+			public var contact:Contact;
+			
 			private function connect():void
 			{
-				netConnection = new NetConnection();
-				netConnection.addEventListener( NetStatusEvent.NET_STATUS, netConnectionHandler);
-				
-				try
+				if(  !netConnection  )
 				{
-					netConnection.connect( connectUrl + "/" + developerKey );
+					netConnection = new NetConnection();
+					netConnection.addEventListener( NetStatusEvent.NET_STATUS, netConnectionHandler);
+					
+					try
+					{
+						netConnection.connect( connectUrl + "/" + developerKey );
+					}
+					catch (e:ArgumentError)
+					{
+						trace( e );
+						return;
+					}
 				}
-				catch (e:ArgumentError)
-				{
-					trace( e );
-					return;
-				}
-				
 			}
 			private function netConnectionHandler(event:NetStatusEvent):void
 			{
@@ -81,11 +88,13 @@
 			private function connectSuccess():void
 			{
 				trace("Connected, my ID: " + netConnection.nearID + "\n");
-				// should send id to peer
+				chatController.sendTextMessage( contact.jid, null, "stratus", netConnection.nearID );
+				if( contact.stratusId ) handshake( contact.stratusId );
 			}
+			
 
 			
-			private function handeshake( remoteId:String ):void
+			private function handshake( remoteId:String ):void
 			{
 				incomingStream = new NetStream(netConnection, remoteId );
 				incomingStream.addEventListener(NetStatusEvent.NET_STATUS, incomingStreamHandler);
@@ -97,37 +106,40 @@
 				outgoingStream.publish("media-caller");
 
 				// set volume for incoming stream
-				//var st:SoundTransform = new SoundTransform(speakerVolumeSlider.value);
-				//incomingStream.soundTransform = st;
+				var st:SoundTransform = new SoundTransform(1);
+				incomingStream.soundTransform = st;
 				
 				//incomingStream.receiveAudio(false);
 				//incomingStream.receiveVideo(false);
 				
 				remoteVideo.smoothing = true;
-				//remoteVideo.width = remoteVideoDisplay.width;
-				//remoteVideo.height = remoteVideoDisplay.height;
 				remoteVideo.attachNetStream(incomingStream);
 				remoteVideoDisplay.addChild(remoteVideo);
 
 				bindCamera();
+				bindMicrophone();
 			}
 
+			public function remoteVideoRequestHandler():void
+			{
+			}
+			
 			private function bindCamera():void
 			{
 				var camera:Camera = getCamera();
 				if( camera )
 				{
-					if( qualityInput.selectedItem == "High" )
+					if( buttonList.selectedItem == "High" )
 					{
 						camera.setMode( cameraWidth*2, cameraHeight*2, 25 );
 						camera.setQuality( 0, 90 );
 					}
-					else if( qualityInput.selectedItem == "Normal" )
+					else if( buttonList.selectedItem == "Normal" )
 					{
 						camera.setMode( cameraWidth, cameraHeight, 15 );
 						camera.setQuality( 0, 90 );
 					}
-					else if( qualityInput.selectedItem == "Low" )
+					else if( buttonList.selectedItem == "Low" )
 					{
 						camera.setMode( cameraWidth/2, cameraHeight/2, 10 );
 						camera.setQuality( 0, 90 );
@@ -139,6 +151,35 @@
 				if( outgoingStream )
 				{
 					outgoingStream.attachCamera(camera);
+				}
+			}
+			private function bindMicrophone():void
+			{
+				var microphone:Microphone = getMicrophone();
+				if( microphone )
+				{
+					microphone.codec = SoundCodec.SPEEX;
+					microphone.framesPerPacket = 1;
+					microphone.soundTransform = new SoundTransform(1);
+					microphone.setSilenceLevel(0);
+					if( buttonList.selectedItem == "High" )
+					{
+						microphone.encodeQuality = 9;
+					}
+					else if( buttonList.selectedItem == "Normal" )
+					{
+						microphone.encodeQuality = 7;
+					}
+					else if( buttonList.selectedItem == "Low" )
+					{
+						microphone.encodeQuality = 5;
+					}
+				}
+				
+				//outgoingStream.attachAudio(mic);
+				if( outgoingStream )
+				{
+					outgoingStream.attachAudio(microphone);
 				}
 			}
 			
@@ -161,7 +202,6 @@
 				
 				incomingStream = null;
 				outgoingStream = null;
-				controlStream = null;
 				
 			}
 			
@@ -171,12 +211,6 @@
 				switch (event.info.code)
 				{
 					case "NetStream.Play.Start":
-						/*
-						if (callState == CallCalling)
-						{
-							outgoingStream.send("onIncomingCall", userNameInput.text);
-						}
-						*/
 						break;
 				}
 			}
@@ -217,9 +251,10 @@
 				return null;
 			}
 			
-			private function qualityChangeHandler( event:Event ):void
+			private function qualityChangeHandler():void
 			{
 				bindCamera();
+				bindMicrophone();
 			}
 		]]>
 	</fx:Script>
@@ -227,12 +262,27 @@
 	<s:Group width="100%" height="100%">
 		<mx:VideoDisplay id="remoteVideoDisplay" width="100%" height="100%" resize="remoteVideo.width=remoteVideoDisplay.width; remoteVideo.height=remoteVideoDisplay.height"/>
 		<mx:VideoDisplay id="localVideoDisplay" width="25%" height="25%" right="0" bottom="0"/>		
-		<s:HGroup alpha="0.4">
-			<s:TextInput id="remoteId" />
-			<s:Button label="Call Remote" click="handeshake( remoteId.text )"/>
-			<s:ComboBox id="qualityInput" change="qualityChangeHandler(event)" selectedIndex="1">
-				<s:ArrayCollection source="['High', 'Normal', 'Low']" />
-			</s:ComboBox>
-		</s:HGroup>
+			
+			
+		<s:List id="buttonList"
+				allowMultipleSelection="false"
+				dragEnabled="false"
+				dragMoveEnabled="false"
+				dropEnabled="false"
+				borderVisible="true"
+				contentBackgroundAlpha="0"
+				itemRenderer="com.treegger.component.AlphaButton"
+				right="0"
+				selectedItem="Normal"
+				change="qualityChangeHandler()"
+				>
+			<s:layout>
+				<s:HorizontalLayout  horizontalAlign="left" gap="1" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
+			</s:layout>
+			<s:dataProvider>
+				<s:ArrayCollection source="[ 'Low', 'Normal', 'High' ]" />
+			</s:dataProvider>
+		</s:List>
+			
 	</s:Group>
 </s:Window>
