@@ -43,7 +43,7 @@
 				{
 					const chatWindow:ChatWindow = openChatWindowForContact( event.targetContact );
 					chatWindow.selectedContact = event.targetContact;
-					chatWindow.openVideoWindow().remoteVideoRequestHandler();
+					chatWindow.openVideoWindow();
 				});
 			}
 			public function get chatController():ChatController

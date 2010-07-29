@@ -18,7 +18,7 @@
 				<mx:SolidColor alpha="0.2" color="0x000000"/>
 			</s:fill>
 		</s:Rect>
-		<s:Label verticalCenter="0" horizontalCenter="0" text="{data}" color="0xffffff" alpha=".5" top="5" bottom="5" fontSize="9"/>
+		<s:Label verticalCenter="0" horizontalCenter="0" text="{data}" color="0xffffff" alpha=".5" top="5" bottom="5" fontSize="9" paddingLeft="5" paddingRight="5"/>
 	</s:Group>
 
 	<s:Group includeIn="hovered" width="100%">
@@ -27,7 +27,7 @@
 				<mx:SolidColor alpha="0.2" color="0xffffff"/>
 			</s:fill>
 		</s:Rect>
-		<s:Label verticalCenter="0" horizontalCenter="0" text="{data}" color="0xffffff" alpha=".9" top="5" bottom="5" fontSize="9"/>
+		<s:Label verticalCenter="0" horizontalCenter="0" text="{data}" color="0xffffff" alpha=".9" top="5" bottom="5" fontSize="9" paddingLeft="5" paddingRight="5"/>
 	</s:Group>
 
 	<s:Group includeIn="selected" width="100%">
@@ -36,7 +36,7 @@
 				<mx:SolidColor alpha="0.6" color="0xffffff"/>
 			</s:fill>
 		</s:Rect>
-		<s:Label verticalCenter="0" horizontalCenter="0" text="{data}" color="0x000000" alpha="1" top="5" bottom="5" fontSize="9"/>
+		<s:Label verticalCenter="0" horizontalCenter="0" text="{data}" color="0x000000" alpha="1" top="5" bottom="5" fontSize="9" paddingLeft="5" paddingRight="5"/>
 	</s:Group>
 
 </s:ItemRenderer>
