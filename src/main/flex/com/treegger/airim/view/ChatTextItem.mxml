@@ -3,6 +3,8 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 width="100%"
+		 addedEffect="{fadeIn}"
+		 alpha="0.1"
 		 >
 	
 	<fx:Script>
@@ -106,7 +108,11 @@
 	</fx:Script>
 	<fx:Declarations>
 		<mx:DateFormatter id="df" formatString="JJ:NN"/>
+		
+		<s:Fade id="fadeIn" target="{this}" alphaFrom="0.1" alphaTo="1" duration="200" />
+
 	</fx:Declarations>
+	
 	
 	<s:Line top="0" width="100%">
 		<s:stroke>

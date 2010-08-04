@@ -63,6 +63,8 @@
 						
 						lastChatItem.percentWidth = 100;
 						areaInput.addElement( lastChatItem );
+						
+						lastChatItem.addEventListener(Event.ADDED, function(event:Event):void {  scrollingAnimation.play() } );
 				}
 				
 				
@@ -109,6 +111,11 @@
 
 		]]>
 	</fx:Script>
+	<fx:Declarations>
+		<s:Animate  id="scrollingAnimation" target="{areaInput}" duration="200">
+			<s:SimpleMotionPath property="verticalScrollPosition" valueTo="{areaInput.contentHeight - areaInput.height}"/>
+		</s:Animate>
+	</fx:Declarations>
 	
 	<s:Group  height="100%" width="100%">
 		<s:Rect height="100%" width="100%">
@@ -121,7 +128,7 @@
 		</s:Rect>
 
 		<s:Scroller id="scroller" height="100%" width="100%">
-				<s:VGroup id="areaInput" verticalScrollPosition="{areaInput.contentHeight - areaInput.height}" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+				<s:VGroup id="areaInput"  paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
 					<mx:Spacer height="100%"/>
 				</s:VGroup>
 		</s:Scroller>

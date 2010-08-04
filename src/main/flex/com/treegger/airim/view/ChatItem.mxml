@@ -3,6 +3,8 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 gap="0"
+		 addedEffect="{fadeIn}"
+		 alpha="0.1"
 		 >
 
 	<fx:Script>
@@ -26,6 +28,11 @@
 			}
 		]]>
 	</fx:Script>
+	
+	<fx:Declarations>
+		<s:Fade id="fadeIn" target="{this}" alphaFrom="0.1" alphaTo="1" duration="200" />
+	</fx:Declarations>
+		
 	<s:Group width="100%">
 		<s:Rect height="10" width="100%" radiusX="5" radiusY="5">
 			<s:fill>
