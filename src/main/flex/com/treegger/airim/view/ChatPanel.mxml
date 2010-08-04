@@ -87,13 +87,25 @@
 				{
 					for each( var textMessage:TextMessage in contact.textMessages )
 					{
-						if( textMessage.body ) pushText( false, fromXML( textMessage.body ) );
+						if( textMessage.body ) pushText( false, textMessage.body );
 					}
 					contact.textMessages.removeAll();
 				}
 			}
 			
 			
+			private function dragEnterHandler(e:NativeDragEvent):void 
+			{
+				if (e.clipboard.hasFormat(ClipboardFormats.TEXT_FORMAT)) {
+					NativeDragManager.acceptDragDrop(textInput);
+				}
+			}
+			
+			private function dropHandler(e:NativeDragEvent):void 
+			{
+				trace( "Drop " + e );
+				textInput.text += e.clipboard.getData(ClipboardFormats.TEXT_FORMAT) as String;
+			}
 
 		]]>
 	</fx:Script>
@@ -116,5 +128,9 @@
 	</s:Group>
 	
 	
-	<s:TextInput id="textInput" width="100%" enter="enterHandler( event )"/>
+	<s:TextInput id="textInput" width="100%" enter="enterHandler( event )"
+				 nativeDragEnter="dragEnterHandler(event)" 
+				 nativeDragDrop="dropHandler(event)"
+				 
+				 />
 </s:VGroup>
