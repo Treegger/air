@@ -12,9 +12,11 @@
 		 maximizable="true"
 		 resizable="true"
 		 type="normal"
+		 
 		 showStatusBar="false"
 		 width="640"
 		 height="400"
+		 
 		 
 		 creationComplete="creationComplete()"
 		 title="{selectedContact.name}"

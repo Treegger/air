@@ -4,9 +4,10 @@
 		xmlns:mx="library://ns.adobe.com/flex/mx"
 		gap="2"
 		width="100%"
-		height="100%" 
+		height="100%"
 		creationComplete="creationComplete()"
 		show="showHandler()"
+		
 		 >
 	<fx:Script>
 		<![CDATA[
@@ -144,7 +145,7 @@
 	<s:Group  height="100%" width="100%">
 		<s:Rect height="100%" width="100%">
 			<s:fill>
-				<s:SolidColor color="0xffffff" alpha="1" />
+				<s:SolidColor color="0xffffff" alpha=".8" />
 			</s:fill>
 			<s:stroke>
 				<s:SolidColorStroke color="0x000000" alpha=".3" />
@@ -152,7 +153,7 @@
 		</s:Rect>
 
 
-		<s:Scroller id="scroller" height="100%" width="100%">
+		<s:Scroller id="scroller" height="100%" width="100%" >
 			<s:VGroup id="areaInput"  paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
 				<mx:Spacer height="100%"/>
 			</s:VGroup>
