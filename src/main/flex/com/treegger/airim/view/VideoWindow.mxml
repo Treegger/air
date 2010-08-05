@@ -13,6 +13,7 @@
 	height="{cameraHeight}" width="{cameraWidth}"
 	title="{contact.name}" xmlns:component="com.treegger.component.*"
 	creationComplete="creationCompleteHandler()"
+	backgroundColor="0x000000"
 >
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
@@ -172,15 +173,18 @@
 					outgoingStream.attachCamera(camera);
 				}
 			}
+			
+			private var microphone:Microphone;
 			private function bindMicrophone():void
 			{
-				var microphone:Microphone = getMicrophone();
+				microphone = getMicrophone();
 				if( microphone )
 				{
 					microphone.codec = SoundCodec.SPEEX;
 					microphone.framesPerPacket = 1;
 					microphone.soundTransform = new SoundTransform(1);
 					microphone.setSilenceLevel(0);
+					microphone.gain = gainSlider.value;
 					if( buttonList.selectedItem == "High" )
 					{
 						microphone.encodeQuality = 9;
@@ -286,30 +290,41 @@
 	</fx:Script>
 	
 	<s:Group width="100%" height="100%">
-		<mx:VideoDisplay id="remoteVideoDisplay" height="100%" width="100%" maintainAspectRatio="true" resize="remoteVideo.width=remoteVideoDisplay.width; remoteVideo.height=remoteVideoDisplay.height"/>
-		<mx:VideoDisplay id="localVideoDisplay" height="25%" width="25%" maintainAspectRatio="true" right="0" bottom="0"/>		
-			
+		<mx:VideoDisplay id="remoteVideoDisplay" height="100%" width="{remoteVideoDisplay.height*4/3}" horizontalCenter="0" 
+						 resize="remoteVideo.width=remoteVideoDisplay.width; remoteVideo.height=remoteVideoDisplay.height"/>
+		<mx:VideoDisplay id="localVideoDisplay" height="25%" width="25%" right="0" bottom="0"/>		
+		
 		<component:AlphaButton id="fullscreenButton" data="Fullscreen" top="1" click="toggleFullscreen()"/>
 		
-		<s:List id="buttonList"
-				allowMultipleSelection="false"
-				dragEnabled="false"
-				dragMoveEnabled="false"
-				dropEnabled="false"
-				borderVisible="true"
-				contentBackgroundAlpha="0"
-				itemRenderer="com.treegger.component.AlphaButton"
-				right="0"
-				selectedItem="Normal"
-				change="qualityChangeHandler()"
-				>
-			<s:layout>
-				<s:HorizontalLayout  horizontalAlign="left" gap="1" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
-			</s:layout>
-			<s:dataProvider>
-				<s:ArrayCollection source="[ 'Low', 'Normal', 'High' ]" />
-			</s:dataProvider>
-		</s:List>
+		<s:VGroup right="0" top="0" horizontalAlign="right">
+			<s:List id="buttonList"
+					allowMultipleSelection="false"
+					dragEnabled="false"
+					dragMoveEnabled="false"
+					dropEnabled="false"
+					borderVisible="true"
+					contentBackgroundAlpha="0"
+					itemRenderer="com.treegger.component.AlphaButton"
+					
+					selectedItem="Normal"
+					change="qualityChangeHandler()"
+					>
+				<s:layout>
+					<s:HorizontalLayout  horizontalAlign="left" gap="1" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
+				</s:layout>
+				<s:dataProvider>
+					<s:ArrayCollection source="[ 'Low', 'Normal', 'High' ]" />
+				</s:dataProvider>
+			</s:List>
+	
+			<s:HGroup gap="2" verticalAlign="middle" paddingRight="5">
+				<s:Label text="Mic" color="0xffffff" alpha=".5" fontSize="10"/>
+				<s:HSlider id="gainSlider" alpha=".5" minimum="0" maximum="100" value="50" stepSize="5" snapInterval="5" liveDragging="true" showDataTip="false"
+						   lineHeight="1" lineThrough="false" maxWidth="50"
+						   change="if( microphone ) microphone.gain = gainSlider.value"/>
+			</s:HGroup>
+
+		</s:VGroup>
 			
 	</s:Group>
 </s:Window>
