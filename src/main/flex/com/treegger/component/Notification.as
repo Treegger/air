@@ -4,6 +4,7 @@ package com.treegger.component
 	import flash.display.NativeWindowInitOptions;
 	import flash.display.NativeWindowSystemChrome;
 	import flash.display.NativeWindowType;
+	import flash.display.Screen;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
@@ -32,10 +33,10 @@ package com.treegger.component
 		private var duration:uint;
 
 
-		public function Notification( message:String, duration:uint=3)
+		public function Notification( message:String, subMessage:String = null, duration:uint=3 )
 		{
 			this.duration = duration;
-			
+
 			var result: NativeWindowInitOptions = new NativeWindowInitOptions();
 			result.maximizable = false;
 			result.minimizable = false;
@@ -46,32 +47,55 @@ package com.treegger.component
 			super(result);
 			
 			
-			super.visible = false;
-			title = "AirIM Notification";
-			
 			
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			
+			var padding:int = 10;
+			const textLine:TextLine = getTextLine( message, 14, padding );
+			textLine.x = padding; 
+			textLine.y = textLine.height + padding;
 
+			if( subMessage )
+			{
+				const subTextLine:TextLine = getTextLine( subMessage, 11, padding );
+				
+				subTextLine.x = padding; 
+				subTextLine.y = textLine.height + subTextLine.height + padding*2;
+
+				width = Math.max( textLine.textWidth + padding*2, subTextLine.textWidth + padding*2 );
+				height = textLine.textHeight + subTextLine.textHeight + padding*4;
+				getSprite().addChild(subTextLine);
+					
+			}
+			else
+			{
+				width = textLine.textWidth + padding*2;
+				height = textLine.textHeight + padding*2;
+			}
+			getSprite().addChild(textLine);
+			
+			
+
+			var screen:Screen = Screen.mainScreen;
+			bounds = new Rectangle(screen.visibleBounds.width - width - 2, screen.visibleBounds.y + 2, width, height );
+			alwaysInFront = true;
+			visible = true;
+			
+		}
+
+		private function getTextLine( str:String, fontSize:int, padding:int ):TextLine
+		{
 			var fontDesc:FontDescription = new FontDescription("Arial", "normal"); 
-			var elementFormat:ElementFormat = new ElementFormat(fontDesc, 14, 0xFFFFFF); 
-			var textElement:TextElement = new TextElement( message, elementFormat ); 
+			var elementFormat:ElementFormat = new ElementFormat(fontDesc, fontSize, 0xFFFFFF); 
+			var textElement:TextElement = new TextElement( str, elementFormat ); 
 			var textBlock:TextBlock = new TextBlock(textElement); 
 			var textLine:TextLine = textBlock.createTextLine(); 
 			
-			var padding:uint = 10;
-			textLine.x = padding; 
-			textLine.y = textLine.height + padding;
-			
 			var shadow:DropShadowFilter = new DropShadowFilter(3, 45, 0, .75); 
 			textLine.filters = [shadow.clone()];
-
 			
-			width = textLine.textWidth + padding*2;
-			height = textLine.textHeight + padding*2;
-			getSprite().addChild(textLine);
-			
+			return textLine;
 		}
 		
 		protected function getSprite(): Sprite

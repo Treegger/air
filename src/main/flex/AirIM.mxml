@@ -21,8 +21,6 @@
 		import com.treegger.airim.controller.ChatController;
 		import com.treegger.airim.controller.PreferencesController;
 		import com.treegger.airim.view.PreferencesWindow;
-		import com.treegger.component.DockNotifier;
-		import com.treegger.component.Notification;
 		
 		
 		import mx.controls.Alert;
@@ -36,8 +34,6 @@
 		
 		private function creationCompleteHandler( event:Event ):void
 		{
-			notifyDockIcon();
-			
 
 			var preferencesController:PreferencesController = new PreferencesController();
 			if( !preferencesController.userAccount )
@@ -142,16 +138,6 @@
 			exit();
 		}
 		
-		private function notifyDockIcon():void
-		{
-			var screen:Screen = Screen.mainScreen;
-			
-			var notif:Notification = new Notification("None of your friend are online");
-			notif.bounds = new Rectangle(screen.visibleBounds.width - notif.width - 2, screen.visibleBounds.y + 2, notif.width, notif.height );
-			notif.alwaysInFront = true;
-			notif.visible = true;
-
-		}
 		
 		private function onUserIdle(e:Event):void 
 		{ 

@@ -15,6 +15,7 @@
 			import com.treegger.airim.controller.PreferencesController;
 			import com.treegger.airim.model.Contact;
 			import com.treegger.component.DockNotifier;
+			import com.treegger.component.Notification;
 			import com.treegger.protobuf.TextMessage;
 			
 			import mx.collections.ArrayCollection;
@@ -58,7 +59,34 @@
 					//chatWindow.selectedContact = event.targetContact;
 					chatWindow.openVideoWindow();
 				});
+				
+				
+				_chatController.addEventListener( ChatEvent.ROSTER, function( event:ChatEvent ):void
+				{
+					const timer:Timer = new Timer( 5*1000, 1 );
+					timer.addEventListener(TimerEvent.TIMER, function( event:Event ):void
+					{
+						const onlineContacts:int = _chatController.contacts.length;
+						if( onlineContacts == 0 )
+						{
+							new Notification("None of your friend are online", "Maybe you should tell them about AirIM..." );
+						}
+						else if( onlineContacts > 1 )
+						{
+							new Notification("You have "+ onlineContacts+ " friend online");
+						}
+						else if( onlineContacts > 1 )
+						{
+							new Notification("You have "+ onlineContacts+ " friends online");
+						}
+					});
+					timer.start();
+				});
+				
+
 			}
+			
+			
 			public function get chatController():ChatController
 			{
 				return _chatController;	
