@@ -10,7 +10,7 @@
 	</fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import com.treegger.airim.controller.Contact;
+			import com.treegger.airim.model.Contact;
 			
 			import mx.collections.ArrayList;
 			

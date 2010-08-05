@@ -22,7 +22,7 @@
 		<![CDATA[
 			import com.treegger.airim.PrivateProperties;
 			import com.treegger.airim.controller.ChatController;
-			import com.treegger.airim.controller.Contact;
+			import com.treegger.airim.model.Contact;
 			import com.treegger.component.AlphaButton;
 			
 			import flash.media.Camera;

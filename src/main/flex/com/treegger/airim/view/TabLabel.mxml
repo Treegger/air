@@ -9,7 +9,7 @@
 
 	<fx:Script>
 		<![CDATA[
-			import com.treegger.airim.controller.Contact;
+			import com.treegger.airim.model.Contact;
 			[Bindable]
 			private var contact:Contact;
 			

@@ -1,5 +1,8 @@
 package com.treegger.airim.controller
 {
+	import com.treegger.airim.model.ChatContent;
+	import com.treegger.airim.model.Contact;
+	import com.treegger.airim.model.UserAccount;
 	import com.treegger.protobuf.AuthenticateRequest;
 	import com.treegger.protobuf.Ping;
 	import com.treegger.protobuf.Presence;
@@ -7,7 +10,6 @@ package com.treegger.airim.controller
 	import com.treegger.protobuf.RosterItem;
 	import com.treegger.protobuf.TextMessage;
 	import com.treegger.protobuf.WebSocketMessage;
-	import com.treegger.util.preferences.UserAccount;
 	import com.treegger.websocket.WSConnector;
 	
 	import flash.events.DataEvent;
@@ -17,6 +19,8 @@ package com.treegger.airim.controller
 	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
+	import mx.events.CollectionEvent;
+	import mx.events.CollectionEventKind;
 
 	public class ChatController extends EventDispatcher
 	{
@@ -40,6 +44,42 @@ package com.treegger.airim.controller
 			wsConnector.connect( "wss", "xmpp.treegger.com", 443, "/tg-1.0" );
 			
 		}
+		
+		[Bindable(event=ChatEvent.UNREAD_CONTENTS_CHANGE)]
+		public function get unreadContents():uint
+		{
+			var unread:uint = 0;
+			for each( var contact:Contact in contacts )
+			{
+				unread += contact.unreadContents;
+			}
+			return unread;
+		}
+		private function contactsChangeHandler( event:CollectionEvent ):void
+		{
+			var contact:Contact;
+			if( event.kind == CollectionEventKind.ADD )
+			{
+				for each( contact in event.items )
+				{
+					contact.addEventListener( 'hasUnreadContentChanged', hasUnreadContentChangedHandler );
+				}
+			}
+			else if( event.kind == CollectionEventKind.REMOVE )
+			{
+				for each( contact in event.items )
+				{
+					contact.removeEventListener( 'hasUnreadContentChanged', hasUnreadContentChangedHandler );
+				}
+				
+			}
+		}
+		
+		private function hasUnreadContentChangedHandler( event:Event ):void
+		{
+			dispatchEvent( new ChatEvent( ChatEvent.UNREAD_CONTENTS_CHANGE ) );
+		}
+		
 		
 		public function close():void
 		{
@@ -82,6 +122,7 @@ package com.treegger.airim.controller
 				if( roster )
 				{
 					contacts = new ArrayCollection();
+					contacts.addEventListener(CollectionEvent.COLLECTION_CHANGE, contactsChangeHandler );
 				}
 				dispatchEvent( new ChatEvent( ChatEvent.ROSTER ) );
 			}
@@ -137,7 +178,11 @@ package com.treegger.airim.controller
 					}
 					else
 					{
-						targetContact.textMessages.addItem( textMessage );
+						const chatContent:ChatContent = new ChatContent();
+						chatContent.time = new Date();
+						chatContent.from = targetContact.name;
+						chatContent.message = textMessage.body;
+						targetContact.chatContents.addItem( chatContent );
 						
 						chatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE );
 						chatEvent.targetContact = targetContact;					

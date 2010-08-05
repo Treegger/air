@@ -12,7 +12,7 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import com.treegger.airim.controller.Contact;
+			import com.treegger.airim.model.Contact;
 			import com.treegger.protobuf.RosterItem;
 			
 			import mx.events.DynamicEvent;

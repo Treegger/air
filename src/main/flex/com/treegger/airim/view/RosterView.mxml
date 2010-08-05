@@ -12,8 +12,9 @@
 		<![CDATA[
 			import com.treegger.airim.controller.ChatController;
 			import com.treegger.airim.controller.ChatEvent;
-			import com.treegger.airim.controller.Contact;
 			import com.treegger.airim.controller.PreferencesController;
+			import com.treegger.airim.model.Contact;
+			import com.treegger.component.DockNotifier;
 			import com.treegger.protobuf.TextMessage;
 			
 			import mx.collections.ArrayCollection;
@@ -26,23 +27,35 @@
 			[Inject]
 			public var preferenceController:PreferencesController;
 
+			[Inject]
+			public var dockNotifier:DockNotifier;
+
 			private var _chatController:ChatController;
+			
 			[Inject][Bindable]
 			public function set chatController( value:ChatController ):void
 			{
 				_chatController = value;
-				
+
+				_chatController.addEventListener( ChatEvent.UNREAD_CONTENTS_CHANGE, function( event:ChatEvent ):void
+				{
+					
+					callLater( dockNotify );
+				});
+					
 				_chatController.addEventListener( ChatEvent.TEXTMESSAGE, function( event:ChatEvent ):void
 				{
 					const chatWindow:ChatWindow = openChatWindowForContact( event.targetContact );
-					chatWindow.selectedContact = event.targetContact;
-					if( chatWindow.currentChatPannel )
-						chatWindow.currentChatPannel.displayPendingTextMessage();
+					
+					if( chatWindow.selectedContact == event.targetContact )
+					{
+						chatWindow.selectedContact.setAllContentRead();
+					}
 				});
 				_chatController.addEventListener( ChatEvent.STRATUSVIDEO, function( event:ChatEvent ):void
 				{
 					const chatWindow:ChatWindow = openChatWindowForContact( event.targetContact );
-					chatWindow.selectedContact = event.targetContact;
+					//chatWindow.selectedContact = event.targetContact;
 					chatWindow.openVideoWindow();
 				});
 			}
@@ -51,6 +64,11 @@
 				return _chatController;	
 			}
 			
+			
+			private function dockNotify():void
+			{
+				dockNotifier.notify( _chatController.unreadContents, NotificationType.INFORMATIONAL )
+			}
 			
 			[PostConstruct]
 			public function authenticate():void

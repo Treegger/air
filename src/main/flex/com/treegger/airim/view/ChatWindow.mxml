@@ -19,13 +19,16 @@
 		 creationComplete="creationComplete()"
 		 title="{selectedContact.name}"
 		 
+		 closing="closingHandler( event )"
+		 keyDown="keyDownHanler( event )"
+		 keyUp="keyUpHanler( event )"
 		 activate="if( currentChatPannel ) currentChatPannel.textInput.setFocus()"
 		 >
 	
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.controller.ChatController;
-			import com.treegger.airim.controller.Contact;
+			import com.treegger.airim.model.Contact;
 			import com.treegger.component.TabEvent;
 			
 			import mx.collections.ArrayCollection;
@@ -40,14 +43,18 @@
 
 			[Bindable]
 			private var activeChatContacts:ArrayCollection = new ArrayCollection();
+			
 			[Bindable]
 			private var selectedActiveChatContactIndex:int;
 			
+			
 			public function addChatContact( contact:Contact ):void
 			{
-				if( !activeChatContacts.contains( contact ) ) activeChatContacts.addItem( contact );
-				
-				selectedContact = contact;
+				if( !activeChatContacts.contains( contact ) )
+				{
+					activeChatContacts.addItem( contact );
+					selectedContact = contact;
+				}
 			}
 			
 			private const videoWindows:Object = {};
@@ -67,6 +74,44 @@
 				}
 				return videoWindow;
 			}
+		
+			private function closingHandler( event:Event ):void
+			{
+				if( ctrlKeyPressed && activeChatContacts.length > 1 )
+				{
+					tabCloseForContact( selectedContact );
+					event.stopImmediatePropagation();
+					event.preventDefault();
+				}
+			}
+
+			private var ctrlKeyPressed:Boolean = false;
+			private function keyUpHanler( event:KeyboardEvent ):void
+			{
+				ctrlKeyPressed = false;
+			}
+			private function keyDownHanler( event:KeyboardEvent ):void
+			{
+				if( event.ctrlKey )
+				{
+					ctrlKeyPressed = true;
+					if( event.keyCode == 37 || event.keyCode == 39 ) 
+					{
+						const i:int = activeChatContacts.getItemIndex( selectedContact );
+						if( event.keyCode == 37 ) // arrow left 
+						{
+							selectedContact = activeChatContacts.getItemAt( ( i+1 )% activeChatContacts.length ) as Contact;
+						} 					
+						if( event.keyCode == 39 ) // arrow right 
+						{
+							selectedContact = activeChatContacts.getItemAt( ( i+activeChatContacts.length-1 )% activeChatContacts.length ) as Contact;						
+						}
+						event.stopImmediatePropagation();
+						event.preventDefault();
+					}
+					
+				}
+			}
 			
 			private function closeVideoWindowHandler( event:Event ):void
 			{
@@ -77,8 +122,12 @@
 		
 			private function tabCloseHandler( event:TabEvent ):void
 			{
-				trace( "Tab Close for contact " +( event.data as Contact ).name );
-				const index:int = activeChatContacts.getItemIndex( event.data as Contact );
+				tabCloseForContact( event.data as Contact );
+			}
+			private function tabCloseForContact( contact:Contact ):void
+			{
+				trace( "Tab Close for contact " +contact.name );
+				const index:int = activeChatContacts.getItemIndex( contact );
 				activeChatContacts.removeItemAt( index );
 				if( activeChatContacts.length == 0 )
 				{
@@ -107,6 +156,8 @@
 			public function set selectedContact( contact:Contact ):void
 			{
 				_selectedContact = contact;
+				_selectedContact.setAllContentRead();
+
 				selectedActiveChatContactIndex = activeChatContacts.getItemIndex( contact );
 				
 				if( this.initialized )

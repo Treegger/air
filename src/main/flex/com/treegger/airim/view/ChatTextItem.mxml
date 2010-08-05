@@ -23,6 +23,9 @@
 			private static var textSelection:String;
 			private static var highlightedComponent:ChatTextItem;
 
+			[Bindable]
+			public var date:Date;
+			
 			public function set text(value:String):void
 			{
 				value = value.replace( /(http[s]?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}(\/[^ ]*)*/g,  
@@ -132,7 +135,7 @@
 						selectionChange="selectionChangeHandler( event )"
 						/>		
 
-	<s:Label right="5" top="4" bottom="2" text="{df.format(new Date())}" color="{backgroundColor}" fontSize="11"/>
+	<s:Label right="5" top="4" bottom="2" text="{df.format( date )}" color="{backgroundColor}" fontSize="11"/>
 	
 	
 </s:Group>

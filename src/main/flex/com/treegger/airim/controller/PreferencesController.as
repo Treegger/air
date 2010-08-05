@@ -1,7 +1,7 @@
 package com.treegger.airim.controller
 {
 	import com.treegger.util.FileSerializer;
-	import com.treegger.util.preferences.UserAccount;
+	import com.treegger.airim.model.UserAccount;
 
 	public class PreferencesController
 	{

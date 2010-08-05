@@ -1,4 +1,4 @@
-package com.treegger.util.preferences
+package com.treegger.airim.model
 {
 	
 	[RemoteClass]

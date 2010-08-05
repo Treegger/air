@@ -6,25 +6,59 @@
 		width="100%"
 		height="100%" 
 		creationComplete="creationComplete()"
-		show="if( initialized ) textInput.setFocus()"
+		show="showHandler()"
 		 >
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.controller.ChatController;
-			import com.treegger.airim.controller.Contact;
+			import com.treegger.airim.model.ChatContent;
+			import com.treegger.airim.model.Contact;
 			import com.treegger.protobuf.TextMessage;
 			
-			import spark.components.Label;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
 			
-			public var contact:Contact;
+			import spark.components.Label;
 			
 			[Inject]
 			public var chatController:ChatController;
 			
+			private var _contact:Contact;
+			public function set contact(value:Contact):void
+			{
+				_contact = value;
+				
+				_contact.chatContents.addEventListener(CollectionEvent.COLLECTION_CHANGE, function(event:CollectionEvent):void
+				{
+					if( event.kind == CollectionEventKind.ADD )
+					{
+						for each( var chatContent:ChatContent in event.items )
+						{
+							pushContent( chatContent );
+						}
+					}
+				});
+			}
+			public function get contact():Contact
+			{
+				return _contact;
+			}
+			
+			
+			
+			private function showHandler():void
+			{
+				if( initialized ) textInput.setFocus();
+			}
+			
+			
 			private function creationComplete():void
 			{
-				displayPendingTextMessage();
 				textInput.setFocus();
+				for each( var chatContent:ChatContent in _contact.chatContents )
+				{
+					pushContent( chatContent );
+				}
 			}
 			
 			private var lastChatItem:ChatItem;
@@ -39,20 +73,16 @@
 				return s.replace( /&lt;/g, "<"  ).replace( /&gt;/g, ">" ).replace( /&apos;/g, "'" ).replace( /&quot;/g, "\""  ).replace( /&amp;/g, "&"  );
 			}
 			
-			private function pushText( fromSelf:Boolean, text:String ):void
+			private function pushContent( chatContent:ChatContent ):void
 			{
-				var title:String = "You";
-				if( !fromSelf ) title = contact.name;
-
-				
-				if( lastChatItem == null || lastChatItem.title != title )
+				if( lastChatItem == null || lastChatItem.title != chatContent.from )
 				{
 						lastChatItem = new ChatItem();
-						lastChatItem.title = title;
+						lastChatItem.title = chatContent.from;
 						lastChatItem.titleColor = 0xffffff;
 						lastChatItem.color = 0x000000;
 						
-						if( fromSelf )
+						if( chatContent.from == contact.name )
 						{
 							lastChatItem.backgroundColor = 0xaa8a8a;
 						}
@@ -68,7 +98,7 @@
 				}
 				
 				
-				lastChatItem.addText( text );
+				lastChatItem.addText( chatContent.message, chatContent.time );
 				
 			}
 			
@@ -77,23 +107,17 @@
 				if( textInput.text )
 				{
 					const text:String = textInput.text;
-					pushText( true, text );
 					chatController.sendTextMessage( contact.jid, toXML( text ) , null );
-					
+					const chatContent:ChatContent = new ChatContent();
+					chatContent.from = "You";
+					chatContent.message = text;
+					chatContent.read = true;
+					chatContent.time = new Date();
+					contact.chatContents.addItem( chatContent );
 					textInput.text = "";
 				}
 			}
-			public function displayPendingTextMessage():void
-			{
-				if( initialized )
-				{
-					for each( var textMessage:TextMessage in contact.textMessages )
-					{
-						if( textMessage.body ) pushText( false, textMessage.body );
-					}
-					contact.textMessages.removeAll();
-				}
-			}
+			
 			
 			
 			private function dragEnterHandler(e:NativeDragEvent):void 
@@ -127,10 +151,11 @@
 			</s:stroke>
 		</s:Rect>
 
+
 		<s:Scroller id="scroller" height="100%" width="100%">
-				<s:VGroup id="areaInput"  paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
-					<mx:Spacer height="100%"/>
-				</s:VGroup>
+			<s:VGroup id="areaInput"  paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+				<mx:Spacer height="100%"/>
+			</s:VGroup>
 		</s:Scroller>
 	</s:Group>
 	
@@ -138,6 +163,7 @@
 	<s:TextInput id="textInput" width="100%" enter="enterHandler( event )"
 				 nativeDragEnter="dragEnterHandler(event)" 
 				 nativeDragDrop="dropHandler(event)"
+				 focusIn="textInput.selectRange( textInput.text.length, textInput.text.length)"
 				 
 				 />
 </s:VGroup>

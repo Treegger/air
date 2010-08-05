@@ -20,7 +20,7 @@
 			import com.treegger.airim.controller.PreferencesController;
 			import com.treegger.protobuf.AuthenticateResponse;
 			import com.treegger.util.FileSerializer;
-			import com.treegger.util.preferences.UserAccount;
+			import com.treegger.airim.model.UserAccount;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;

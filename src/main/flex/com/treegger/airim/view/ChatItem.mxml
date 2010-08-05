@@ -19,10 +19,11 @@
 			[Bindable]
 			public var title:String;
 
-			public function addText( text:String ):void
+			public function addText( text:String, date:Date ):void
 			{
 				const chatTextItem:ChatTextItem = new ChatTextItem();
 				chatTextItem.text = text;
+				chatTextItem.date = date;
 				chatTextItem.backgroundColor = backgroundColor;
 				textGroup.addElement( chatTextItem );
 			}
