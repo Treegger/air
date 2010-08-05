@@ -60,6 +60,12 @@
 				{
 					pushContent( chatContent );
 				}
+				
+				if( _dropText )
+				{
+					textInput.text += _dropText;
+					_dropText = null;
+				}
 			}
 			
 			private var lastChatItem:ChatItem;
@@ -85,11 +91,11 @@
 						
 						if( chatContent.from == contact.name )
 						{
-							lastChatItem.backgroundColor = 0xaa8a8a;
+							lastChatItem.backgroundColor = 0xFF7B00;
 						}
 						else
 						{
-							lastChatItem.backgroundColor = 0x8a8aaa;
+							lastChatItem.backgroundColor = 0x8E91B7;
 						}
 						
 						lastChatItem.percentWidth = 100;
@@ -120,6 +126,12 @@
 			}
 			
 			
+			private var _dropText:String;
+			public function dropText( text:String ):void
+			{
+				if( initialized ) textInput.text += text;
+				else _dropText = text;
+			}
 			
 			private function dragEnterHandler(e:NativeDragEvent):void 
 			{
@@ -131,7 +143,7 @@
 			private function dropHandler(e:NativeDragEvent):void 
 			{
 				trace( "Drop " + e );
-				textInput.text += e.clipboard.getData(ClipboardFormats.TEXT_FORMAT) as String;
+				dropText( e.clipboard.getData(ClipboardFormats.TEXT_FORMAT) as String );
 			}
 
 		]]>

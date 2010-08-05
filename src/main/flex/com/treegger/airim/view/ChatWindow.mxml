@@ -162,7 +162,7 @@
 
 				selectedActiveChatContactIndex = activeChatContacts.getItemIndex( contact );
 				
-				if( this.initialized )
+				if( initialized )
 				{
 					currentChatPannel = chatPanels[contact.jid] as ChatPanel;
 					if( currentChatPannel == null )
@@ -173,6 +173,13 @@
 						chatPanels[contact.jid] = currentChatPannel;
 					}
 					if( currentChatPannel.initialized ) currentChatPannel.textInput.setFocus()
+					
+					if( _dropText )
+					{
+						currentChatPannel.dropText( _dropText );
+						_dropText = null;
+					}
+					
 					chatPanelStack.removeAllElements();
 					chatPanelStack.addElement( currentChatPannel );
 				}
@@ -181,6 +188,16 @@
 			public function get selectedContact():Contact 
 			{ 
 				return _selectedContact; 
+			}
+			
+			private var _dropText:String;
+			public function dropText( text:String ):void
+			{
+				if( initialized )
+				{
+					currentChatPannel.dropText( text );
+				}
+				else _dropText = text;
 			}
 			
 			private function creationComplete():void

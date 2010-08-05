@@ -7,7 +7,9 @@
 	autoDrawBackground="false" 
 	doubleClickEnabled="true"
 	doubleClick="doubleClickHandler()" 
-	
+	nativeDragEnter="dragEnterHandler(event)"
+	nativeDragExit="dragExitHandler(event)"
+	nativeDragDrop="dropHandler(event)"
 >
 	
 	<fx:Script>
@@ -24,6 +26,28 @@
 				event.contact = data;
 				dispatchEvent( event ); 
 			}
+			
+			private function dragEnterHandler(e:NativeDragEvent):void 
+			{
+				if (e.clipboard.hasFormat(ClipboardFormats.TEXT_FORMAT)) {
+					NativeDragManager.acceptDragDrop(this);
+					currentState = "dragHovered";
+				}
+			}
+			private function dragExitHandler(e:NativeDragEvent ):void
+			{
+				if( currentState == "dragHovered" ) currentState = "normal";
+			}
+			
+			private function dropHandler(e:NativeDragEvent):void 
+			{
+				trace( "Drop " + e );
+				const event:DynamicEvent = new DynamicEvent( "dropText", true );
+				event.contact = data;
+				event.text = e.clipboard.getData(ClipboardFormats.TEXT_FORMAT) as String;
+				dispatchEvent( event ); 
+			}
+
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -32,22 +56,23 @@
 	<s:states>
 		<s:State name="normal" />
 		<s:State name="hovered" />
+		<s:State name="dragHovered" />
 	</s:states>
 	
 	<s:Group>
 		<s:Rect  top="0" bottom="0" radiusX="8" radiusY="8"  width="100%">
 			<s:fill>
-				<s:SolidColor color="0xffffff" alpha="1" alpha.hovered="0.9"/>
+				<s:SolidColor color="0xffffff" color.dragHovered="0x6677C1" alpha="1" alpha.hovered="0.9" alpha.dragHovered="0.8"/>
 			</s:fill>
 			<s:stroke>
-				<s:SolidColorStroke color="0x000000" alpha=".3" alpha.hovered="0.1" weight="1"/>
+				<s:SolidColorStroke color="0x000000" color.dragHovered="0x0B2DC1" alpha=".3" alpha.hovered="0.1" alpha.dragHovered=".8" weight="1" weight.dragHovered="3"/>
 			</s:stroke>
 		</s:Rect>
 
 		<component:StatusBullet left="5" top="3" width="10" height="10" color="{( data as Contact ).statusColor}" closable="false"/>
 			
 		
-		<s:Label text="{(data as Contact).name}" top="3" bottom="1" left="19" right="5"/>
+		<s:Label text="{(data as Contact).name}" top="3" bottom="1" left="19" right="5" color.dragHovered="0xffffff"/>
 		
 	</s:Group>
 </s:ItemRenderer> 

@@ -116,6 +116,11 @@
 					openChatWindowForContact( event.contact );	
 					event.stopPropagation();
 				});
+				rosterList.addEventListener( "dropText", function( event:DynamicEvent ):void
+				{
+					openChatWindowForContact( event.contact ).dropText( event.text );					
+					event.stopPropagation();
+				});
 				
 			}
 
