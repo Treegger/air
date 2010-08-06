@@ -28,18 +28,21 @@
 			
 			public function set text(value:String):void
 			{
-				value = value.replace( /(http[s]?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}(\/[^ ]*)*/g,  
-				function( subStr:String, match1:String, match2:String, match3:String, match4:String, index:int, fullString:String ):String
+				if( value )
 				{
-					if( match1 )
+					value = value.replace( /(http[s]?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}(\/[^ ]*)*/g,  
+					function( subStr:String, match1:String, match2:String, match3:String, match4:String, index:int, fullString:String ):String
 					{
-						return "<a href='"+subStr+"'>"+subStr+"</a>"
-					}
-					else
-						return "<a href='http://"+subStr+"'>"+subStr+"</a>"	
-				});
-				
-				richText.textFlow = TextFlowUtil.importFromString(value);
+						if( match1 )
+						{
+							return "<a href='"+subStr+"'>"+subStr+"</a>"
+						}
+						else
+							return "<a href='http://"+subStr+"'>"+subStr+"</a>"	
+					});
+					
+					richText.textFlow = TextFlowUtil.importFromString(value);
+				}
 			}
 			
 			private function selectionChangeHandler( event:Event ):void

@@ -21,11 +21,14 @@
 
 			public function addText( text:String, date:Date ):void
 			{
-				const chatTextItem:ChatTextItem = new ChatTextItem();
-				chatTextItem.text = text;
-				chatTextItem.date = date;
-				chatTextItem.backgroundColor = backgroundColor;
-				textGroup.addElement( chatTextItem );
+				if( text )
+				{
+					const chatTextItem:ChatTextItem = new ChatTextItem();
+					chatTextItem.text = text;
+					chatTextItem.date = date;
+					chatTextItem.backgroundColor = backgroundColor;
+					textGroup.addElement( chatTextItem );
+				}
 			}
 		]]>
 	</fx:Script>

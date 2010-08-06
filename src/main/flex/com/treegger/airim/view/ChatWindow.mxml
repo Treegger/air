@@ -79,7 +79,7 @@
 		
 			private function closingHandler( event:Event ):void
 			{
-				if( ctrlKeyPressed && activeChatContacts.length > 1 )
+				if( !chatController.exitState && ctrlKeyPressed && activeChatContacts.length > 1 )
 				{
 					tabCloseForContact( selectedContact );
 					event.stopImmediatePropagation();
@@ -148,6 +148,13 @@
 				selectedContact = event.data as Contact;
 			}
 			
+			
+			private function tabDropTextHandler( event:TabEvent ):void
+			{
+				selectedContact = event.data as Contact;
+				currentChatPannel.dropText( event.dropText );
+			}
+			
 			private const chatPanels:Object = {};
 			
 			[Bindable]
@@ -200,6 +207,7 @@
 				else _dropText = text;
 			}
 			
+			
 			private function creationComplete():void
 			{
 				if( _selectedContact )
@@ -226,7 +234,9 @@
 						  dataProvider="{activeChatContacts}"
 						  selectedIndex="{selectedActiveChatContactIndex}"
 						  tabClose="tabCloseHandler( event )"
-						  tabClick="tabClickHandler( event )"/>
+						  tabClick="tabClickHandler( event )"
+						  tabDropText="tabDropTextHandler( event )"
+						  />
 	</s:VGroup>
 	
 </s:Window>

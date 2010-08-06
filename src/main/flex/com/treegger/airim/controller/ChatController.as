@@ -27,13 +27,14 @@ package com.treegger.airim.controller
 		
 		private var wsConnector:WSConnector; 
 
-		
+
 		
 		private var roster:Roster;
 		
 		[Bindable]
 		public var contacts:ArrayCollection;
 		
+		public var exitState:Boolean = false;
 
 		
 		public function ChatController()
@@ -86,6 +87,7 @@ package com.treegger.airim.controller
 			pingTimer.stop();
 			wsConnector.close();
 			authenticated = false;
+			exitState = true;
 		}
 		
 		private var pingTimer:Timer;

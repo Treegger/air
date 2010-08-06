@@ -7,6 +7,7 @@
 	<fx:Metadata>
 		[Event(name="tabClose", type="com.treegger.component.TabEvent")]		
 		[Event(name="tabClick", type="com.treegger.component.TabEvent")]		
+		[Event(name="tabDropText", type="com.treegger.component.TabEvent")]		
 	</fx:Metadata>
 	<fx:Script>
 		<![CDATA[
@@ -24,6 +25,11 @@
 				tabList.addEventListener( "itemClick", function( event:TabEvent ):void
 				{
 					dispatchEvent( new TabEvent( "tabClick", false, event.data ) );
+					event.stopPropagation();
+				});
+				tabList.addEventListener( "tabDropText", function( event:TabEvent ):void
+				{
+					dispatchEvent( new TabEvent( "tabDropText", false, event.data, event.dropText ) );
 					event.stopPropagation();
 				});
 			}

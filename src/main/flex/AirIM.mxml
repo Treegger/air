@@ -122,6 +122,7 @@
 		
 		private function teardown( event:Event = null ):void
 		{
+			trace( "Teardown" );
 			swizBean.chatController.sendPresence( "unavailable" );
 			swizBean.chatController.close();			
 		}

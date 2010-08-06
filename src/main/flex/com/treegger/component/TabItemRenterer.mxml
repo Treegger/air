@@ -6,12 +6,28 @@
 				autoDrawBackground="false"
 				height="24" 
 				
+				nativeDragEnter="dragEnterHandler(event)"
+				nativeDragDrop="dropHandler(event)"
+
 				>
 	
 	
 	<fx:Script>
 		<![CDATA[
+			import mx.events.DynamicEvent;
 			import mx.events.ItemClickEvent;
+			
+			private function dragEnterHandler(e:NativeDragEvent):void 
+			{
+				if (e.clipboard.hasFormat(ClipboardFormats.TEXT_FORMAT)) {
+					NativeDragManager.acceptDragDrop(this);
+				}
+			}
+			private function dropHandler(e:NativeDragEvent):void 
+			{
+				dispatchEvent( new TabEvent("tabDropText", true, data, e.clipboard.getData(ClipboardFormats.TEXT_FORMAT) as String ) );
+			}
+
 			
 			private function tabCloseHandler():void
 			{
