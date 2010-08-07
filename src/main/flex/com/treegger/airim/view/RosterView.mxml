@@ -71,7 +71,7 @@
 						{
 							new Notification("None of your friend are online", "Maybe you should tell them about AirIM..." );
 						}
-						else if( onlineContacts > 1 )
+						else if( onlineContacts == 1 )
 						{
 							new Notification("You have "+ onlineContacts+ " friend online");
 						}
