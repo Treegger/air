@@ -18,7 +18,8 @@
 		 height="400"
 		 
 		 
-		 creationComplete="creationComplete()"
+		 creationComplete="creationCompleteHandler()"
+		 windowActivate="windowActivateHandler()"
 		 title="{selectedContact.name}"
 		 
 		 closing="closingHandler( event )"
@@ -30,7 +31,9 @@
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.controller.ChatController;
+			import com.treegger.airim.controller.PreferencesController;
 			import com.treegger.airim.model.Contact;
+			import com.treegger.airim.model.UserPreference;
 			import com.treegger.component.TabEvent;
 			
 			import mx.collections.ArrayCollection;
@@ -43,6 +46,10 @@
 			[Inject][Bindable]
 			public var chatController:ChatController;
 
+			[Inject]
+			public var preferencesController:PreferencesController;
+			
+			
 			[Bindable]
 			private var activeChatContacts:ArrayCollection = new ArrayCollection();
 			
@@ -90,7 +97,17 @@
 					{
 						event.stopImmediatePropagation();
 						event.preventDefault();
-					}					
+					}
+				}
+				
+				if( nativeWindow.active && activeChatContacts.length == 0)
+				{
+					const pref:UserPreference = preferencesController.userPreference;
+					pref.chatWindowX = nativeWindow.x;
+					pref.chatWindowY = nativeWindow.y;
+					pref.chatWindowHeight = nativeWindow.height;
+					pref.chatWindowWidth = nativeWindow.width;
+					preferencesController.userPreference = pref;
 				}
 			}
 
@@ -224,8 +241,19 @@
 				else _dropText = text;
 			}
 			
+			private function windowActivateHandler():void
+			{
+				if( preferencesController.hasUserPreference() )
+				{
+					const pref:UserPreference = preferencesController.userPreference;
+					if( pref.chatWindowX > 0 ) nativeWindow.x = pref.chatWindowX;
+					if( pref.chatWindowY > 0 ) nativeWindow.y = pref.chatWindowY;
+					if( pref.chatWindowHeight > 0 ) nativeWindow.height = pref.chatWindowHeight;
+					if( pref.chatWindowWidth > 0 ) nativeWindow.width = pref.chatWindowWidth;
+				}
+			}				
 			
-			private function creationComplete():void
+			private function creationCompleteHandler():void
 			{
 				if( _selectedContact )
 				{

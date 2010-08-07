@@ -74,6 +74,7 @@ package com.treegger.websocket
 		
 		public function close():void
 		{
+			socket.flush();
 			socket.close();
 		}
 			

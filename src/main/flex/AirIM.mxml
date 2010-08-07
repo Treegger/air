@@ -6,7 +6,8 @@
 	xmlns:view="com.treegger.airim.view.*"
 	xmlns:local="*"
 	
-	creationComplete="creationCompleteHandler(event)" 
+	creationComplete="creationCompleteHandler()" 
+	windowActivate="windowActivateHandler()"
 	backgroundAlpha="0"
 	showStatusBar="false"
 	useNativeDragManager="true"  
@@ -20,26 +21,38 @@
 		
 		import com.treegger.airim.controller.ChatController;
 		import com.treegger.airim.controller.PreferencesController;
+		import com.treegger.airim.model.UserPreference;
 		import com.treegger.airim.view.PreferencesWindow;
-		
 		
 		import mx.controls.Alert;
 		
 		import org.swizframework.core.SwizManager;
 		
+		import spark.components.Application;
 		import spark.filters.DropShadowFilter;
 		
 		private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
 	
-		
-		private function creationCompleteHandler( event:Event ):void
+		private function windowActivateHandler():void
 		{
-
-			var preferencesController:PreferencesController = new PreferencesController();
+			var preferencesController:PreferencesController = swizBean.preferencesController;
 			if( !preferencesController.userAccount )
 			{
 				openPreferencesWindow();
 			}
+			
+			if( preferencesController.hasUserPreference() )
+			{
+				const pref:UserPreference = preferencesController.userPreference;
+				if( pref.applicationX > 0 ) nativeWindow.x =  pref.applicationX;
+				if( pref.applicationY > 0 ) nativeWindow.y =  pref.applicationY;
+			}
+		}
+		
+		
+		private function creationCompleteHandler():void
+		{
+
 						
 			
 			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
@@ -79,6 +92,7 @@
 			//checkForUpdate();
 		}
 
+		
 		private function createMenu():void
 		{
 			var airIMmenu:NativeMenu = new NativeMenu();
@@ -124,7 +138,15 @@
 		{
 			trace( "Teardown" );
 			swizBean.chatController.sendPresence( "unavailable" );
-			swizBean.chatController.close();			
+			swizBean.chatController.close();
+			
+			if( nativeWindow.active )
+			{
+				var pref:UserPreference = swizBean.preferencesController.userPreference;
+				pref.applicationX = nativeWindow.x;
+				pref.applicationY = nativeWindow.y;
+			}	
+			swizBean.preferencesController.userPreference = pref;
 		}
 		
 		private function quitApplicationHandler( event:Event = null ):void
