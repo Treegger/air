@@ -86,7 +86,7 @@
 				
 				if( !chatController.exitState && ctrlKeyPressed )
 				{
-					if( activeChatContacts.length > 1 )
+					if( activeChatContacts.length > 0 )
 					{
 						event.stopImmediatePropagation();
 						event.preventDefault();
