@@ -173,28 +173,55 @@ package com.treegger.airim.controller
 				const targetContact:Contact = findContactByJID( textMessage.fromUser );
 				if( targetContact )
 				{
+					trace( "=====> " + textMessage);
 					var chatEvent:ChatEvent;
 					if( textMessage.type == "stratus" )
 					{
 						targetContact.stratusId = textMessage.thread;
 
 						chatEvent = new ChatEvent( ChatEvent.STRATUSVIDEO );
-						chatEvent.targetContact = targetContact;					
-						dispatchEvent( chatEvent );
 
+					}
+					else if( textMessage.hasComposing && textMessage.composing )
+					{
+						targetContact.composing = true;
+						chatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE_COMPOSING );
+					}
+					else if( textMessage.hasGone && textMessage.gone )
+					{
+						targetContact.composing = false;
+						chatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE_GONE );
+					}
+					else if( textMessage.hasInactive && textMessage.inactive )
+					{
+						targetContact.composing = false;
+						chatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE_INACTIVE );
+					}
+					else if( textMessage.hasPaused && textMessage.paused )
+					{
+						targetContact.composing = false;
+						chatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE_PAUSED );
 					}
 					else
 					{
-						const chatContent:ChatContent = new ChatContent();
-						chatContent.time = new Date();
-						chatContent.from = targetContact.name;
-						chatContent.message = textMessage.body;
-						targetContact.chatContents.addItem( chatContent );
-						
-						chatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE );
-						chatEvent.targetContact = targetContact;					
-						dispatchEvent( chatEvent );
+						targetContact.composing = false;
+						if( textMessage.hasBody )
+						{
+							const chatContent:ChatContent = new ChatContent();
+							chatContent.time = new Date();
+							chatContent.from = targetContact.name;
+							chatContent.message = textMessage.body;
+							targetContact.chatContents.addItem( chatContent );
+							chatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE );
+						}
+						else
+						{
+							chatEvent = new ChatEvent( ChatEvent.TEXTMESSAGE_ACTIVE );		
+						}
 					}
+					
+					chatEvent.targetContact = targetContact;					
+					dispatchEvent( chatEvent );
 				}
 			}
 		}
@@ -278,7 +305,7 @@ package com.treegger.airim.controller
 				textMessage.body = body;
 				textMessage.type = type;
 				textMessage.thread = thread;
-				
+				textMessage.active = true;
 				
 				const wsMessage:WebSocketMessage = new WebSocketMessage();
 				wsMessage.textMessage = textMessage;
@@ -286,6 +313,22 @@ package com.treegger.airim.controller
 				send( wsMessage );
 			}
 			
+		}
+		public function sendStateNotificationMessage( to:String, composing:Boolean, paused:Boolean, active:Boolean, gone:Boolean ):void
+		{
+			const textMessage:TextMessage = new TextMessage();
+			textMessage.fromUser = currentJID;
+			textMessage.toUser = to;
+			textMessage.type = 'chat';
+
+			textMessage.composing = composing;
+			textMessage.active = active;
+			textMessage.paused = paused;
+			textMessage.gone = gone;
+
+			const wsMessage:WebSocketMessage = new WebSocketMessage();
+			wsMessage.textMessage = textMessage;
+			send( wsMessage );
 		}
 		
 		public function sendPresence(  type:String=null, show:String=null, status:String=null ):void
@@ -297,7 +340,6 @@ package com.treegger.airim.controller
 				presence.type = type;
 				presence.show = show;
 				presence.status = status;
-				
 				
 				
 				const wsMessage:WebSocketMessage = new WebSocketMessage();
@@ -330,9 +372,12 @@ package com.treegger.airim.controller
 		
 		private function send( wsMessage:WebSocketMessage ):void
 		{
-			const buffer:ByteArray = new ByteArray()
-			wsMessage.writeExternal( buffer );
-			wsConnector.send( buffer );
+			if( ! exitState )
+			{
+				const buffer:ByteArray = new ByteArray()
+				wsMessage.writeExternal( buffer );
+				wsConnector.send( buffer );
+			}
 		}
 	}
 }

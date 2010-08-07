@@ -7,7 +7,6 @@
 		height="100%"
 		creationComplete="creationComplete()"
 		show="showHandler()"
-		
 		 >
 	<fx:Script>
 		<![CDATA[
@@ -55,6 +54,9 @@
 			
 			private function creationComplete():void
 			{
+				composingTimer = new Timer( 5*1000 );
+				composingTimer.addEventListener(TimerEvent.TIMER_COMPLETE, pauseCompose );
+
 				textInput.setFocus();
 				for each( var chatContent:ChatContent in _contact.chatContents )
 				{
@@ -125,6 +127,8 @@
 					contact.chatContents.addItem( chatContent );
 					textInput.text = "";
 				}
+				composing = false;
+				composingTimer.reset();
 			}
 			
 			
@@ -147,7 +151,53 @@
 				trace( "Drop " + e );
 				dropText( e.clipboard.getData(ClipboardFormats.TEXT_FORMAT) as String );
 			}
+			
+			private var composing:Boolean;
+			private var composingTimer:Timer;
+			private function compose( event:KeyboardEvent ):void
+			{
+				if( !event.ctrlKey && !event.altKey )
+				{
+					if( textInput.text )
+					{
+						if( !composing && event.keyCode != 13 )
+						{
+							trace( "Composing...." );
+							composing = true;
+							chatController.sendStateNotificationMessage( contact.jidWithoutRessource, true, false, false, false );
+						}
+						if( composingTimer )
+						{
+							trace( "ResetTimer" );
+							composingTimer.reset();
+							composingTimer.repeatCount = 1;
+							composingTimer.start();
+						}
+					}
+					else
+					{
+						trace( "Stoped Composing" );
+						composing = false;
+						//composing:Boolean, paused:Boolean, active:Boolean, gone:Boolean 
+						chatController.sendStateNotificationMessage( contact.jidWithoutRessource, false, false, true, false );
+					}
+				}
+			}
 
+			private function pauseCompose(event:Event):void 
+			{ 
+				trace( "Paused" );
+				composing = false;
+				//composing:Boolean, paused:Boolean, active:Boolean, gone:Boolean 
+				chatController.sendStateNotificationMessage( contact.jidWithoutRessource, false, true, false, false );
+			} 
+			public function leaveConversation():void
+			{
+				trace( "Leave" );
+				composing = false;
+				chatController.sendStateNotificationMessage( contact.jidWithoutRessource, false, false, false, true );				
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -175,7 +225,9 @@
 	</s:Group>
 	
 	
-	<s:TextInput id="textInput" width="100%" enter="enterHandler( event )"
+	<s:TextInput id="textInput" width="100%" 
+				 keyDown="compose( event )"
+				 enter="enterHandler( event )"
 				 nativeDragEnter="dragEnterHandler(event)" 
 				 nativeDragDrop="dropHandler(event)"
 				 focusIn="textInput.selectRange( textInput.text.length, textInput.text.length)"

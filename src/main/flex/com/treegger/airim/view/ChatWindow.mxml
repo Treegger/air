@@ -79,11 +79,18 @@
 		
 			private function closingHandler( event:Event ):void
 			{
-				if( !chatController.exitState && ctrlKeyPressed && activeChatContacts.length > 1 )
+				if( activeChatContacts.length > 0 )
 				{
-					tabCloseForContact( selectedContact );
-					event.stopImmediatePropagation();
-					event.preventDefault();
+					tabCloseForContact( selectedContact );					
+				}
+				
+				if( !chatController.exitState && ctrlKeyPressed )
+				{
+					if( activeChatContacts.length > 1 )
+					{
+						event.stopImmediatePropagation();
+						event.preventDefault();
+					}					
 				}
 			}
 
@@ -129,6 +136,8 @@
 			private function tabCloseForContact( contact:Contact ):void
 			{
 				trace( "Tab Close for contact " +contact.name );
+				getChatPanel( contact ).leaveConversation();
+
 				const index:int = activeChatContacts.getItemIndex( contact );
 				activeChatContacts.removeItemAt( index );
 				if( activeChatContacts.length == 0 )
@@ -156,6 +165,14 @@
 			}
 			
 			private const chatPanels:Object = {};
+			private function getChatPanel( contact:Contact ):ChatPanel
+			{
+				return chatPanels[contact.jidWithoutRessource] as ChatPanel
+			}
+			private function setChatPanel( contact:Contact, chatPanel:ChatPanel ):void
+			{
+				chatPanels[contact.jidWithoutRessource] = currentChatPannel;
+			}
 			
 			[Bindable]
 			public var currentChatPannel:ChatPanel;
@@ -171,13 +188,13 @@
 				
 				if( initialized )
 				{
-					currentChatPannel = chatPanels[contact.jidWithoutRessource] as ChatPanel;
+					currentChatPannel = getChatPanel( contact );
 					if( currentChatPannel == null )
 					{
 						currentChatPannel = new ChatPanel();
 						SwizManager.setUp( currentChatPannel );
 						currentChatPannel.contact = contact;
-						chatPanels[contact.jidWithoutRessource] = currentChatPannel;
+						setChatPanel( contact, currentChatPannel );
 					}
 					if( currentChatPannel.initialized ) currentChatPannel.textInput.setFocus()
 					

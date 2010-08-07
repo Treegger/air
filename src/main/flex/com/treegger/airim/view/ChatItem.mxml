@@ -59,7 +59,7 @@
 				</s:fill>
 			</s:Rect>
 	
-			<s:Label text="{title}" left="5" verticalCenter="1" fontWeight="bold" color="{titleColor}"/> 
+			<s:Label text="{title}" left="5" verticalCenter="1" fontWeight="bold" fontSize="11" color="{titleColor}"/> 
 		</s:Group>
 		
 		<s:Group height="100%" width="100%" bottom="2">

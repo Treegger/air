@@ -12,7 +12,9 @@ package com.treegger.airim.model
 		
 		public var jidWithoutRessource:String;
 		
+		
 		public var type:String;
+		
 		public var _status:String;
 		public function set status( value:String ):void
 		{
@@ -41,6 +43,7 @@ package com.treegger.airim.model
 		public var stratusId:String;
 				
 		public var chatContents:ArrayCollection;
+		
 
 		
 		public function Contact()
@@ -87,6 +90,17 @@ package com.treegger.airim.model
 			}
 			return unread;
 		}
+
+		private var _composing:Boolean = false;
+		public function set composing( value:Boolean ):void
+		{
+			_composing = value;
+			dispatchEvent( new Event( 'statusColorChanged' ) );
+		}
+		public function get composing():Boolean
+		{
+			return _composing;
+		}
 		
 		[Bindable(event='hasUnreadContentChanged')]
 		public function get hasUnreadContent():Boolean
@@ -101,7 +115,8 @@ package com.treegger.airim.model
 		[Bindable(event='statusColorChanged')]
 		public function get statusColor():uint
 		{
-			if( hasUnreadContent ) return 0x0000ff;
+			if( composing ) return 0xff00ff;
+			else if( hasUnreadContent ) return 0x0000ff;
 			else if( available ) return 0x00aa00;
 			else if( away ) return 0xFF8000;
 			else if( dnd ) return 0xff0000;
