@@ -91,10 +91,12 @@
 						
 						if( chatContent.from == contact.name )
 						{
+							lastChatItem.photoURL = contact.photoURL;
 							lastChatItem.backgroundColor = 0xFF7B00;
 						}
 						else
 						{
+							lastChatItem.photoURL = chatController.currentContact.photoURL;
 							lastChatItem.backgroundColor = 0x8E91B7;
 						}
 						
@@ -114,9 +116,9 @@
 				if( textInput.text )
 				{
 					const text:String = textInput.text;
-					chatController.sendTextMessage( contact.jid, toXML( text ) , null );
+					chatController.sendTextMessage( contact.jidWithoutRessource, toXML( text ) , null );
 					const chatContent:ChatContent = new ChatContent();
-					chatContent.from = "You";
+					chatContent.from = chatController.currentContact.name;
 					chatContent.message = text;
 					chatContent.read = true;
 					chatContent.time = new Date();

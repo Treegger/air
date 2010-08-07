@@ -9,6 +9,7 @@ package com.treegger.airim.controller
 	import com.treegger.protobuf.Roster;
 	import com.treegger.protobuf.RosterItem;
 	import com.treegger.protobuf.TextMessage;
+	import com.treegger.protobuf.VCardResponse;
 	import com.treegger.protobuf.WebSocketMessage;
 	import com.treegger.websocket.WSConnector;
 	
@@ -42,8 +43,8 @@ package com.treegger.airim.controller
 			wsConnector = new WSConnector();
 			wsConnector.onHandshake = onHandshake;
 			wsConnector.onMessage = onMessage;
+			//wsConnector.connect( "wss", "xmpp.treegger.com", 443, "/tg-1.0" );
 			wsConnector.connect( "wss", "xmpp.treegger.com", 443, "/tg-1.0" );
-			
 		}
 		
 		[Bindable(event=ChatEvent.UNREAD_CONTENTS_CHANGE)]
@@ -146,7 +147,7 @@ package com.treegger.airim.controller
 						if( item )
 						{
 							contact = new Contact();
-							contact.jid = jidWithoutResource( item.jid );
+							contact.jidWithoutRessource = jidWithoutResource( item.jid );
 							contact.name = item.name;
 						}
 					}
@@ -160,6 +161,10 @@ package com.treegger.airim.controller
 					}
 					if( !foundContact ) contacts.addItem( contact );
 				}
+			}
+			else if( message.hasVcardResponse )
+			{
+				setVCard( message.vcardResponse );
 			}
 			else if( message.hasTextMessage )
 			{
@@ -193,6 +198,23 @@ package com.treegger.airim.controller
 				}
 			}
 		}
+		
+		private function setVCard( vcard:VCardResponse ):void
+		{
+			for each( var contact:Contact in contacts )
+			{
+				if( contact.jidWithoutRessource == vcard.fromUser )
+				{
+					contact.name = vcard.fn;
+					contact.photoURL = vcard.photoExternal;
+				}
+			}
+			if( currentContact.jidWithoutRessource == vcard.fromUser )
+			{
+				currentContact.name = vcard.fn;
+				currentContact.photoURL = vcard.photoExternal;
+			}
+		}
 
 		private function findRosterItemByJID( jid:String ):RosterItem
 		{
@@ -210,7 +232,7 @@ package com.treegger.airim.controller
 		{
 			for each( var contact:Contact in contacts )
 			{
-				if( contact.jid == jidWithoutResource( jid ) )
+				if( contact.jidWithoutRessource == jidWithoutResource( jid ) )
 				{
 					return contact;
 				}
@@ -225,7 +247,10 @@ package com.treegger.airim.controller
 			return jid;
 		}
 		
-		private var currentUser:String;
+		private var currentJID:String;
+		
+		[Bindable]
+		public var currentContact:Contact;
 			
 		private var _autheticated:Boolean = false;
 		public function get authenticated():Boolean
@@ -237,7 +262,8 @@ package com.treegger.airim.controller
 			_autheticated = value;
 			if( !value )
 			{
-				currentUser = null;
+				currentJID = null;
+				currentContact = null;
 			}
 			
 		}
@@ -247,7 +273,7 @@ package com.treegger.airim.controller
 			if( authenticated )
 			{
 				const textMessage:TextMessage = new TextMessage();
-				textMessage.fromUser = currentUser;
+				textMessage.fromUser = currentJID;
 				textMessage.toUser = to;
 				textMessage.body = body;
 				textMessage.type = type;
@@ -267,7 +293,7 @@ package com.treegger.airim.controller
 			if( authenticated )
 			{
 				const presence:Presence = new Presence();
-				presence.from = currentUser;
+				presence.from = currentJID;
 				presence.type = type;
 				presence.show = show;
 				presence.status = status;
@@ -286,10 +312,14 @@ package com.treegger.airim.controller
 		{
 			const authReq:AuthenticateRequest = new AuthenticateRequest();
 			
-			currentUser = userAccount.username+'@'+userAccount.socialNetwork.toLocaleLowerCase();
-			authReq.username = currentUser;
+			authReq.username = userAccount.username+'@'+userAccount.socialNetwork.toLocaleLowerCase();
 			authReq.password = userAccount.password;
 			authReq.resource = 'AirIM';
+			currentJID = authReq.username+"/" +authReq.resource;
+			
+			currentContact = new Contact();
+			currentContact.name = userAccount.username;  
+			currentContact.jidWithoutRessource = authReq.username;  
 			
 			const wsMessage:WebSocketMessage = new WebSocketMessage();
 			wsMessage.authenticateRequest = authReq;

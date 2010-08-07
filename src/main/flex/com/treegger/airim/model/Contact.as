@@ -10,7 +10,7 @@ package com.treegger.airim.model
 	{
 		public var name:String;
 		
-		public var jid:String;
+		public var jidWithoutRessource:String;
 		
 		public var type:String;
 		public var _status:String;
@@ -35,6 +35,8 @@ package com.treegger.airim.model
 		{
 			return _show;
 		}
+		
+		public var photoURL:String;
 		
 		public var stratusId:String;
 				

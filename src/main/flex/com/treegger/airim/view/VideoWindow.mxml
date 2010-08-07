@@ -101,7 +101,7 @@
 			{
 				connected = true;
 				trace("Connected, my ID: " + netConnection.nearID + "\n");
-				chatController.sendTextMessage( contact.jid, null, "stratus", netConnection.nearID );
+				chatController.sendTextMessage( contact.jidWithoutRessource, null, "stratus", netConnection.nearID );
 				handshake( contact.stratusId );
 			}
 			

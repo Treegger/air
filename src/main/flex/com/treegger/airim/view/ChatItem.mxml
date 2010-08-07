@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx"
-		 gap="0"
-		 addedEffect="{fadeIn}"
-		 alpha="0.1"
-		 >
 
+<s:HGroup
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	 addedEffect="{fadeIn}"
+	 alpha="0.1"
+>
 	<fx:Script>
 		<![CDATA[
 			import mx.controls.Spacer;
@@ -19,6 +19,12 @@
 			[Bindable]
 			public var title:String;
 
+
+			public function set photoURL(value:String):void
+			{
+				if( value ) image.source = value;
+			}
+			
 			public function addText( text:String, date:Date ):void
 			{
 				if( text )
@@ -36,31 +42,36 @@
 	<fx:Declarations>
 		<s:Fade id="fadeIn" target="{this}" alphaFrom="0.1" alphaTo="1" duration="200" />
 	</fx:Declarations>
-		
-	<s:Group width="100%">
-		<s:Rect height="10" width="100%" radiusX="5" radiusY="5">
-			<s:fill>
-				<s:SolidColor color="{backgroundColor}" alpha="1"/>
-			</s:fill>
-		</s:Rect>
-		<s:Rect y="5" height="10" width="100%">
-			<s:fill>
-				<s:SolidColor color="{backgroundColor}" alpha="1" />
-			</s:fill>
-		</s:Rect>
-
-		<s:Label text="{title}" left="5" verticalCenter="1" fontWeight="bold" color="{titleColor}"/> 
-	</s:Group>
 	
-	<s:Group height="100%" width="100%" bottom="2">
-		<s:Rect height="100%" width="100%">
-			<s:fill>
-				<s:SolidColor color="{backgroundColor}" alpha=".3"/>
-			</s:fill>
-		</s:Rect>
-		
-		<s:VGroup id="textGroup" width="100%" gap="0" />
-		 
-	</s:Group>	
+	<mx:Image id="image" source="@Embed('icons/default-avatar-32x32.png')" width="32" height="32" horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
 	
-</s:VGroup>
+	<s:VGroup gap="0" width="100%">
+			
+		<s:Group width="100%">
+			<s:Rect height="10" width="100%" radiusX="5" radiusY="5">
+				<s:fill>
+					<s:SolidColor color="{backgroundColor}" alpha="1"/>
+				</s:fill>
+			</s:Rect>
+			<s:Rect y="5" height="10" width="100%">
+				<s:fill>
+					<s:SolidColor color="{backgroundColor}" alpha="1" />
+				</s:fill>
+			</s:Rect>
+	
+			<s:Label text="{title}" left="5" verticalCenter="1" fontWeight="bold" color="{titleColor}"/> 
+		</s:Group>
+		
+		<s:Group height="100%" width="100%" bottom="2">
+			<s:Rect height="100%" width="100%">
+				<s:fill>
+					<s:SolidColor color="{backgroundColor}" alpha=".3"/>
+				</s:fill>
+			</s:Rect>
+			
+			<s:VGroup id="textGroup" width="100%" gap="0" />
+			 
+		</s:Group>	
+		
+	</s:VGroup>
+</s:HGroup>

@@ -63,12 +63,12 @@
 
 			public function openVideoWindow():VideoWindow
 			{
-				var videoWindow:VideoWindow = videoWindows[selectedContact.jid]
+				var videoWindow:VideoWindow = videoWindows[selectedContact.jidWithoutRessource]
 				if( !videoWindow )
 				{
 					videoWindow = new VideoWindow();
 					videoWindow.contact = selectedContact;
-					videoWindows[selectedContact.jid] = videoWindow;
+					videoWindows[selectedContact.jidWithoutRessource] = videoWindow;
 					SwizManager.setUp( videoWindow );
 					videoWindow.open(true);
 					videoWindow.activate();
@@ -118,7 +118,7 @@
 			private function closeVideoWindowHandler( event:Event ):void
 			{
 				var target:VideoWindow = event.currentTarget as VideoWindow;
-				videoWindows[target.contact.jid] = null;
+				videoWindows[target.contact.jidWithoutRessource] = null;
 				target.removeEventListener(Event.CLOSE, closeVideoWindowHandler );
 			}
 		
@@ -171,13 +171,13 @@
 				
 				if( initialized )
 				{
-					currentChatPannel = chatPanels[contact.jid] as ChatPanel;
+					currentChatPannel = chatPanels[contact.jidWithoutRessource] as ChatPanel;
 					if( currentChatPannel == null )
 					{
 						currentChatPannel = new ChatPanel();
 						SwizManager.setUp( currentChatPannel );
 						currentChatPannel.contact = contact;
-						chatPanels[contact.jid] = currentChatPannel;
+						chatPanels[contact.jidWithoutRessource] = currentChatPannel;
 					}
 					if( currentChatPannel.initialized ) currentChatPannel.textInput.setFocus()
 					
