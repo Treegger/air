@@ -66,7 +66,7 @@
 				{
 					const chatWindow:ChatWindow = openChatWindowForContact( event.targetContact );
 					//chatWindow.selectedContact = event.targetContact;
-					chatWindow.openVideoWindow();
+					chatWindow.openVideoWindow().requestVideo();
 				});
 				
 				

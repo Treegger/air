@@ -9,7 +9,7 @@
 	resizable="true"
 	type="normal"
 	showStatusBar="false"
-	close="hangup()"
+	close="closeHandler()"
 	height="{cameraHeight}" width="{cameraWidth}"
 	title="{contact.name}" xmlns:component="com.treegger.component.*"
 	creationComplete="creationCompleteHandler()"
@@ -25,124 +25,120 @@
 			import com.treegger.airim.controller.ChatController;
 			import com.treegger.airim.model.Contact;
 			import com.treegger.component.AlphaButton;
+			import com.treegger.component.IOStream;
+			import com.treegger.component.StratusConnector;
 			
 			import flash.media.Camera;
 			import flash.net.sendToURL;
 			
 			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			
-			private var connectUrl:String = "rtmfp://stratus.rtmfp.net";
-			private const developerKey:String = PrivateProperties.STRATUS_DEVELOPER_KEY;
+
 			
 			[Inject]
 			public var chatController:ChatController;
+			
 			
 			private const cameraWidth:int=320;
 			private const cameraHeight:int=240;
 			
 			
 			
-			// this is the connection to rtmfp server
-			private var netConnection:NetConnection;
-			// outgoing media stream (audio, video, text and some control messages)
-			private var outgoingStream:NetStream;
-			// incoming media stream (audio, video, text and some control messages)
-			private var incomingStream:NetStream;
 			
 			private var remoteVideo:Video = new Video();
 
 			[Bindable]
 			public var contact:Contact;
 			
-			private var connected:Boolean = false;
+			private var acceptIncomingVideo:Boolean = false;
+			
+			
+			private var netConnection:NetConnection;
+			private var ioStream:IOStream;
 			
 			private function creationCompleteHandler():void
 			{
-				connect();
-				BindingUtils.bindSetter( handshake, contact, "stratusId", false, true );
-				
-			}
-			
-			private function connect():void
-			{
-				trace( "Connecting" );
-				if(  !netConnection  )
-				{
-					netConnection = new NetConnection();
-					netConnection.addEventListener( NetStatusEvent.NET_STATUS, netConnectionHandler);
-					
-					try
-					{
-						netConnection.connect( connectUrl + "/" + developerKey );
-					}
-					catch (e:ArgumentError)
-					{
-						trace( e );
-						return;
-					}
-				}
-			}
-			private function netConnectionHandler(event:NetStatusEvent):void
-			{
-				trace("NetConnection event: " + event.info.code + "\n");
-				
-				switch (event.info.code)
-				{
-					case "NetConnection.Connect.Success":
-						connectSuccess();
-						break;
-					
-					case "NetStream.Connect.Closed":
-						hangup();
-						break;
-				}
-			}
-			private function connectSuccess():void
-			{
-				connected = true;
-				trace("Connected, my ID: " + netConnection.nearID + "\n");
-				chatController.sendTextMessage( contact.jidWithoutRessource, null, "stratus", netConnection.nearID );
-				handshake( contact.stratusId );
-			}
-			
 
-			private var previousStratusId:String;
+				
+			}
+
+			private function stratusConnect():void
+			{
+				var stratusConnector:StratusConnector = new StratusConnector();
+				stratusConnector.addEventListener( StratusConnector.CONNECTION_SUCCESS, function(event:Event):void
+				{
+					netConnection = stratusConnector.netConnection;
+					chatController.sendTextMessage( contact.jidWithoutRessource, null, "stratus", netConnection.nearID );
+					if( contact.stratusId ) handshake( contact.stratusId );
+				});
+				stratusConnector.addEventListener( StratusConnector.CONNECTION_CLOSE, function(event:Event):void
+				{
+					netConnection = null;
+					acceptIncomingVideo = false;
+					if( !closed ) close();
+				});				
+				stratusConnector.connect();
+			}
+			
+			public function startVideo():void
+			{
+				acceptIncomingVideo = true;
+				stratusConnect();
+			}
+			public function requestVideo():void
+			{
+				if( acceptIncomingVideo )
+				{
+					handshake( contact.stratusId );
+				}
+				else
+				{
+					Alert.show( "Video request from "+contact.name, "Accept remote call?", Alert.YES|Alert.NO, this, videoClickHandler );
+				}
+			}
+			
+			private function videoClickHandler( event:CloseEvent ):void
+			{
+				if( event.detail == Alert.YES )
+				{
+					acceptIncomingVideo = true;
+					stratusConnect();
+				}
+				else 
+				{
+					close();
+				}
+			}
+			
 			private function handshake( stratusId:String ):void
 			{
-				trace( "Handshake " + stratusId );
-				
-				if( previousStratusId != stratusId  )
+				trace( "Handshake remoteId " + stratusId + " net " + netConnection  );
+				if( netConnection && stratusId )
 				{
-					if( connected && stratusId )
-					{
-						previousStratusId = stratusId;
-						trace( "Handshaking " + stratusId );		
-						incomingStream = new NetStream(netConnection, stratusId );
-						incomingStream.addEventListener(NetStatusEvent.NET_STATUS, incomingStreamHandler);
-						incomingStream.play("media-caller");
-		
-						// caller publishes media stream
-						outgoingStream = new NetStream(netConnection, NetStream.DIRECT_CONNECTIONS);
-						outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, outgoingStreamHandler );
-						outgoingStream.publish("media-caller");
-		
-						// set volume for incoming stream
-						var st:SoundTransform = new SoundTransform(1);
-						incomingStream.soundTransform = st;
-						
-						//incomingStream.receiveAudio(false);
-						//incomingStream.receiveVideo(false);
-						
-						remoteVideo.smoothing = true;
-						remoteVideo.attachNetStream(incomingStream);
-						remoteVideoDisplay.addChild(remoteVideo);
-		
-						bindCamera();
-						bindMicrophone();
-					}
+					ioStream = new IOStream();
+					ioStream.connect( netConnection, stratusId, "videoStream" );
+					
+					var st:SoundTransform = new SoundTransform(1);
+					ioStream.input.soundTransform = st;
+					
+					remoteVideo.smoothing = true;
+					remoteVideo.attachNetStream( ioStream.input );
+					remoteVideoDisplay.addChild( remoteVideo );
+					
+					
+					bindCamera();
+					bindMicrophone();
 				}
 			}
 
+			private function closeHandler():void
+			{
+				
+			}
+			
+			
 			
 			private function bindCamera():void
 			{
@@ -167,11 +163,7 @@
 					localVideoDisplay.attachCamera(camera);
 				}
 				
-				//outgoingStream.attachAudio(mic);
-				if( outgoingStream )
-				{
-					outgoingStream.attachCamera(camera);
-				}
+				if( ioStream.output ) ioStream.output.attachCamera(camera);
 			}
 			
 			private var microphone:Microphone;
@@ -199,55 +191,9 @@
 					}
 				}
 				
-				//outgoingStream.attachAudio(mic);
-				if( outgoingStream )
-				{
-					outgoingStream.attachAudio(microphone);
-				}
+				if( ioStream.output ) ioStream.output.attachAudio(microphone);
 			}
 			
-			private function hangup():void
-			{
-				trace("Hanging up call");
-
-				
-				if (incomingStream)
-				{
-					incomingStream.close();
-					incomingStream.removeEventListener(NetStatusEvent.NET_STATUS, incomingStreamHandler);
-				}
-				
-				if (outgoingStream)
-				{
-					outgoingStream.close();
-					outgoingStream.removeEventListener(NetStatusEvent.NET_STATUS, outgoingStreamHandler);
-				}
-
-				incomingStream = null;
-				outgoingStream = null;
-				
-			}
-			
-			private function outgoingStreamHandler(event:NetStatusEvent):void
-			{
-				trace("Outgoing stream event: " + event.info.code + "\n");
-				switch (event.info.code)
-				{
-					case "NetStream.Play.Start":
-						break;
-				}
-			}
-			
-			private function incomingStreamHandler(event:NetStatusEvent):void
-			{
-				trace("Incoming stream event: " + event.info.code + "\n");
-				switch (event.info.code)
-				{
-					case "NetStream.Play.UnpublishNotify":
-						hangup();
-						break;
-				}
-			}
 			
 			private function getMicrophone():Microphone
 			{

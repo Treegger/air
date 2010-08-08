@@ -100,7 +100,7 @@
 					}
 				}
 				
-				if( nativeWindow.active && activeChatContacts.length == 0)
+				if( !nativeWindow.closed &&  activeChatContacts.length == 0 )
 				{
 					const pref:UserPreference = preferencesController.userPreference;
 					pref.chatWindowX = nativeWindow.x;
@@ -267,7 +267,7 @@
 		
 		<s:HGroup paddingTop="4" paddingBottom="4" paddingLeft="8" paddingRight="8" gap="8" horizontalAlign="right" width="100%">
 			<s:BitmapImage source="@Embed('icons/folder.png')" />
-			<s:Group click="openVideoWindow()">
+			<s:Group click="openVideoWindow().startVideo()">
 				<s:BitmapImage source="@Embed('icons/video.png')" />
 			</s:Group>
 		</s:HGroup>
