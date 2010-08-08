@@ -67,6 +67,7 @@
 					const chatWindow:ChatWindow = openChatWindowForContact( event.targetContact );
 					//chatWindow.selectedContact = event.targetContact;
 					chatWindow.openVideoWindow().requestVideo();
+					dockNotifier.bounce( NotificationType.CRITICAL );
 				});
 				
 				

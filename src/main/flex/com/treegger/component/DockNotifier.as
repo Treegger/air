@@ -42,7 +42,6 @@ package com.treegger.component
 					var appData:BitmapData = (new ApplicationLogo).bitmapData;  
 					bitmap.draw( appData );
 					
-					var dock:DockIcon = NativeApplication.nativeApplication.icon as DockIcon;
 	
 					if( unseenCount >  0 )
 					{
@@ -77,8 +76,7 @@ package com.treegger.component
 						
 						bitmap.draw( unreadCountSprite );
 						
-					
-						if( notificationType ) dock.bounce( notificationType );
+						bounce( notificationType );
 					}
 					
 					var appIcon:Bitmap = new Bitmap(bitmap); 
@@ -86,6 +84,12 @@ package com.treegger.component
 					InteractiveIcon(NativeApplication.nativeApplication.icon).bitmaps = [appIcon];
 				}				
 			}
+		}
+		
+		public function bounce( notificationType:String = null ):void
+		{
+			var dock:DockIcon = NativeApplication.nativeApplication.icon as DockIcon;
+			if( notificationType ) dock.bounce( notificationType );
 		}
 		
 	}
