@@ -33,19 +33,25 @@
 		
 		private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
 	
+		private var activated:Boolean = false;
+		
 		private function windowActivateHandler():void
 		{
-			var preferencesController:PreferencesController = swizBean.preferencesController;
-			if( !preferencesController.userAccount )
+			if( !activated )
 			{
-				openPreferencesWindow();
-			}
-			
-			if( preferencesController.hasUserPreference() )
-			{
-				const pref:UserPreference = preferencesController.userPreference;
-				if( pref.applicationX > 0 ) nativeWindow.x =  pref.applicationX;
-				if( pref.applicationY > 0 ) nativeWindow.y =  pref.applicationY;
+				activated = true;
+				var preferencesController:PreferencesController = swizBean.preferencesController;
+				if( !preferencesController.userAccount )
+				{
+					openPreferencesWindow();
+				}
+				
+				if( preferencesController.hasUserPreference() )
+				{
+					const pref:UserPreference = preferencesController.userPreference;
+					if( pref.applicationX > 0 ) nativeWindow.x =  pref.applicationX;
+					if( pref.applicationY > 0 ) nativeWindow.y =  pref.applicationY;
+				}
 			}
 		}
 		

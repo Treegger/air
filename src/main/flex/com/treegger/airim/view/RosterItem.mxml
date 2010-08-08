@@ -10,6 +10,9 @@
 	nativeDragEnter="dragEnterHandler(event)"
 	nativeDragExit="dragExitHandler(event)"
 	nativeDragDrop="dropHandler(event)"
+	
+	rollOver="rollOverHandler()"
+	rollOut="rollOutHandler()"
 >
 	
 	<fx:Script>
@@ -23,6 +26,19 @@
 			private function doubleClickHandler():void
 			{
 				const event:DynamicEvent = new DynamicEvent( "contactDoubleClick", true );
+				event.contact = data;
+				dispatchEvent( event ); 
+			}
+
+			private function rollOverHandler():void
+			{
+				const event:DynamicEvent = new DynamicEvent( "rollOverItem", true );
+				event.contact = data;
+				dispatchEvent( event ); 
+			}
+			private function rollOutHandler():void
+			{
+				const event:DynamicEvent = new DynamicEvent( "rollOutItem", true );
 				event.contact = data;
 				dispatchEvent( event ); 
 			}

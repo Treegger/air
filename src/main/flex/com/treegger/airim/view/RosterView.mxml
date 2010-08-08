@@ -4,6 +4,9 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 
 		 
+		 mouseMove="mouseMoveHandler()"
+		 mouseDown="rollOutItemHandler(event)"
+		 rightMouseDown="rollOutItemHandler(event)"
 		 creationComplete="creationCompleteHandler()"
 	 >
 	
@@ -18,11 +21,17 @@
 			import com.treegger.component.Notification;
 			import com.treegger.protobuf.TextMessage;
 			
+			import flash.sampler.NewObjectSample;
+			
 			import mx.collections.ArrayCollection;
+			import mx.core.mx_internal;
 			import mx.events.DynamicEvent;
 			
 			import org.swizframework.core.SwizManager;
 			import org.swizframework.events.ChainEvent;
+			
+			import spark.components.Application;
+			import spark.components.WindowedApplication;
 			
 
 			[Inject]
@@ -111,6 +120,10 @@
 			
 			private function creationCompleteHandler():void
 			{
+				infoTimer = new Timer( 1000, 1 );
+				infoTimer.addEventListener(TimerEvent.TIMER, infoWindowTimerHandler );
+
+				
 				rosterList.addEventListener( "contactDoubleClick", function( event:DynamicEvent ):void
 				{
 					openChatWindowForContact( event.contact );	
@@ -121,6 +134,9 @@
 					openChatWindowForContact( event.contact ).dropText( event.text );					
 					event.stopPropagation();
 				});
+				
+				rosterList.addEventListener( "rollOverItem", rollOverItemHandler );
+				rosterList.addEventListener( "rollOutItem", rollOutItemHandler );
 				
 			}
 
@@ -138,8 +154,77 @@
 				chatWindow.open( true );
 				chatWindow.activate();
 				return chatWindow;
-
 			}
+			
+			
+			private var infoWindow:InfoWindow;
+			private var infoTimer:Timer;
+			
+			private var rollOverContact:Contact;
+			private function rollOverItemHandler( event:DynamicEvent ):void
+			{
+				rollOverContact = event.contact;
+				if( !infoTimer.running )
+				{
+					if( !infoWindow )
+					{
+						infoTimer.reset();
+						infoTimer.repeatCount = 1;
+						infoTimer.start();
+					}
+					else
+					{
+						infoWindow.contact = rollOverContact;
+						infoWindow.open( true );
+						infoWindow.activate();
+						infoWindow.showWindow();
+						setInfoWindowPostion();
+					}
+				}
+				
+			}
+			
+			private function infoWindowTimerHandler(e:Event):void
+			{
+				infoWindow = new InfoWindow();
+				SwizManager.setUp( infoWindow );
+				infoWindow.addEventListener(Event.CLOSE, function( ce:Event ):void
+				{
+					infoWindow = null;
+				});
+				
+				infoWindow.open( true );
+				infoWindow.activate();
+				infoWindow.contact = rollOverContact;
+				setInfoWindowPostion();
+				infoWindow.showWindow();
+				infoWindow.orderToFront();
+			}
+			
+			private function mouseMoveHandler( ):void
+			{
+				if( infoWindow && infoWindow.initialized && !infoWindow.closed )
+				{
+					setInfoWindowPostion();
+				}
+			}
+			
+			private function setInfoWindowPostion():void
+			{
+				var p:Point = stage.nativeWindow.globalToScreen( new Point( mouseX, mouseY ) );
+				infoWindow.nativeX = p.x + 10;
+				infoWindow.nativeY = p.y;
+			}
+			
+			private function rollOutItemHandler( event:Event ):void
+			{
+				if( infoWindow && !infoWindow.closed )
+				{
+					infoWindow.hideWindow();
+				}
+				if( infoTimer.running ) infoTimer.stop();
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -148,7 +233,7 @@
 	
 	<s:List id="rosterList" width="100%" borderVisible="false" 
 			contentBackgroundAlpha="0"
-			rollOver="event.preventDefault(); event.stopPropagation()" 
+			rollOver="event.preventDefault();event.stopPropagation();"
 			itemRenderer="com.treegger.airim.view.RosterItem"
 			dataProvider="{chatController.contacts}"
 			>

@@ -9,6 +9,7 @@ package com.treegger.airim.model
 	public class Contact extends EventDispatcher
 	{
 		public var name:String;
+		public var nickname:String;
 		
 		public var jidWithoutRessource:String;
 		

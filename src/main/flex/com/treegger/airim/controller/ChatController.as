@@ -233,6 +233,7 @@ package com.treegger.airim.controller
 				if( contact.jidWithoutRessource == vcard.fromUser )
 				{
 					contact.name = vcard.fn;
+					contact.nickname = vcard.nickname;
 					contact.photoURL = vcard.photoExternal;
 				}
 			}
