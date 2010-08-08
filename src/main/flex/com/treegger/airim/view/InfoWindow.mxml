@@ -94,12 +94,12 @@
 		</s:Rect>
 
 		<s:HGroup gap="10" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
-			<mx:Image id="image" source="@Embed('icons/default-avatar-32x32.png')" width="32" height="32" 
+			<mx:Image id="image" source="@Embed('icons/default-avatar-32x32.png')" width="48" height="48" 
 					  horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
 
-			<s:VGroup gap="2">
-				<s:Label id="nameLabel" fontSize="12" fontWeight="bold"/>
-				<s:Label id="nicknameLabel" fontSize="11"/>			
+			<s:VGroup gap="5" horizontalAlign="center">
+				<s:Label id="nameLabel" fontSize="14" fontWeight="bold"/>
+				<s:Label id="nicknameLabel" fontSize="12"/>			
 			</s:VGroup>
 		</s:HGroup>
 		
