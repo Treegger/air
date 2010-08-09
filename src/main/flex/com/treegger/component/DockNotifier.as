@@ -22,7 +22,7 @@ package com.treegger.component
 		
 		[Embed(source="icons/logo-128x128.png")]
 		[Bindable]
-		private var ApplicationLogo:Class;     
+		private var ApplicationLogo128:Class;     
 		
 		private var previousCount:uint = 0;
 		
@@ -38,9 +38,7 @@ package com.treegger.component
 				{
 					previousCount = unseenCount;
 					var bitmap:BitmapData = new BitmapData(128, 128, true, 0x00000000);  
-					// The Dynamic128IconClass referenced below is embedded. 
-					var appData:BitmapData = (new ApplicationLogo).bitmapData;  
-					bitmap.draw( appData );
+					bitmap.draw( (new ApplicationLogo128).bitmapData );
 					
 	
 					if( unseenCount >  0 )
@@ -88,8 +86,11 @@ package com.treegger.component
 		
 		public function bounce( notificationType:String = null ):void
 		{
-			var dock:DockIcon = NativeApplication.nativeApplication.icon as DockIcon;
-			if( notificationType ) dock.bounce( notificationType );
+			if( NativeApplication.supportsDockIcon )
+			{
+				var dock:DockIcon = NativeApplication.nativeApplication.icon as DockIcon;
+				if( notificationType ) dock.bounce( notificationType );
+			}
 		}
 		
 	}

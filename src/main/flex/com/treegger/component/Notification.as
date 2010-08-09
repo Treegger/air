@@ -1,5 +1,7 @@
 package com.treegger.component
 {
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 	import flash.display.NativeWindow;
 	import flash.display.NativeWindowInitOptions;
 	import flash.display.NativeWindowSystemChrome;
@@ -31,6 +33,9 @@ package com.treegger.component
 		private var alphaTimer:Timer;
 		
 		private var duration:uint;
+		
+		[Embed(source="icons/logo-48x48.png")]
+		private var ApplicationLogo48:Class;     
 
 
 		public function Notification( message:String, subMessage:String = null, duration:uint=3 )
@@ -53,29 +58,35 @@ package com.treegger.component
 			
 			var padding:int = 10;
 			const textLine:TextLine = getTextLine( message, 14, padding );
-			textLine.x = padding; 
-			textLine.y = textLine.height + padding;
+			textLine.x = padding*2 + 48; 
+			textLine.y = textLine.height + padding + padding/2;
 
 			if( subMessage )
 			{
 				const subTextLine:TextLine = getTextLine( subMessage, 11, padding );
 				
-				subTextLine.x = padding; 
-				subTextLine.y = textLine.height + subTextLine.height + padding*2;
+				subTextLine.x = padding*2 + 48; 
+				subTextLine.y = textLine.height + subTextLine.height + padding*2 + padding/2;
 
-				width = Math.max( textLine.textWidth + padding*2, subTextLine.textWidth + padding*2 );
-				height = textLine.textHeight + subTextLine.textHeight + padding*4;
+				width = Math.max( textLine.textWidth + padding*3 + 48 , subTextLine.textWidth + padding*3 + 48 );
+				height = Math.max( textLine.textHeight + subTextLine.textHeight + padding*3.5, 48+padding*2 );
 				getSprite().addChild(subTextLine);
 					
 			}
 			else
 			{
-				width = textLine.textWidth + padding*2;
-				height = textLine.textHeight + padding*2;
+				width = textLine.textWidth + padding*3 + 48;
+				height = Math.max( textLine.textHeight + padding*2.5, 48+padding*2 );
 			}
 			getSprite().addChild(textLine);
 			
 			
+			var bitmap:BitmapData = new BitmapData( 48, 48, true, 0x00000000);  
+			bitmap.draw( (new ApplicationLogo48).bitmapData );
+			const bmp:Bitmap = new Bitmap( bitmap );
+			bmp.y = padding;
+			bmp.x = padding;
+			getSprite().addChild(bmp);
 
 			var screen:Screen = Screen.mainScreen;
 			bounds = new Rectangle(screen.visibleBounds.width - width - 2, screen.visibleBounds.y + 2, width, height );
@@ -152,6 +163,10 @@ package com.treegger.component
 			this.closeTimer.start();
 		}
 		
+		private function closeWindow():void
+		{
+			super.close();
+		}
 		override public function close(): void
 		{
 			if (this.closeTimer != null)
@@ -166,6 +181,7 @@ package com.treegger.component
 				this.alphaTimer = null;
 			}
 			
+			const that:Notification = this;
 			this.alphaTimer = new Timer(25);
 			var listener:Function = function (e:TimerEvent):void
 			{
@@ -176,6 +192,7 @@ package com.treegger.component
 				if (getSprite().alpha <= 0)
 				{
 					alphaTimer.removeEventListener(TimerEvent.TIMER, listener);
+					closeWindow();
 				}
 				else 
 				{

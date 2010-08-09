@@ -7,6 +7,10 @@ package com.treegger.airim.controller
 
 	public class ChatEvent extends Event
 	{
+		
+		
+		public static const HANDSHAKED:String = "HANDSHAKED";
+		
 		public static const AUTHENTICATION:String = "AUTHENTICATION";
 		public static const ROSTER:String = "ROSTER";
 		

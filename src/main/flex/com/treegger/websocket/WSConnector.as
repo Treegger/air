@@ -5,25 +5,28 @@ package com.treegger.websocket
 	import flash.errors.EOFError;
 	import flash.errors.IOError;
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.net.SecureSocket;
 	import flash.net.Socket;
 	import flash.utils.ByteArray;
 
-	public class WSConnector
+	public class WSConnector extends EventDispatcher
 	{
 		private var handshaked:Boolean = false;
 		private var socket:Socket;
 
+		
+		
 		public function WSConnector()
 		{
 		}
 		
 		public var onMessage:Function;
 		public var onHandshake:Function;
-						
-						
+		public var onError:Function;		
+		public var onClose:Function;						
 						
 		private function decodeBinaryFrame():ByteArray
 		{
@@ -50,14 +53,21 @@ package com.treegger.websocket
 		{
 			if( handshaked )
 			{
-				socket.writeByte( 0x80 );
-				const dataLen:uint = message.length;
-				socket.writeByte( (dataLen >>> 28 & 0x7F | 0x80));
-				socket.writeByte( (dataLen >>> 14 & 0x7F | 0x80));
-				socket.writeByte( (dataLen >>> 7 & 0x7F | 0x80));
-				socket.writeByte( (dataLen & 0x7F));
-				socket.writeBytes( message );
-				socket.flush();
+				try
+				{
+					socket.writeByte( 0x80 );
+					const dataLen:uint = message.length;
+					socket.writeByte( (dataLen >>> 28 & 0x7F | 0x80));
+					socket.writeByte( (dataLen >>> 14 & 0x7F | 0x80));
+					socket.writeByte( (dataLen >>> 7 & 0x7F | 0x80));
+					socket.writeByte( (dataLen & 0x7F));
+					socket.writeBytes( message );
+					socket.flush();
+				}
+				catch( error:Error )
+				{
+					if( onError != null ) onError( error );
+				}
 			}
 			else
 			{
@@ -74,8 +84,11 @@ package com.treegger.websocket
 		
 		public function close():void
 		{
-			socket.flush();
-			socket.close();
+			if( socket.connected )
+			{
+				socket.flush();
+				socket.close();
+			}
 		}
 			
 		public function connect( scheme:String, host:String, port:int, path:String ):void
@@ -90,7 +103,7 @@ package com.treegger.websocket
 				socket = new Socket();
 				if( port == -1 ) port = 80;
 			}
-
+			socket.timeout = 5000;
 			
 			
 			socket.addEventListener( Event.CONNECT, function ( event:Event ):void
@@ -106,9 +119,15 @@ package com.treegger.websocket
 				socket.writeUTFBytes( handshake );
 			} );
 			
-			socket.addEventListener( IOErrorEvent.IO_ERROR, function ( event:Event ):void
+			socket.addEventListener( IOErrorEvent.IO_ERROR, function ( event:IOErrorEvent ):void
 			{
 				trace("IO Error on socket.");
+				if( onError != null ) onError();
+			} );
+			socket.addEventListener( Event.CLOSE, function ( event:Event ):void
+			{
+				trace("Close on socket.");
+				if( onClose != null ) onClose( event );
 			} );
 			
 			socket.addEventListener( ProgressEvent.SOCKET_DATA, function ( event:ProgressEvent ):void
@@ -154,13 +173,9 @@ package com.treegger.websocket
 						}
 						
 					}
-					catch( eofError:EOFError )
+					catch( error:Error )
 					{
-						
-					}
-					catch( ioError:IOError )
-					{
-						
+						if( onError != null ) onError( error );
 					}
 				}	
 			});

@@ -23,6 +23,7 @@
 		import com.treegger.airim.controller.PreferencesController;
 		import com.treegger.airim.model.UserPreference;
 		import com.treegger.airim.view.PreferencesWindow;
+		import com.treegger.component.Notification;
 		
 		import mx.controls.Alert;
 		
@@ -59,8 +60,6 @@
 		private function creationCompleteHandler():void
 		{
 
-						
-			
 			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			
 			
@@ -252,6 +251,6 @@
 	</fx:Declarations>
 
 	
-	<view:RosterView id="rosterView" resize="height = rosterView.height+4; width = rosterView.width+100;" />
+	<view:RosterView id="rosterView" resize="height = rosterView.height+10; width = rosterView.width+10;" />
 	
 </s:WindowedApplication>

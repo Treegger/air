@@ -48,9 +48,14 @@
 			{
 				_chatController = value;
 
+				
+				_chatController.addEventListener( ChatEvent.HANDSHAKED, function( event:ChatEvent ):void
+				{
+					authenticate();
+				});
+				
 				_chatController.addEventListener( ChatEvent.UNREAD_CONTENTS_CHANGE, function( event:ChatEvent ):void
 				{
-					
 					callLater( dockNotify );
 				});
 					
@@ -117,8 +122,7 @@
 				dockNotifier.notify( _chatController.unreadContents, NotificationType.INFORMATIONAL )
 			}
 			
-			[PostConstruct]
-			public function authenticate():void
+			private function authenticate():void
 			{
 				if( preferenceController.userAccount && !chatController.authenticated )
 				{

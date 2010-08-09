@@ -3,6 +3,7 @@ package com.treegger.airim.controller
 	import com.treegger.airim.model.ChatContent;
 	import com.treegger.airim.model.Contact;
 	import com.treegger.airim.model.UserAccount;
+	import com.treegger.component.Notification;
 	import com.treegger.protobuf.AuthenticateRequest;
 	import com.treegger.protobuf.Ping;
 	import com.treegger.protobuf.Presence;
@@ -19,6 +20,7 @@ package com.treegger.airim.controller
 	import flash.events.TimerEvent;
 	import flash.utils.ByteArray;
 	import flash.utils.Timer;
+	import flash.utils.setTimeout;
 	
 	import mx.collections.ArrayCollection;
 	import mx.events.CollectionEvent;
@@ -39,16 +41,26 @@ package com.treegger.airim.controller
 		public var contacts:ArrayCollection;
 		
 		public var exitState:Boolean = false;
-
+		public var connectingState:Boolean = false;
 		
 		public function ChatController()
 		{
-			wsConnector = new WSConnector();
-			wsConnector.onHandshake = onHandshake;
-			wsConnector.onMessage = onMessage;
-			//wsConnector.connect( "wss", "xmpp.treegger.com", 443, "/tg-1.0" );
-			wsConnector.connect( "wss", "xmpp.treegger.com", 443, "/tg-1.0" );
+			connect();
 		}
+		
+		
+		private function connect():void
+		{
+			connectingState = true;
+			wsConnector = new WSConnector();
+			wsConnector.onHandshake = onSocketHandshake;
+			wsConnector.onMessage = onSocketMessage;
+			wsConnector.onError = onSocketError;
+			wsConnector.onClose = onSocketClose;
+			//wsConnector.connect( "wss", "xmpp.treegger.com", 443, "/tg-1.0" );
+			wsConnector.connect( "wss", "xmpp.treegger.com", 443, "/tg-1.0" );	
+		}
+		
 		
 		[Bindable(event=ChatEvent.UNREAD_CONTENTS_CHANGE)]
 		public function get unreadContents():uint
@@ -95,11 +107,15 @@ package com.treegger.airim.controller
 		}
 		
 		private var pingTimer:Timer;
-		private function onHandshake():void
+		private function onSocketHandshake():void
 		{
-			 pingTimer = new Timer( 30*1000 );
-			 pingTimer.addEventListener(TimerEvent.TIMER, ping );
-			 pingTimer.start();
+			connectingState = false;
+			retryConnectionCount = 0;
+		 	pingTimer = new Timer( 30*1000 );
+			pingTimer.addEventListener(TimerEvent.TIMER, ping );
+			pingTimer.start();
+
+			dispatchEvent( new ChatEvent( ChatEvent.HANDSHAKED ) );
 		}
 		
 		private var pingId:int = 0;
@@ -114,7 +130,50 @@ package com.treegger.airim.controller
 			send( wsMessage );			
 		}
 		
-		private function onMessage( message:WebSocketMessage ):void
+
+		private var retryConnectionCount:Number;
+		private function onSocketError( error:Error=null ):void
+		{
+			reconnect();
+		}
+		private function onSocketClose( event:Event=null ):void
+		{
+			reconnect();
+		}
+		
+		private function reconnect():void
+		{
+			if( connectingState ) return;
+
+			contacts.removeAll();
+			pingTimer.stop();
+			wsConnector.close();
+			authenticated = false;
+
+			
+			var delay:Number = 0;
+			if( retryConnectionCount )
+			{
+				delay = retryConnectionCount * 10 * 1000;
+				if( delay > 10*60*1000 ) delay = 10*60*1000;  
+			}
+			retryConnectionCount++;
+			
+			
+			
+			if( delay > 1 )
+			{
+				new Notification( "Network interruption", "Connecting in " + (delay/1000) + " seconds...", 1 );
+				setTimeout( connect , delay );
+			}
+			else
+			{
+				new Notification( "Network interruption", "Reconnecting...", 1 );
+				connect();
+			}
+		}
+		
+		private function onSocketMessage( message:WebSocketMessage ):void
 		{
 			if( message.hasAuthenticateResponse )
 			{
