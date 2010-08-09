@@ -19,6 +19,7 @@ package com.treegger.airim.controller
 		public static const TEXTMESSAGE_PAUSED:String = "TEXTMESSAGE_PAUSED";
 		
 		public static const STRATUSVIDEO:String = "STRATUSVIDEO";
+		public static const STRATUSFILE:String = "STRATUSFILE";
 
 		public static const UNREAD_CONTENTS_CHANGE:String = "unreadContentsChanged";
 

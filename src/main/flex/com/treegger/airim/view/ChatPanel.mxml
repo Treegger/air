@@ -19,14 +19,29 @@
 			import mx.events.CollectionEventKind;
 			
 			import spark.components.Label;
-			
+
+			private var fileManager:P2PFileManager = new P2PFileManager();
+
+			private var _chatController:ChatController;
 			[Inject]
-			public var chatController:ChatController;
+			public function set chatController(value:ChatController):void
+			{
+				_chatController = value;
+				fileManager.chatController = value;
+			}
+			public function get chatController():ChatController
+			{
+				return _chatController;
+			}
+			
 			
 			private var _contact:Contact;
 			public function set contact(value:Contact):void
 			{
 				_contact = value;
+				fileManager.contact = value;
+				
+				if( !contact.vCardFetched ) chatController.requestVCard( contact ); 
 				
 				_contact.chatContents.addEventListener(CollectionEvent.COLLECTION_CHANGE, function(event:CollectionEvent):void
 				{
@@ -45,6 +60,15 @@
 			}
 			
 			
+			public function selectFile():void
+			{
+				fileManager.selectFile();
+			}
+			public function requestDownloadFile():void
+			{
+				fileManager.requestStratus( parent as Sprite );				
+			}
+
 			
 			private function showHandler():void
 			{

@@ -39,10 +39,12 @@ package com.treegger.airim.model
 			return _show;
 		}
 		
+		public var vCardFetched:Boolean;
 		public var photoURL:String;
 		
 		public var stratusId:String;
-				
+		
+		[ArrayElementType("ChatContent")]
 		public var chatContents:ArrayCollection;
 		
 

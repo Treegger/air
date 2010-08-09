@@ -9,6 +9,7 @@ package com.treegger.airim.controller
 	import com.treegger.protobuf.Roster;
 	import com.treegger.protobuf.RosterItem;
 	import com.treegger.protobuf.TextMessage;
+	import com.treegger.protobuf.VCardRequest;
 	import com.treegger.protobuf.VCardResponse;
 	import com.treegger.protobuf.WebSocketMessage;
 	import com.treegger.websocket.WSConnector;
@@ -25,13 +26,15 @@ package com.treegger.airim.controller
 
 	public class ChatController extends EventDispatcher
 	{
+
+		public static const MESSAGE_TYPE_STRATUS_VIDEO_REQUEST:String = "stratusVideoRequest";
+		public static const MESSAGE_TYPE_STRATUS_FILE_REQUEST:String = "stratusFileRequest";
 		
 		private var wsConnector:WSConnector; 
-
-
 		
 		private var roster:Roster;
 		
+		[ArrayElementType("Contact")]
 		[Bindable]
 		public var contacts:ArrayCollection;
 		
@@ -133,7 +136,9 @@ package com.treegger.airim.controller
 			{
 				var presence:Presence = message.presence;
 				var contact:Contact = findContactByJID( presence.from );
+			 		
 				var foundContact:Boolean = contact != null;
+			
 				
 				if( presence.hasType && presence.type.toLowerCase() == "unavailable" )
 				{
@@ -173,14 +178,16 @@ package com.treegger.airim.controller
 				const targetContact:Contact = findContactByJID( textMessage.fromUser );
 				if( targetContact )
 				{
-					trace( "=====> " + textMessage);
 					var chatEvent:ChatEvent;
-					if( textMessage.type == "stratus" )
+					if( textMessage.type == MESSAGE_TYPE_STRATUS_VIDEO_REQUEST )
 					{
 						targetContact.stratusId = textMessage.thread;
-
 						chatEvent = new ChatEvent( ChatEvent.STRATUSVIDEO );
-
+					}
+					else if( textMessage.type == MESSAGE_TYPE_STRATUS_FILE_REQUEST )
+					{
+						targetContact.stratusId = textMessage.thread;
+						chatEvent = new ChatEvent( ChatEvent.STRATUSFILE );
 					}
 					else if( textMessage.hasComposing && textMessage.composing )
 					{
@@ -232,6 +239,7 @@ package com.treegger.airim.controller
 			{
 				if( contact.jidWithoutRessource == vcard.fromUser )
 				{
+					contact.vCardFetched = true;
 					contact.name = vcard.fn;
 					contact.nickname = vcard.nickname;
 					contact.photoURL = vcard.photoExternal;
@@ -239,6 +247,7 @@ package com.treegger.airim.controller
 			}
 			if( currentContact.jidWithoutRessource == vcard.fromUser )
 			{
+				currentContact.vCardFetched = true;
 				currentContact.name = vcard.fn;
 				currentContact.photoURL = vcard.photoExternal;
 			}
@@ -296,6 +305,16 @@ package com.treegger.airim.controller
 			
 		}
 		
+		public function requestVCard( contact:Contact ):void
+		{
+			const vcardRequest:VCardRequest = new VCardRequest();
+			vcardRequest.username = contact.jidWithoutRessource;
+			
+			const wsMessage:WebSocketMessage = new WebSocketMessage();
+			wsMessage.vcardRequest = vcardRequest;
+			send( wsMessage );
+		}
+
 		public function sendTextMessage( to:String, body:String, type:String = null, thread:String = null ):void
 		{
 			if( authenticated )

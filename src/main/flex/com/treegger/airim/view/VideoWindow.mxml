@@ -12,7 +12,6 @@
 	close="closeHandler()"
 	height="{cameraHeight}" width="{cameraWidth}"
 	title="{contact.name}" xmlns:component="com.treegger.component.*"
-	creationComplete="creationCompleteHandler()"
 	backgroundColor="0x000000"
 >
 	<fx:Declarations>
@@ -49,20 +48,17 @@
 			
 			private var remoteVideo:Video = new Video();
 
+
+			
 			[Bindable]
 			public var contact:Contact;
 			
-			private var acceptIncomingVideo:Boolean = false;
+			private var acceptIncomingRequest:Boolean = false;
 			
 			
 			private var netConnection:NetConnection;
 			private var ioStream:IOStream;
 			
-			private function creationCompleteHandler():void
-			{
-
-				
-			}
 
 			private function stratusConnect():void
 			{
@@ -70,40 +66,40 @@
 				stratusConnector.addEventListener( StratusConnector.CONNECTION_SUCCESS, function(event:Event):void
 				{
 					netConnection = stratusConnector.netConnection;
-					chatController.sendTextMessage( contact.jidWithoutRessource, null, "stratus", netConnection.nearID );
+					chatController.sendTextMessage( contact.jidWithoutRessource, null, ChatController.MESSAGE_TYPE_STRATUS_VIDEO_REQUEST, netConnection.nearID );
 					if( contact.stratusId ) handshake( contact.stratusId );
 				});
 				stratusConnector.addEventListener( StratusConnector.CONNECTION_CLOSE, function(event:Event):void
 				{
 					netConnection = null;
-					acceptIncomingVideo = false;
+					acceptIncomingRequest = false;
 					if( !closed ) close();
 				});				
 				stratusConnector.connect();
 			}
 			
-			public function startVideo():void
+			public function startStratus():void
 			{
-				acceptIncomingVideo = true;
+				acceptIncomingRequest = true;
 				stratusConnect();
 			}
-			public function requestVideo():void
+			public function requestStratus():void
 			{
-				if( acceptIncomingVideo )
+				if( acceptIncomingRequest )
 				{
 					handshake( contact.stratusId );
 				}
 				else
 				{
-					Alert.show( "Video request from "+contact.name, "Accept remote call?", Alert.YES|Alert.NO, this, videoClickHandler );
+					Alert.show( "Video request from "+contact.name, "Accept remote call?", Alert.YES|Alert.NO, this, acceptRemoteClickHandler );
 				}
 			}
 			
-			private function videoClickHandler( event:CloseEvent ):void
+			private function acceptRemoteClickHandler( event:CloseEvent ):void
 			{
 				if( event.detail == Alert.YES )
 				{
-					acceptIncomingVideo = true;
+					acceptIncomingRequest = true;
 					stratusConnect();
 				}
 				else 
@@ -118,7 +114,7 @@
 				if( netConnection && stratusId )
 				{
 					ioStream = new IOStream();
-					ioStream.connect( netConnection, stratusId, "videoStream" );
+					ioStream.duplexConnect( netConnection, stratusId, IOStream.VIDEO_STREAM );
 					
 					var st:SoundTransform = new SoundTransform(1);
 					ioStream.input.soundTransform = st;

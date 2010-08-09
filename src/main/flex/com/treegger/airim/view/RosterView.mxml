@@ -26,6 +26,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.core.mx_internal;
 			import mx.events.DynamicEvent;
+			import mx.events.FlexEvent;
 			
 			import org.swizframework.core.SwizManager;
 			import org.swizframework.events.ChainEvent;
@@ -65,8 +66,16 @@
 				_chatController.addEventListener( ChatEvent.STRATUSVIDEO, function( event:ChatEvent ):void
 				{
 					const chatWindow:ChatWindow = openChatWindowForContact( event.targetContact );
-					//chatWindow.selectedContact = event.targetContact;
-					chatWindow.openVideoWindow().requestVideo();
+					chatWindow.openVideoWindow().requestStratus();
+					dockNotifier.bounce( NotificationType.CRITICAL );
+				});
+				_chatController.addEventListener( ChatEvent.STRATUSFILE, function( event:ChatEvent ):void
+				{
+					const chatWindow:ChatWindow = openChatWindowForContact( event.targetContact );
+					if( chatWindow.currentChatPannel ) chatWindow.currentChatPannel.requestDownloadFile();
+					else chatWindow.addEventListener( FlexEvent.CREATION_COMPLETE, function( event:Event ):void {
+						chatWindow.currentChatPannel.requestDownloadFile();
+					});
 					dockNotifier.bounce( NotificationType.CRITICAL );
 				});
 				

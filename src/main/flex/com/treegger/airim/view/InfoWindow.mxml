@@ -20,10 +20,17 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.treegger.airim.controller.ChatController;
 			import com.treegger.airim.model.Contact;
 			
 			import mx.events.EffectEvent;
 			
+			[Embed(source='icons/default-avatar-32x32.png')]
+			[Bindable]
+			private var DefaultAvatar:Class;     
+			
+			[Inject]
+			public var chatController:ChatController;
 			
 			public var contact:Contact;
 			
@@ -48,6 +55,11 @@
 				{
 					trace( "Info show" );
 					if( contact.photoURL ) image.source = contact.photoURL;
+					else 
+					{
+						image.source = new DefaultAvatar;
+						if( !contact.vCardFetched ) chatController.requestVCard( contact );
+					}
 					nameLabel.text = contact.name;
 					nicknameLabel.text = contact.nickname;
 					fadeIn.play();
@@ -94,7 +106,7 @@
 		</s:Rect>
 
 		<s:HGroup gap="10" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
-			<mx:Image id="image" source="@Embed('icons/default-avatar-32x32.png')" width="48" height="48" 
+			<mx:Image id="image" source="" width="48" height="48"
 					  horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
 
 			<s:VGroup gap="5" horizontalAlign="center">
