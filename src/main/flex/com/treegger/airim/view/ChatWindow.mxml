@@ -36,6 +36,8 @@
 			import com.treegger.airim.model.UserPreference;
 			import com.treegger.component.TabEvent;
 			
+			import flash.net.navigateToURL;
+			
 			import mx.collections.ArrayCollection;
 			import mx.events.CloseEvent;
 			
@@ -268,21 +270,32 @@
 				}
 			}
 			
-			
+			public function linkToFeedback():void
+			{
+				navigateToURL( new URLRequest( "http://treegger.uservoice.com/forums/58288-general" ) );
+			}
 			
 		]]>
 	</fx:Script>
 	
 	<s:VGroup width="100%" height="100%" gap="0">
-		
-		<s:HGroup paddingTop="4" paddingBottom="4" paddingLeft="8" paddingRight="8" gap="8" horizontalAlign="right" width="100%">
-			<s:Group click="currentChatPannel.selectFile()">
-				<s:BitmapImage source="@Embed('icons/folder.png')" />
-			</s:Group>
-			<s:Group click="openVideoWindow().startStratus()">
-				<s:BitmapImage source="@Embed('icons/video.png')" />
-			</s:Group>
-		</s:HGroup>
+
+		<s:Group width="100%">
+			<s:HGroup paddingTop="4" paddingBottom="4" paddingLeft="8" paddingRight="8" gap="8" left="0">
+				<s:Group click="linkToFeedback()" toolTip="Write feedback...">
+					<s:BitmapImage source="@Embed('icons/feedback.png')" />
+				</s:Group>
+			</s:HGroup>
+			
+			<s:HGroup paddingTop="4" paddingBottom="4" paddingLeft="8" paddingRight="8" gap="8" right="0">
+				<s:Group click="currentChatPannel.selectFile()" toolTip="Send file">
+					<s:BitmapImage source="@Embed('icons/folder.png')" />
+				</s:Group>
+				<s:Group click="openVideoWindow().startStratus()" toolTip="Start video">
+					<s:BitmapImage source="@Embed('icons/video.png')" />
+				</s:Group>
+			</s:HGroup>
+		</s:Group>
 		
 		<s:Group id="chatPanelStack" width="100%" height="100%">
 		</s:Group>		
