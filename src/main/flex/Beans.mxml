@@ -6,6 +6,7 @@
 	<controller:PreferencesController id="preferencesController"/>
 	<controller:ChatController id="chatController" />
 	<component:DockNotifier />
+	<component:StratusConnector />
 	
 	
 </swiz:BeanProvider>
