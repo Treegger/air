@@ -12,6 +12,7 @@
 	alpha="0"
 	creationComplete="creationCompleteHandler()"
 	windowActivate="windowActivateHandler()"
+	focusEnabled="false"
 >
 	<fx:Declarations>
 		<s:Fade id="fadeIn" target="{this}" alphaFrom="0" alphaTo="1" duration="200"/>

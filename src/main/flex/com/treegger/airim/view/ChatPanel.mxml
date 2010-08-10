@@ -6,7 +6,7 @@
 		width="100%"
 		height="100%"
 		creationComplete="creationComplete()"
-		show="showHandler()"
+		show="showHandler()" xmlns:view="com.treegger.airim.view.*"
 		 >
 	<fx:Script>
 		<![CDATA[
@@ -18,16 +18,16 @@
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			
+			import org.swizframework.core.SwizManager;
+			
 			import spark.components.Label;
 
-			private var fileManager:P2PFileManager = new P2PFileManager();
-
+			
 			private var _chatController:ChatController;
 			[Inject]
 			public function set chatController(value:ChatController):void
 			{
 				_chatController = value;
-				fileManager.chatController = value;
 			}
 			public function get chatController():ChatController
 			{
@@ -39,7 +39,6 @@
 			public function set contact(value:Contact):void
 			{
 				_contact = value;
-				fileManager.contact = value;
 				
 				if( !contact.vCardFetched ) chatController.requestVCard( contact ); 
 				
@@ -60,28 +59,46 @@
 			}
 			
 			
-			public function selectFile():void
-			{
-				fileManager.selectFile();
-			}
+			private var fileManager:P2PFileManager;
 			public function requestDownloadFile():void
 			{
-				fileManager.requestStratus( parent as Sprite );				
+				if( fileManager == null )
+				{
+					fileManager = new P2PFileManager();
+					SwizManager.setUp( fileManager );
+					fileManager.contact = contact;
+					addElement( fileManager );
+				}				
 			}
-
+			public function selectFile():void
+			{
+				if( fileManager == null )
+				{
+					fileManager = new P2PFileManager();
+					SwizManager.setUp( fileManager );
+					fileManager.contact = contact;
+					addElement( fileManager );
+				}
+				fileManager.selectFile();
+			}
 			
 			private function showHandler():void
 			{
-				if( initialized ) textInput.setFocus();
+				if( initialized ) callLater( focusText );
 			}
 			
+			private function focusText():void
+			{
+				textInput.setFocus();
+			}
+
 			
 			private function creationComplete():void
 			{
 				composingTimer = new Timer( 5*1000 );
 				composingTimer.addEventListener(TimerEvent.TIMER_COMPLETE, pauseCompose );
 
-				textInput.setFocus();
+				//callLater( focusText );
 				for each( var chatContent:ChatContent in _contact.chatContents )
 				{
 					pushContent( chatContent );
@@ -230,6 +247,7 @@
 		</s:Animate>
 	</fx:Declarations>
 	
+	
 	<s:Group  height="100%" width="100%">
 		<s:Rect height="100%" width="100%">
 			<s:fill>
@@ -249,7 +267,7 @@
 	</s:Group>
 	
 	
-	<s:TextInput id="textInput" width="100%" 
+	<s:TextInput id="textInput" width="100%" focusEnabled="true"
 				 keyDown="compose( event )"
 				 enter="enterHandler( event )"
 				 nativeDragEnter="dragEnterHandler(event)" 

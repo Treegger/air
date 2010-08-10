@@ -34,13 +34,13 @@
 		
 		private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
 	
-		private var activated:Boolean = false;
+		private var preferencesSet:Boolean = false;
 		
 		private function windowActivateHandler():void
 		{
-			if( !activated )
+			if( !preferencesSet )
 			{
-				activated = true;
+				preferencesSet = true;
 				var preferencesController:PreferencesController = swizBean.preferencesController;
 				if( !preferencesController.userAccount )
 				{
@@ -90,13 +90,12 @@
 			//NativeApplication.nativeApplication.idleThreshold = 2 * 60; // In seconds -- the default is 5 minutes.
 			NativeApplication.nativeApplication.addEventListener(Event.USER_IDLE, onUserIdle);
 			NativeApplication.nativeApplication.addEventListener(Event.USER_PRESENT, onUserPresent); 
-		
 			createMenu();
 			
 			
 			//checkForUpdate();
 		}
-
+		
 		
 		private function createMenu():void
 		{

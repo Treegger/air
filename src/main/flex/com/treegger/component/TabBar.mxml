@@ -79,7 +79,7 @@
 			borderVisible="false"
 			contentBackgroundAlpha="0"
 			itemRenderer="com.treegger.component.TabItemRenterer"
-			
+			focusEnabled="false"
 			>
 			<s:layout>
 				<s:HorizontalLayout  horizontalAlign="left" gap="0"/>

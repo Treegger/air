@@ -19,13 +19,13 @@
 		 
 		 
 		 creationComplete="creationCompleteHandler()"
-		 windowActivate="windowActivateHandler()"
-		 title="{selectedContact.name}"
 		 
+		 windowActivate="windowActivateHandler()"
+		 windowDeactivate="activated = false"
+		 title="{selectedContact.name}"
 		 closing="closingHandler( event )"
 		 keyDown="keyDownHanler( event )"
 		 keyUp="keyUpHanler( event )"
-		 activate="if( currentChatPannel ) currentChatPannel.textInput.setFocus()"
 		 >
 	
 	<fx:Script>
@@ -39,7 +39,10 @@
 			import flash.net.navigateToURL;
 			
 			import mx.collections.ArrayCollection;
+			import mx.core.mx_internal;
 			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
 			
 			import org.swizframework.core.SwizManager;
 			import org.swizframework.core.mxml.Swiz;
@@ -52,7 +55,7 @@
 			[Inject]
 			public var preferencesController:PreferencesController;
 			
-			
+			[ArrayElementType("Contact")]
 			[Bindable]
 			private var activeChatContacts:ArrayCollection = new ArrayCollection();
 			
@@ -68,6 +71,20 @@
 					selectedContact = contact;
 				}
 			}
+			
+			private function updateChatContact( contact:Contact ):void
+			{
+				for each( var activeChatContact:Contact in activeChatContacts )
+				{
+					if( activeChatContact.jidWithoutRessource == contact.jidWithoutRessource )
+					{
+						activeChatContacts.setItemAt( contact, activeChatContacts.getItemIndex( activeChatContact ) );
+						setChatPanel( contact, getChatPanel( activeChatContact ) );
+						selectedContact = contact;
+					}
+				}
+			}
+			
 			
 			private const videoWindows:Object = {};
 
@@ -204,8 +221,6 @@
 			public function set selectedContact( contact:Contact ):void
 			{
 				_selectedContact = contact;
-				_selectedContact.setAllContentRead();
-
 				selectedActiveChatContactIndex = activeChatContacts.getItemIndex( contact );
 				
 				if( initialized )
@@ -218,7 +233,10 @@
 						currentChatPannel.contact = contact;
 						setChatPanel( contact, currentChatPannel );
 					}
-					if( currentChatPannel.initialized ) currentChatPannel.textInput.setFocus()
+					
+
+					callLater( focusToCurrentPannel );
+					
 					
 					if( _dropText )
 					{
@@ -236,6 +254,12 @@
 				return _selectedContact; 
 			}
 			
+			private function focusToCurrentPannel():void
+			{
+				if( activated ) selectedContact.setAllContentRead();
+				currentChatPannel.textInput.setFocus();
+			}
+			
 			private var _dropText:String;
 			public function dropText( text:String ):void
 			{
@@ -246,14 +270,17 @@
 				else _dropText = text;
 			}
 
-			private var activated:Boolean = false;
-
+			public var activated:Boolean = false;
+			private var preferencesSet:Boolean = false;
 			private function windowActivateHandler():void
 			{
+				activated = true;
+				callLater( focusToCurrentPannel );
 				
-				if( !activated && preferencesController.hasUserPreference() )
+				
+				if( !preferencesSet && preferencesController.hasUserPreference() )
 				{
-					activated = true;
+					preferencesSet = true;
 					const pref:UserPreference = preferencesController.userPreference;
 					if( pref.chatWindowX > 0 ) nativeWindow.x = pref.chatWindowX;
 					if( pref.chatWindowY > 0 ) nativeWindow.y = pref.chatWindowY;
@@ -264,6 +291,7 @@
 			
 			private function creationCompleteHandler():void
 			{
+				
 				if( _selectedContact )
 				{
 					selectedContact = _selectedContact;
@@ -300,7 +328,7 @@
 		<s:Group id="chatPanelStack" width="100%" height="100%">
 		</s:Group>		
 		
-		<component:TabBar id="tabBar" width="100%" gap="0" 
+		<component:TabBar id="tabBar" width="100%" gap="0" focusEnabled="false"
 						  dataProvider="{activeChatContacts}"
 						  selectedIndex="{selectedActiveChatContactIndex}"
 						  tabClose="tabCloseHandler( event )"
