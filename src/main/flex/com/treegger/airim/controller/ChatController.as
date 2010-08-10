@@ -4,6 +4,7 @@ package com.treegger.airim.controller
 	import com.treegger.airim.model.Contact;
 	import com.treegger.airim.model.UserAccount;
 	import com.treegger.component.Notification;
+	import com.treegger.component.StratusConnector;
 	import com.treegger.protobuf.AuthenticateRequest;
 	import com.treegger.protobuf.Ping;
 	import com.treegger.protobuf.Presence;
@@ -28,6 +29,7 @@ package com.treegger.airim.controller
 
 	public class ChatController extends EventDispatcher
 	{
+		public static const MESSAGE_TYPE_STRATUS_REQUEST:String = "stratusRequest";
 
 		public static const MESSAGE_TYPE_STRATUS_VIDEO_REQUEST:String = "stratusVideoRequest";
 		public static const MESSAGE_TYPE_STRATUS_FILE_REQUEST:String = "stratusFileRequest";
@@ -38,7 +40,12 @@ package com.treegger.airim.controller
 		
 		[ArrayElementType("Contact")]
 		[Bindable]
-		public var contacts:ArrayCollection;
+		public var onlineContacts:ArrayCollection;
+		[ArrayElementType("Contact")]
+		public var contacts:ArrayCollection = new ArrayCollection();;
+		
+		[Inject]
+		public var stratusConnector:StratusConnector;
 		
 		public var exitState:Boolean = false;
 		public var connectingState:Boolean = false;
@@ -66,7 +73,7 @@ package com.treegger.airim.controller
 		public function get unreadContents():uint
 		{
 			var unread:uint = 0;
-			for each( var contact:Contact in contacts )
+			for each( var contact:Contact in onlineContacts )
 			{
 				unread += contact.unreadContents;
 			}
@@ -145,7 +152,7 @@ package com.treegger.airim.controller
 		{
 			if( connectingState ) return;
 
-			contacts.removeAll();
+			onlineContacts.removeAll();
 			pingTimer.stop();
 			wsConnector.close();
 			authenticated = false;
@@ -184,46 +191,50 @@ package com.treegger.airim.controller
 			else if( message.hasRoster )
 			{
 				roster = message.roster;
+				var contact:Contact;
 				if( roster )
 				{
-					contacts = new ArrayCollection();
-					contacts.addEventListener(CollectionEvent.COLLECTION_CHANGE, contactsChangeHandler );
+					for each( var rosterItem:RosterItem in roster.item )
+					{
+						contact = findContactByJID( rosterItem.jid );
+						if( contact == null )
+						{
+	 						contact = new Contact();
+							contact.name = rosterItem.name;
+							contact.jidWithoutRessource = rosterItem.jid;
+							contacts.addItem( contact );
+						}
+					}
+					onlineContacts = new ArrayCollection();
+					onlineContacts.addEventListener(CollectionEvent.COLLECTION_CHANGE, contactsChangeHandler );
 				}
 				dispatchEvent( new ChatEvent( ChatEvent.ROSTER ) );
 			}
 			else if( message.hasPresence )
 			{
 				var presence:Presence = message.presence;
-				var contact:Contact = findContactByJID( presence.from );
+				contact = findContactByJID( presence.from );
 			 		
-				var foundContact:Boolean = contact != null;
+				var online:Boolean = onlineContacts.contains( contact );
 			
 				
 				if( presence.hasType && presence.type.toLowerCase() == "unavailable" )
 				{
-					if( contact ) contacts.removeItemAt(contacts.getItemIndex( contact ) );
-				}
-				else
-				{
-					if( !foundContact )
-					{
-						const item:RosterItem = findRosterItemByJID( presence.from );
-						if( item )
-						{
-							contact = new Contact();
-							contact.jidWithoutRessource = jidWithoutResource( item.jid );
-							contact.name = item.name;
-						}
-					}
 					if( contact )
 					{
-						
 						contact.status = presence.status;
 						contact.type = presence.type;
 						contact.show = presence.show;
-						
 					}
-					if( !foundContact ) contacts.addItem( contact );
+					if( online )
+						onlineContacts.removeItemAt(onlineContacts.getItemIndex( contact ) );
+				}
+				else
+				{
+					contact.status = presence.status;
+					contact.type = presence.type;
+					contact.show = presence.show;
+					if( !online ) onlineContacts.addItem( contact );
 				}
 			}
 			else if( message.hasVcardResponse )
@@ -243,9 +254,9 @@ package com.treegger.airim.controller
 						targetContact.stratusId = textMessage.thread;
 						chatEvent = new ChatEvent( ChatEvent.STRATUSVIDEO );
 					}
-					else if( textMessage.type == MESSAGE_TYPE_STRATUS_FILE_REQUEST )
+					else if( textMessage.type == MESSAGE_TYPE_STRATUS_REQUEST )
 					{
-						targetContact.stratusId = textMessage.thread;
+						stratusConnector.handshake( targetContact, textMessage.thread );
 						chatEvent = new ChatEvent( ChatEvent.STRATUSFILE );
 					}
 					else if( textMessage.hasComposing && textMessage.composing )
@@ -294,7 +305,7 @@ package com.treegger.airim.controller
 		
 		private function setVCard( vcard:VCardResponse ):void
 		{
-			for each( var contact:Contact in contacts )
+			for each( var contact:Contact in onlineContacts )
 			{
 				if( contact.jidWithoutRessource == vcard.fromUser )
 				{

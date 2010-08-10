@@ -14,7 +14,12 @@ package com.treegger.airim.model
 		public var jidWithoutRessource:String;
 		
 		
-		public var type:String;
+		private var _type:String;
+		public function set type( value:String ):void
+		{
+			_type = value;
+			dispatchEvent( new Event( 'statusColorChanged' ) );
+		}
 		
 		public var _status:String;
 		public function set status( value:String ):void
@@ -72,7 +77,7 @@ package com.treegger.airim.model
 		
 		public function get available():Boolean
 		{
-			return !( away || dnd );
+			return !( away || dnd ) && _type != "unavailable";
 		}
 		
 		public function get away():Boolean

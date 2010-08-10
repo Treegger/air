@@ -20,17 +20,17 @@ package com.treegger.component
 			outputConnect( netConnection, streamName, dataReliable );
 			inputConnect( netConnection, remoteStratusId, streamName, dataReliable );
 		}
-		private function outputConnect( netConnection:NetConnection, streamName:String, dataReliable:Boolean ):void
+		public function outputConnect( netConnection:NetConnection, streamName:String, dataReliable:Boolean ):void
 		{
 			output = new NetStream( netConnection, NetStream.DIRECT_CONNECTIONS);
 			//if( dataReliable ) output.dataReliable = dataReliable;
-			output.client = { onPeerConnect: onPeerConnectHandler };
+			//output.client = { onPeerConnect: onPeerConnectHandler };
 			output.addEventListener(NetStatusEvent.NET_STATUS, outputStreamHandler );
 			output.publish( streamName );
 		}
 		
 		
-		private function inputConnect( netConnection:NetConnection, remoteStratusId:String, streamName:String, dataReliable:Boolean ):void
+		public function inputConnect( netConnection:NetConnection, remoteStratusId:String, streamName:String, dataReliable:Boolean ):void
 		{
 			input = new NetStream( netConnection, remoteStratusId );
 			//if( dataReliable ) input.dataReliable = dataReliable;

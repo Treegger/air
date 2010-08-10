@@ -75,7 +75,7 @@
 					acceptIncomingRequest = false;
 					if( !closed ) close();
 				});				
-				stratusConnector.connect();
+				//stratusConnector.connect(contact);
 			}
 			
 			public function startStratus():void

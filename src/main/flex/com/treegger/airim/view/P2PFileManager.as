@@ -12,21 +12,41 @@ package com.treegger.airim.view
 	import flash.events.TimerEvent;
 	import flash.net.FileReference;
 	import flash.net.NetConnection;
+	import flash.net.NetStream;
 	import flash.utils.ByteArray;
 	
 	import mx.controls.Alert;
+	import mx.core.UIComponent;
 	import mx.events.CloseEvent;
+	import mx.events.DynamicEvent;
+	
+	import org.flexunit.internals.namespaces.classInternal;
+	
+	import spark.components.Group;
 	
 
-	public class P2PFileManager
+	public class P2PFileManager extends UIComponent
 	{
+
+		private var _stratusConnector:StratusConnector;
+		[Inject]
+		public function set stratusConnector(value:StratusConnector):void
+		{
+			_stratusConnector = value;
+			_stratusConnector.addEventListener( "receiveRemoteFile", function( event:DynamicEvent ):void
+			{
+				receiveRemoteFile( event.data );
+			});
+			
+		}
+
 		
-		public var chatController:ChatController;
 		public var contact:Contact;
 		
-		
 		private var file:FileReference;
-
+		
+		private var ioStream:IOStream = ioStream = new IOStream();
+		
 		
 		public function selectFile():void
 		{
@@ -43,14 +63,22 @@ package com.treegger.airim.view
 		
 		private function selectHandler( event:Event ):void
 		{
+			var that:P2PFileManager = this;
 			file = FileReference( event.target );
-			startStratus();
+			_stratusConnector.connect( contact, function( contact:Contact, ioStream:IOStream ):void
+			{
+				that.ioStream = ioStream;
+				sendFile();
+			});
 		}
 		
 		
 		private function completeHandler(event:Event):void
 		{
 			trace("completeHandler: " + event);
+			var o:Object =  { remoteEvent: "receiveRemoteFile", remoteObject: { name: file.name, data: file.data } };
+			
+			ioStream.output.send( "remoteCall", o );
 		}
 		private function ioErrorHandler(event:IOErrorEvent):void
 		{
@@ -64,19 +92,20 @@ package com.treegger.airim.view
 		private function sendFile():void
 		{
 			file.load();
-			var fileData:Object = {};
-			fileData.file = file.data;
-			fileData.name = file.name;
-			trace( "Send File "  + file.name );
-			ioStream.output.send( "receiveRemoteFile", { name: file.name, data: file.data } );
-			trace( "Send Error" );
-			file.removeEventListener(Event.COMPLETE, completeHandler);
 		}
 		public function receiveRemoteFile( remoteObject:Object ):void
 		{
 			trace( "Recieve: " + remoteObject );
-			var savefile:FileReference = new FileReference();
-			savefile.save( remoteObject.data, remoteObject.name );
+			if( remoteObject.name && remoteObject.data ) 
+			{
+				var savefile:FileReference = new FileReference();
+				savefile.save( remoteObject.data, remoteObject.name );
+			}
+			else
+			{
+				Alert.show( "File Transfer failure from "+contact.name, "Error", Alert.OK, parent.parent as Sprite );
+
+			}
 		}
 		
 		
@@ -85,58 +114,18 @@ package com.treegger.airim.view
 			
 		}
 		
-		
-		private var netConnection:NetConnection;
-		private var ioStream:IOStream;
-		private var acceptIncomingRequest:Boolean = false;
 	
-		private var handshakeCallBack:Function;
 		
-		private function stratusConnect():void
+		/*
+		public function requestStratus():void
 		{
-			trace( "Status Connect" );
-			var stratusConnector:StratusConnector = new StratusConnector();
-			stratusConnector.addEventListener( StratusConnector.CONNECTION_SUCCESS, function(event:Event):void
-			{
-				trace( "Status Connected" );
-				netConnection = stratusConnector.netConnection;
-				chatController.sendTextMessage( contact.jidWithoutRessource, null, ChatController.MESSAGE_TYPE_STRATUS_FILE_REQUEST, netConnection.nearID );
-				if( contact.stratusId ) handshake( contact.stratusId );
-			});
-			stratusConnector.addEventListener( StratusConnector.CONNECTION_CLOSE, function(event:Event):void
-			{
-				netConnection = null;
-				acceptIncomingRequest = false;
-				close();
-			});				
-			stratusConnector.connect();
-		}
-		
-		public function startStratus():void
-		{
-			trace( "Start Status" );
-			handshakeCallBack = sendFile;
-			acceptIncomingRequest = true;
-			stratusConnect();
-		}
-		public function requestStratus( alertParentSprite:Sprite ):void
-		{
-			trace( "Request Status" );
-			if( acceptIncomingRequest )
-			{
-				handshake( contact.stratusId );
-			}
-			else
-			{
-				Alert.show( "File Transfer request from "+contact.name, "Accept remote file?", Alert.YES|Alert.NO, alertParentSprite, acceptRemoteClickHandler );
-			}
+			Alert.show( "File Transfer request from "+contact.name, "Accept remote file?", Alert.YES|Alert.NO, parent.parent as Sprite, acceptRemoteClickHandler );
 		}
 		
 		private function acceptRemoteClickHandler( event:CloseEvent ):void
 		{
 			if( event.detail == Alert.YES )
 			{
-				acceptIncomingRequest = true;
 				stratusConnect();
 			}
 			else 
@@ -144,20 +133,7 @@ package com.treegger.airim.view
 				close();
 			}
 		}
-		
-		private function handshake( stratusId:String ):void
-		{
-			trace( "Handshake remoteId " + stratusId + " net " + netConnection  +  " callback: " + handshakeCallBack );
-			if( netConnection && stratusId )
-			{
-				ioStream = new IOStream();
-				ioStream.duplexConnect( netConnection, stratusId, IOStream.FILE_STREAM, true );
-				
-				ioStream.input.client = this;
-				
-				if( handshakeCallBack != null ) handshakeCallBack();
-			}
-		}
+		*/
 
 		
 	}
