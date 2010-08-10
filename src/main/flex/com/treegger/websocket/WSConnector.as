@@ -164,7 +164,14 @@ package com.treegger.websocket
 							const byteArray:ByteArray = decodeBinaryFrame();
 							const wsMessage:WebSocketMessage = new WebSocketMessage();
 							wsMessage.readExternal( byteArray );
-							if( onMessage != null  ) onMessage( wsMessage )
+							try
+							{
+								if( onMessage != null  ) onMessage( wsMessage )
+							}
+							catch( error:Error )
+							{
+								trace( "Message processing error " + error );
+							}
 						}
 						else
 						{
@@ -187,7 +194,7 @@ package com.treegger.websocket
 			}
 			catch ( error:Error )
 			{
-				trace ( error.toString() );
+				if( onError != null ) onError( error );
 			}
 		}
 		
