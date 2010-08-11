@@ -10,7 +10,10 @@
 		 creationComplete="creationCompleteHandler()"
 	 >
 	
-	
+	<fx:Metadata>
+		[ResourceBundle("airim")]
+	</fx:Metadata>
+
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.controller.ChatController;
@@ -95,15 +98,15 @@
 						const onlineContacts:int = _chatController.onlineContacts.length;
 						if( onlineContacts == 0 )
 						{
-							new Notification("None of your friend are online", "Maybe you should tell them about AirIM..." );
+							new Notification( resourceManager.getString('airim', 'noneOnline' ), resourceManager.getString('airim', 'maybeYouShould' ) );
 						}
 						else if( onlineContacts == 1 )
 						{
-							new Notification("You have "+ onlineContacts+ " friend online");
+							new Notification( resourceManager.getString('airim', 'youHave', [ onlineContacts.toString(), ""] ) );
 						}
 						else if( onlineContacts > 1 )
 						{
-							new Notification("You have "+ onlineContacts+ " friends online");
+							new Notification( resourceManager.getString( 'airim', 'youHave', [ onlineContacts.toString(), "s"] ) );
 						}
 					});
 					timer.start();
@@ -128,6 +131,8 @@
 			{
 				if( preferenceController.userAccount && !chatController.authenticated )
 				{
+					new Notification( resourceManager.getString( 'airim', 'authentication', [ preferenceController.userAccount.username, preferenceController.userAccount.socialNetwork] ), 
+									resourceManager.getString( 'airim', 'pleaseWait' ) );
 					chatController.authenticate( preferenceController.userAccount );
 				}
 			}
@@ -142,7 +147,7 @@
 				
 				rosterList.addEventListener( "contactDoubleClick", function( event:DynamicEvent ):void
 				{
-					openChatWindowForContact( event.contact, true );	
+					openChatWindowForContact( event.contact, true ).nativeWindow.orderToFront();
 					event.stopPropagation();
 				});
 				rosterList.addEventListener( "dropText", function( event:DynamicEvent ):void
@@ -242,9 +247,6 @@
 			
 		]]>
 	</fx:Script>
-	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
-	</fx:Declarations>
 	
 	<s:List id="rosterList" width="100%" borderVisible="false" 
 			contentBackgroundAlpha="0"

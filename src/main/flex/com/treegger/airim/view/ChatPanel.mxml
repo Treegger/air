@@ -89,7 +89,7 @@
 			
 			private function focusText():void
 			{
-				textInput.setFocus();
+				if( textInput ) textInput.setFocus();
 			}
 
 			
@@ -178,6 +178,8 @@
 			{
 				if( initialized ) textInput.text += text;
 				else _dropText = text;
+				callLater( focusText );
+
 			}
 			
 			private function dragEnterHandler(e:NativeDragEvent):void 

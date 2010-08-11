@@ -3,6 +3,8 @@
 	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:mx="library://ns.adobe.com/flex/mx"
 	xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:component="com.treegger.component.*"
+	
 	transparent="false"
 	systemChrome="standard"
 	maximizable="true"
@@ -11,12 +13,14 @@
 	showStatusBar="false"
 	close="closeHandler()"
 	height="{cameraHeight}" width="{cameraWidth}"
-	title="{contact.name}" xmlns:component="com.treegger.component.*"
+	title="{contact.name}" 
 	backgroundColor="0x000000"
+	
+	creationComplete="creationCompleteHandler()"
 >
-	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
-	</fx:Declarations>
+	<fx:Metadata>
+		[ResourceBundle("airim")]
+	</fx:Metadata>
 	
 	<fx:Script>
 		<![CDATA[
@@ -30,11 +34,15 @@
 			
 			import flash.media.Camera;
 			import flash.net.sendToURL;
+			import flash.utils.setTimeout;
 			
 			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.events.DynamicEvent;
+			
+			import org.swizframework.reflection.BindableMetadataHost;
 			
 
 			
@@ -73,23 +81,28 @@
 				_stratusConnector.connect( contact, function( contact:Contact, ioStream:IOStream ):void
 				{
 					that.ioStream = ioStream;
-					
-					ioStream.output.send( "remoteCall",  { remoteEvent: ChatEvent.STRATUSVIDEO } );
-					
-					attachVideo();
-
-					ioStream.output.send( "remoteCall",  { remoteEvent: "requestVideo" } );
+					startBroadCast(); 
 				});
 
 			}
 			
+			private function startBroadCast():void
+			{
+				ioStream.output.send( "remoteCall",  { remoteEvent: ChatEvent.STRATUSVIDEO } );
+				attachVideo();
+				ioStream.output.send( "remoteCall",  { remoteEvent: "requestVideo" } );
+			}
+			
 			public function requestVideo():void
 			{
-				Alert.show( "Video request from "+contact.name, "Accept remote call?", Alert.YES|Alert.NO, this, acceptRemoteClickHandler );
+				ring()
+				Alert.show( resourceManager.getString( 'airim', 'videoRequestFrom', [contact.name]), resourceManager.getString( 'airim', 'videoAccept' ),
+							Alert.YES|Alert.NO, this, acceptRemoteClickHandler );
 			}
 			
 			private function acceptRemoteClickHandler( event:CloseEvent ):void
 			{
+				stopRing();
 				if( event.detail == Alert.YES )
 				{
 					var that:VideoWindow = this;
@@ -122,7 +135,7 @@
 			{
 				localVideoDisplay.attachCamera(null);
 				remoteVideoDisplay.attachCamera(null);
-				if( ioStream.output )
+				if( ioStream && ioStream.output )
 				{
 					ioStream.output.attachCamera(null);
 					ioStream.output.attachAudio(null);
@@ -136,17 +149,17 @@
 				var camera:Camera = getCamera();
 				if( camera )
 				{
-					if( buttonList.selectedItem == "High" )
+					if( buttonList.selectedItem == resourceManager.getString('airim', 'high') )
 					{
 						camera.setMode( cameraWidth*2, cameraHeight*2, 25 );
 						camera.setQuality( 0, 90 );
 					}
-					else if( buttonList.selectedItem == "Normal" )
+					else if( buttonList.selectedItem == resourceManager.getString('airim', 'normal') )
 					{
 						camera.setMode( cameraWidth, cameraHeight, 15 );
 						camera.setQuality( 0, 90 );
 					}
-					else if( buttonList.selectedItem == "Low" )
+					else if( buttonList.selectedItem == resourceManager.getString('airim', 'low') )
 					{
 						camera.setMode( cameraWidth/2, cameraHeight/2, 10 );
 						camera.setQuality( 0, 90 );
@@ -154,9 +167,10 @@
 					localVideoDisplay.attachCamera(camera);
 				}
 				
-				if( ioStream.output ) ioStream.output.attachCamera(camera);
+				if( ioStream && ioStream.output ) ioStream.output.attachCamera(camera);
 			}
 			
+			[Bindable]
 			private var microphone:Microphone;
 			private function bindMicrophone():void
 			{
@@ -168,21 +182,24 @@
 					microphone.soundTransform = new SoundTransform(1);
 					microphone.setSilenceLevel(0);
 					microphone.gain = gainSlider.value;
-					if( buttonList.selectedItem == "High" )
+					if( buttonList.selectedItem == resourceManager.getString('airim', 'high') )
 					{
+						microphone.rate = 44;
 						microphone.encodeQuality = 9;
 					}
-					else if( buttonList.selectedItem == "Normal" )
+					else if( buttonList.selectedItem == resourceManager.getString('airim', 'normal') )
 					{
+						microphone.rate = 22;
 						microphone.encodeQuality = 7;
 					}
-					else if( buttonList.selectedItem == "Low" )
+					else if( buttonList.selectedItem == resourceManager.getString('airim', 'low') )
 					{
+						microphone.rate = 11;
 						microphone.encodeQuality = 5;
 					}
 				}
 				
-				if( ioStream.output ) ioStream.output.attachAudio(microphone);
+				if( ioStream && ioStream.output ) ioStream.output.attachAudio(microphone);
 			}
 			
 			
@@ -223,15 +240,87 @@
 					nativeWindow.stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
 				}
 			}
+			
+			
+			private var ringer:Sound;
+			private var ringerChannel:SoundChannel;
+			
+
+			private function ring():void
+			{				
+				ringer = new Sound();
+				
+				ringer.addEventListener("sampleData", ringTone);
+				ringerChannel = ringer.play();
+			}
+			
+			private function stopRing():void
+			{
+				if (ringerChannel)
+				{
+					ringerChannel.stop();
+					
+					ringer.removeEventListener("sampleData", ringTone);
+					
+					ringer = null;
+					ringerChannel = null;
+				}
+			}
+			
+			private function ringTone(event:SampleDataEvent):void
+			{	
+				for (var c:int=0; c<8192; c++) 
+				{
+					var pos:Number = Number(c + event.position) / Number(6 * 44100);
+					var frac:Number = pos - int(pos);
+					var sample:Number;
+					if (frac < 0.066)
+					{
+						sample = 0.4 * Math.sin(2* Math.PI / (44100/784) * (Number(c + event.position)));
+					}
+					else if (frac < 0.333)
+					{
+						sample = 0.2 * (Math.sin(2* Math.PI / (44100/646) * (Number(c + event.position)))
+							+ Math.sin(2* Math.PI / (44100/672) * (Number(c + event.position)))
+							+ Math.sin(2* Math.PI / (44100/1034) * (Number(c + event.position)))
+							+ Math.sin(2* Math.PI / (44100/1060) * (Number(c + event.position))));
+					}
+					else
+					{
+						sample = 0;	
+					}
+					event.data.writeFloat(sample);
+					event.data.writeFloat(sample);
+				}
+			}
+			
+			
+			private function creationCompleteHandler():void
+			{
+				const array:Array = [ resourceManager.getString('airim', 'low'), resourceManager.getString('airim', 'normal'), resourceManager.getString('airim', 'high') ]
+				buttonList.dataProvider = new ArrayCollection( array ); 
+				buttonList.selectedIndex=1;
+			}
 		]]>
 	</fx:Script>
 	
 	<s:Group width="100%" height="100%">
 		<mx:VideoDisplay id="remoteVideoDisplay" height="100%" width="{remoteVideoDisplay.height*4/3}" horizontalCenter="0" 
 						 resize="remoteVideo.width=remoteVideoDisplay.width; remoteVideo.height=remoteVideoDisplay.height"/>
-		<mx:VideoDisplay id="localVideoDisplay" height="25%" width="25%" right="0" bottom="0"/>		
+		<s:Group right="0" bottom="0">
+			<mx:VideoDisplay id="localVideoDisplay" height="{remoteVideoDisplay.height/4}" width="{remoteVideoDisplay.width/4}" />		
+			<s:Rect  bottom="0" right="0" width="4" height="{remoteVideoDisplay.height*microphone.activityLevel/400}">
+				<s:fill>
+					<s:SolidColor color="0xff0000" alpha="0.6" />
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke color="0xaa0000" alpha=".8" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+
+		</s:Group>
 		
-		<component:AlphaButton id="fullscreenButton" data="Fullscreen" top="1" click="toggleFullscreen()"/>
+		<component:AlphaButton id="fullscreenButton" data="{resourceManager.getString('airim', 'fullScreen')}" top="1" click="toggleFullscreen()"/>
 		
 		<s:VGroup right="0" top="0" horizontalAlign="right">
 			<s:List id="buttonList"
@@ -242,20 +331,15 @@
 					borderVisible="true"
 					contentBackgroundAlpha="0"
 					itemRenderer="com.treegger.component.AlphaButton"
-					
-					selectedItem="Normal"
 					change="qualityChangeHandler()"
 					>
 				<s:layout>
 					<s:HorizontalLayout  horizontalAlign="left" gap="1" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
 				</s:layout>
-				<s:dataProvider>
-					<s:ArrayCollection source="[ 'Low', 'Normal', 'High' ]" />
-				</s:dataProvider>
 			</s:List>
 	
 			<s:HGroup gap="2" verticalAlign="middle" paddingRight="5">
-				<s:Label text="Mic" color="0xffffff" alpha=".5" fontSize="10"/>
+				<s:Label text="{resourceManager.getString('airim', 'mic')}" color="0xffffff" alpha=".5" fontSize="10"/>
 				<s:HSlider id="gainSlider" alpha=".5" minimum="0" maximum="100" value="50" stepSize="5" snapInterval="5" liveDragging="true" showDataTip="false"
 						   lineHeight="1" lineThrough="false" maxWidth="50"
 						   change="if( microphone ) microphone.gain = gainSlider.value"/>

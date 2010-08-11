@@ -67,6 +67,7 @@
 				richText.selectRange( -1, -1 );
 				startDragging = false;
 			}
+
 			private function mouseMoveHandler(event:Event):void
 			{
 				if( startDragging && textSelection )

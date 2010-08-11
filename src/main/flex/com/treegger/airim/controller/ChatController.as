@@ -256,18 +256,24 @@ package com.treegger.airim.controller
 					{
 						stratusConnector.handshake( targetContact, textMessage.thread );
 						var that:ChatController = this;
-						stratusConnector.addEventListener( ChatEvent.STRATUSFILE, function( event:Event ):void
+						if( !stratusConnector.hasEventListener( ChatEvent.STRATUSFILE ) )
 						{
-							chatEvent = new ChatEvent( ChatEvent.STRATUSFILE );
-							chatEvent.targetContact = targetContact;					
-							dispatchEvent( chatEvent );
-						});
-						stratusConnector.addEventListener( ChatEvent.STRATUSVIDEO, function( event:Event ):void
+							stratusConnector.addEventListener( ChatEvent.STRATUSFILE, function( event:Event ):void
+							{
+								chatEvent = new ChatEvent( ChatEvent.STRATUSFILE );
+								chatEvent.targetContact = targetContact;					
+								dispatchEvent( chatEvent );
+							});
+						}
+						if( !stratusConnector.hasEventListener( ChatEvent.STRATUSVIDEO ) )
 						{
-							chatEvent = new ChatEvent( ChatEvent.STRATUSVIDEO );
-							chatEvent.targetContact = targetContact;					
-							dispatchEvent( chatEvent );
-						});
+							stratusConnector.addEventListener( ChatEvent.STRATUSVIDEO, function( event:Event ):void
+							{
+								chatEvent = new ChatEvent( ChatEvent.STRATUSVIDEO );
+								chatEvent.targetContact = targetContact;					
+								dispatchEvent( chatEvent );
+							});
+						}
 					}
 					
 					else if( textMessage.hasComposing && textMessage.composing )

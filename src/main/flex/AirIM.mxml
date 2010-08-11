@@ -11,9 +11,13 @@
 	backgroundAlpha="0"
 	showStatusBar="false"
 	useNativeDragManager="true"  
-	autoExit="true"
-	
+	autoExit="false"
+
 >
+	<fx:Metadata>
+		[ResourceBundle("airim")]
+	</fx:Metadata>
+	
 	<fx:Script>
 	<![CDATA[
 		import air.update.ApplicationUpdaterUI;
@@ -54,6 +58,7 @@
 					if( pref.applicationY > 0 ) nativeWindow.y =  pref.applicationY;
 				}
 			}
+			
 		}
 		
 		
@@ -74,6 +79,25 @@
 			// Active / Inactive app 
 			nativeApplication.addEventListener(Event.ACTIVATE, onApplicationActivate); 
 			nativeApplication.addEventListener(Event.DEACTIVATE, onApplicationDeactivate);
+			nativeApplication.addEventListener(Event.EXITING, quitApplicationHandler );
+			
+			addEventListener(Event.CLOSING, function( event:Event ):void
+			{
+				if( !nativeWindow.closed && nativeWindow.active )
+				{
+					var pref:UserPreference = swizBean.preferencesController.userPreference;
+					pref.applicationX = nativeWindow.x;
+					pref.applicationY = nativeWindow.y;
+					
+					swizBean.preferencesController.userPreference = pref;
+				}	
+
+				if( !exitingApplication )
+				{
+					nativeWindow.visible=false;
+					event.preventDefault()
+				}
+			}); 
 			
 			
 			nativeApplication.autoExit = false;
@@ -87,13 +111,16 @@
 			}
 			
 			
+			
 			//NativeApplication.nativeApplication.idleThreshold = 2 * 60; // In seconds -- the default is 5 minutes.
 			NativeApplication.nativeApplication.addEventListener(Event.USER_IDLE, onUserIdle);
 			NativeApplication.nativeApplication.addEventListener(Event.USER_PRESENT, onUserPresent); 
+			
+			
 			createMenu();
 			
 			
-			//checkForUpdate();
+			checkForUpdate();
 		}
 		
 		
@@ -101,7 +128,7 @@
 		{
 			var airIMmenu:NativeMenu = new NativeMenu();
 			
-			const preferenceMenuItem:NativeMenuItem = new NativeMenuItem("Preferences...");
+			const preferenceMenuItem:NativeMenuItem = new NativeMenuItem( resourceManager.getString('airim', 'preferences' ) );
 			preferenceMenuItem.addEventListener(Event.SELECT, preferencesSelectedHandler );
 			airIMmenu.addItem( preferenceMenuItem ) ;
 			
@@ -109,7 +136,7 @@
 			
 			
 			airIMmenu.addItem(new NativeMenuItem( "", true ) );
-			const quitMenuItem:NativeMenuItem = airIMmenu.addItem(new NativeMenuItem("Quit AirIM"));
+			const quitMenuItem:NativeMenuItem = airIMmenu.addItem(new NativeMenuItem( resourceManager.getString('airim', 'quitAirIM' ) ));
 			quitMenuItem.keyEquivalent = "q";
 			quitMenuItem.addEventListener(Event.SELECT, quitApplicationHandler );
 			contextMenu = airIMmenu;
@@ -117,7 +144,7 @@
 			if( NativeApplication.supportsMenu )
 			{
 				const mainMenu:NativeMenuItem = NativeApplication.nativeApplication.menu.getItemAt(0);
-				const preferenceMenuItem2:NativeMenuItem = new NativeMenuItem("Preferences...");
+				const preferenceMenuItem2:NativeMenuItem = new NativeMenuItem( resourceManager.getString('airim', 'preferences' ) );
 				preferenceMenuItem2.addEventListener(Event.SELECT, preferencesSelectedHandler );
 				mainMenu.submenu.addItemAt( preferenceMenuItem2, 2 );
 				mainMenu.submenu.items[mainMenu.submenu.items.length-1].addEventListener( Event.SELECT, teardown )
@@ -138,24 +165,22 @@
 			window.open(true);
 		}
 		
+		private var exitingApplication:Boolean;
 		private function teardown( event:Event = null ):void
 		{
 			trace( "Teardown" );
-			swizBean.chatController.sendPresence( "unavailable" );
-			swizBean.chatController.close();
-			
-			if( nativeWindow.active )
+			if( !exitingApplication )
 			{
-				var pref:UserPreference = swizBean.preferencesController.userPreference;
-				pref.applicationX = nativeWindow.x;
-				pref.applicationY = nativeWindow.y;
-			}	
-			swizBean.preferencesController.userPreference = pref;
+				exitingApplication = true;
+				swizBean.chatController.sendPresence( "unavailable" );
+				swizBean.chatController.close();
+			}
 		}
 		
 		private function quitApplicationHandler( event:Event = null ):void
 		{
 			trace( "Quit" );
+
 			for each( var win:NativeWindow in NativeApplication.nativeApplication.openedWindows ) 
 			{
 				win.dispatchEvent( new Event( Event.CLOSING, false, true ) );
@@ -180,12 +205,17 @@
 		
 		private function onShowWindow(e:Event):void 
 		{
-			if( !nativeWindow.closed ) nativeWindow.activate(); 
+			if( !nativeWindow.closed )
+			{
+				nativeWindow.visible=true;
+				nativeWindow.activate();
+			}
+			
 		}
 		
 		private function onApplicationActivate(e:Event):void 
 		{
-			stage.frameRate = 24; 
+			stage.frameRate = 24;
 		}  
 		private function onApplicationDeactivate(e:Event):void 
 		{
@@ -199,27 +229,27 @@
 		
 		
 		private function checkForUpdate():void {
-			setApplicationVersion(); // Find the current version so we can show it below			
-			appUpdater.updateURL = "http://ws.treegger.com/air/update.xml"; // Server-side XML file describing update
+			setApplicationVersion(); 			
+			appUpdater.updateURL = "http://ws.treegger.com/air/update.xml"; 
 			appUpdater.isCheckForUpdateVisible = false; // We won't ask permission to check for an update
-			appUpdater.addEventListener(UpdateEvent.INITIALIZED, onUpdate); // Once initialized, run onUpdate
-			appUpdater.addEventListener(ErrorEvent.ERROR, onError); // If something goes wrong, run onError
-			appUpdater.initialize(); // Initialize the update framework
+			appUpdater.addEventListener(UpdateEvent.INITIALIZED, onUpdate); 
+			appUpdater.addEventListener(ErrorEvent.ERROR, onError); 
+			appUpdater.initialize();
 		}
 	
 		private function onError(event:ErrorEvent):void {
-			Alert.show(event.toString());
+			trace( "CheckUpdate error: " + event );
 		}
 		
 		private function onUpdate(event:UpdateEvent):void {
-			appUpdater.checkNow(); // Go check for an update now
+			appUpdater.checkNow();
 		}
 	
 		// Find the current version for our Label below
 		private function setApplicationVersion():void {
 			var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
 			var ns:Namespace = appXML.namespace();
-			//ver.text = "Current version is " + appXML.ns::version;
+			trace( "Current version is " + appXML.ns::version );
 		}
 		
 	]]>

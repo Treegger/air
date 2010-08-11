@@ -66,6 +66,18 @@
 				
 			}
 			
+			
+			private function changeUserNameHandler():void
+			{
+				if( socialNetworkInput.selectedItem == 'Foursquare' )
+				{
+					userAccount.username = usernameInput.text.replace( /\@/g, '#' );
+				}
+				else
+				{
+					userAccount.username = usernameInput.text;
+				}
+			}
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -84,11 +96,6 @@
 		</s:HGroup>
 		
 		<s:HGroup verticalAlign="middle" width="100%">
-			<s:Label width="100" text="Username" fontWeight="bold" />
-			<s:TextInput id="usernameInput" width="100%" text="{userAccount.username}" change="userAccount.username = usernameInput.text" />
-		</s:HGroup>
-		
-		<s:HGroup verticalAlign="middle" width="100%">
 			<s:Label width="100" text="Social Network" fontWeight="bold" />
 			<s:ComboBox id="socialNetworkInput" width="100%"
 						dataProvider="{new ArrayCollection(['Twitter','Foursquare'])}" 
@@ -96,6 +103,12 @@
 						change="userAccount.socialNetwork = socialNetworkInput.selectedItem"
 			/>
 		</s:HGroup>
+		
+		<s:HGroup verticalAlign="middle" width="100%">
+			<s:Label width="100" text="Username" fontWeight="bold" />
+			<s:TextInput id="usernameInput" width="100%" text="{userAccount.username}" change="changeUserNameHandler()" />
+		</s:HGroup>
+		
 		
 		<s:HGroup verticalAlign="middle" width="100%">
 			<s:Label width="100"  text="Password" fontWeight="bold"/>

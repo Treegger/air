@@ -36,13 +36,6 @@ package com.treegger.component
 		}
 		
 
-		private function remoteCallHandler( data:Object ):void
-		{
-			trace( "Remote called " + data.remoteEvent + data.remoteObject );
-			const e:DynamicEvent = new DynamicEvent( data.remoteEvent );
-			e.data = data.remoteObject;
-			this.dispatchEvent( e );
-		}
 			
 		public function connect( contact:Contact, callBack:Function ):void
 		{
@@ -94,21 +87,23 @@ package com.treegger.component
 			{
 			 	ioStream = new IOStream();
 				contactStreams[contact.jidWithoutRessource] = ioStream;
-				ioStream.outputConnect( netConnection, IOStream.FILE_STREAM, false );
-	
-				ioStream.output.client = {
+				ioStream.outputConnect( netConnection, IOStream.FILE_STREAM, {
 					onPeerConnect: function( remoteStream:NetStream ):Boolean
 					{
 						trace( "Peer Connect");
-						ioStream.inputConnect( netConnection, remoteStream.farID, IOStream.FILE_STREAM, false );
-						ioStream.input.client =  {
-								remoteCall: remoteCallHandler
-						};
-						callBack( contact, ioStream );
+						ioStream.inputConnect( netConnection, remoteStream.farID, IOStream.FILE_STREAM, { remoteCall: remoteCallHandler }, false );
+						ioStream.input.client = 
+						{
+							onPeerConnect: function( remoteStream:NetStream ):Boolean
+							{
+								callBack( contact, ioStream );
+								return true;
+							}
+						}
 						return true;
 					}					
-				
-				}				
+					
+				}, false );
 			}
 		}
 		
@@ -144,13 +139,29 @@ package com.treegger.component
 		{
 			var ioStream:IOStream = new IOStream();
 			contactStreams[contact.jidWithoutRessource] = ioStream;
-			ioStream.outputConnect( netConnection, IOStream.FILE_STREAM, false );
 			
-			ioStream.inputConnect( netConnection, remoteId, IOStream.FILE_STREAM, false );
-			ioStream.input.client = {
-				remoteCall: remoteCallHandler
-			};
+			
+			ioStream.outputConnect( netConnection, IOStream.FILE_STREAM, {
+				onPeerConnect: function( remoteStream:NetStream ):Boolean
+				{
+					trace( "Peer Handshake Connect");
+					return true;
+				}
+			}, false );
+				
+				
 
+			ioStream.inputConnect( netConnection, remoteId, IOStream.FILE_STREAM, { remoteCall: remoteCallHandler }, false );
+
+			
+		}
+
+		private function remoteCallHandler( data:Object ):void
+		{
+			trace( "Remote called " + data.remoteEvent + data.remoteObject );
+			const e:DynamicEvent = new DynamicEvent( data.remoteEvent );
+			e.data = data.remoteObject;
+			this.dispatchEvent( e );
 		}
 		
 		private function netConnectionHandler(event:NetStatusEvent):void

@@ -19,7 +19,6 @@
 		 
 		 
 		 creationComplete="creationCompleteHandler()"
-		 
 		 windowActivate="windowActivateHandler()"
 		 windowDeactivate="activated = false"
 		 title="{selectedContact.name}"
@@ -27,7 +26,10 @@
 		 keyDown="keyDownHanler( event )"
 		 keyUp="keyUpHanler( event )"
 		 >
-	
+	<fx:Metadata>
+		[ResourceBundle("airim")]
+	</fx:Metadata>
+
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.controller.ChatController;
@@ -277,7 +279,11 @@
 				activated = true;
 				callLater( focusToCurrentPannel );
 				
-				
+				windowShowHandler();				
+			}				
+			
+			private function windowShowHandler():void
+			{
 				if( !preferencesSet && preferencesController.hasUserPreference() )
 				{
 					preferencesSet = true;
@@ -287,11 +293,11 @@
 					if( pref.chatWindowHeight > 0 ) nativeWindow.height = pref.chatWindowHeight;
 					if( pref.chatWindowWidth > 0 ) nativeWindow.width = pref.chatWindowWidth;
 				}
-			}				
-			
+			}
+				
 			private function creationCompleteHandler():void
 			{
-				
+				windowShowHandler();
 				if( _selectedContact )
 				{
 					selectedContact = _selectedContact;
@@ -310,16 +316,16 @@
 
 		<s:Group width="100%">
 			<s:HGroup paddingTop="4" paddingBottom="4" paddingLeft="8" paddingRight="8" gap="8" left="0">
-				<s:Group click="linkToFeedback()" toolTip="Write feedback...">
+				<s:Group click="linkToFeedback()" toolTip="{resourceManager.getString('airim','toolTipFeedback')}">
 					<s:BitmapImage source="@Embed('icons/feedback.png')" />
 				</s:Group>
 			</s:HGroup>
 			
 			<s:HGroup paddingTop="4" paddingBottom="4" paddingLeft="8" paddingRight="8" gap="8" right="0">
-				<s:Group click="currentChatPannel.selectFile()" toolTip="Send file">
+				<s:Group click="currentChatPannel.selectFile()" toolTip="{resourceManager.getString('airim','toolTipSendFile')}">
 					<s:BitmapImage source="@Embed('icons/folder.png')" />
 				</s:Group>
-				<s:Group click="openVideoWindow().startStratus()" toolTip="Start video">
+				<s:Group click="openVideoWindow().startStratus()" toolTip="{resourceManager.getString('airim','toolTipVideo')}">
 					<s:BitmapImage source="@Embed('icons/video.png')" />
 				</s:Group>
 			</s:HGroup>

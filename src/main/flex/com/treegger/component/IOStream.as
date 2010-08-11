@@ -17,23 +17,24 @@ package com.treegger.component
 
 		public function duplexConnect( netConnection:NetConnection, remoteStratusId:String, streamName:String, dataReliable:Boolean=false ):void
 		{
-			outputConnect( netConnection, streamName, dataReliable );
-			inputConnect( netConnection, remoteStratusId, streamName, dataReliable );
+			outputConnect( netConnection, streamName, null, dataReliable );
+			inputConnect( netConnection, remoteStratusId, streamName, null, dataReliable );
 		}
-		public function outputConnect( netConnection:NetConnection, streamName:String, dataReliable:Boolean ):void
+		public function outputConnect( netConnection:NetConnection, streamName:String, client:Object, dataReliable:Boolean ):void
 		{
 			output = new NetStream( netConnection, NetStream.DIRECT_CONNECTIONS);
 			//if( dataReliable ) output.dataReliable = dataReliable;
-			//output.client = { onPeerConnect: onPeerConnectHandler };
+			if( client ) output.client = client;
 			output.addEventListener(NetStatusEvent.NET_STATUS, outputStreamHandler );
 			output.publish( streamName );
 		}
 		
 		
-		public function inputConnect( netConnection:NetConnection, remoteStratusId:String, streamName:String, dataReliable:Boolean ):void
+		public function inputConnect( netConnection:NetConnection, remoteStratusId:String, streamName:String, client:Object, dataReliable:Boolean ):void
 		{
 			input = new NetStream( netConnection, remoteStratusId );
 			//if( dataReliable ) input.dataReliable = dataReliable;
+			if( client ) input.client = client;
 			input.addEventListener( NetStatusEvent.NET_STATUS, inputStreamHandler );
 			input.play( streamName );			
 		}
