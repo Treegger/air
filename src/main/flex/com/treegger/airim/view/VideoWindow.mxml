@@ -104,6 +104,7 @@
 			public function requestVideo():void
 			{
 				ring();
+				activate();
 				Alert.show( resourceManager.getString( 'airim', 'videoRequestFrom', [contact.name]), resourceManager.getString( 'airim', 'videoAccept' ),
 						Alert.YES|Alert.NO, this, acceptRemoteClickHandler );
 			}

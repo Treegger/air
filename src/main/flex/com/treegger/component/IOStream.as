@@ -10,8 +10,6 @@ package com.treegger.component
 		public var output:NetStream;
 		public var input:NetStream;
 		
-		public static const VIDEO_STREAM:String = "airimVideoStream";
-		public static const FILE_STREAM:String  = "airimFileStream";
 		
 		public var peerConnectTimeout:uint = 10*1000;
 
