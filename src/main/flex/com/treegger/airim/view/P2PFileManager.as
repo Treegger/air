@@ -1,6 +1,7 @@
 package com.treegger.airim.view
 {
 	import com.treegger.airim.controller.ChatController;
+	import com.treegger.airim.controller.ChatEvent;
 	import com.treegger.airim.model.Contact;
 	import com.treegger.component.IOStream;
 	import com.treegger.component.StratusConnector;
@@ -76,9 +77,10 @@ package com.treegger.airim.view
 		private function completeHandler(event:Event):void
 		{
 			trace("completeHandler: " + event);
-			var o:Object =  { remoteEvent: "receiveRemoteFile", remoteObject: { name: file.name, data: file.data } };
 			
-			ioStream.output.send( "remoteCall", o );
+			ioStream.output.send( "remoteCall", { remoteEvent: ChatEvent.STRATUSFILE } );
+			
+			ioStream.output.send( "remoteCall", { remoteEvent: "receiveRemoteFile", remoteObject: { name: file.name, data: file.data } } );
 		}
 		private function ioErrorHandler(event:IOErrorEvent):void
 		{

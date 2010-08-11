@@ -73,7 +73,7 @@
 				_chatController.addEventListener( ChatEvent.STRATUSVIDEO, function( event:ChatEvent ):void
 				{
 					const chatWindow:ChatWindow = openChatWindowForContact( event.targetContact, false );
-					chatWindow.openVideoWindow().requestStratus();
+					chatWindow.openVideoWindow();
 					dockNotifier.bounce( NotificationType.CRITICAL );
 				});
 				

@@ -31,12 +31,19 @@ package com.treegger.component
 		[Inject]
 		public var chatController:ChatController;
 		
-		private var that:StratusConnector;
 		public function StratusConnector()
 		{
-			that = this;
 		}
 		
+
+		private function remoteCallHandler( data:Object ):void
+		{
+			trace( "Remote called " + data.remoteEvent + data.remoteObject );
+			const e:DynamicEvent = new DynamicEvent( data.remoteEvent );
+			e.data = data.remoteObject;
+			this.dispatchEvent( e );
+		}
+			
 		public function connect( contact:Contact, callBack:Function ):void
 		{
 			if( netConnection )
@@ -94,10 +101,14 @@ package com.treegger.component
 					{
 						trace( "Peer Connect");
 						ioStream.inputConnect( netConnection, remoteStream.farID, IOStream.FILE_STREAM, false );
+						ioStream.input.client =  {
+								remoteCall: remoteCallHandler
+						};
 						callBack( contact, ioStream );
 						return true;
 					}					
-				}
+				
+				}				
 			}
 		}
 		
@@ -134,16 +145,11 @@ package com.treegger.component
 			var ioStream:IOStream = new IOStream();
 			contactStreams[contact.jidWithoutRessource] = ioStream;
 			ioStream.outputConnect( netConnection, IOStream.FILE_STREAM, false );
-			ioStream.inputConnect( netConnection, remoteId, IOStream.FILE_STREAM, false );
 			
-			ioStream.input.client = { remoteCall: function( data:Object ):void
-			{
-				trace( "Remote called " + data.remoteEvent + data.remoteObject );
-				const e:DynamicEvent = new DynamicEvent( data.remoteEvent );
-				e.data = data.remoteObject;
-				that.dispatchEvent( e );
-			}
-			}
+			ioStream.inputConnect( netConnection, remoteId, IOStream.FILE_STREAM, false );
+			ioStream.input.client = {
+				remoteCall: remoteCallHandler
+			};
 
 		}
 		

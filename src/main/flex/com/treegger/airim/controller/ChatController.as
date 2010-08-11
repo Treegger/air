@@ -17,6 +17,7 @@ package com.treegger.airim.controller
 	import com.treegger.websocket.WSConnector;
 	
 	import flash.events.DataEvent;
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.TimerEvent;
 	import flash.utils.ByteArray;
@@ -249,16 +250,26 @@ package com.treegger.airim.controller
 				if( targetContact )
 				{
 					var chatEvent:ChatEvent;
-					if( textMessage.type == MESSAGE_TYPE_STRATUS_VIDEO_REQUEST )
-					{
-						targetContact.stratusId = textMessage.thread;
-						chatEvent = new ChatEvent( ChatEvent.STRATUSVIDEO );
-					}
-					else if( textMessage.type == MESSAGE_TYPE_STRATUS_REQUEST )
+					
+
+					if( textMessage.type == MESSAGE_TYPE_STRATUS_REQUEST )
 					{
 						stratusConnector.handshake( targetContact, textMessage.thread );
-						chatEvent = new ChatEvent( ChatEvent.STRATUSFILE );
+						var that:ChatController = this;
+						stratusConnector.addEventListener( ChatEvent.STRATUSFILE, function( event:Event ):void
+						{
+							chatEvent = new ChatEvent( ChatEvent.STRATUSFILE );
+							chatEvent.targetContact = targetContact;					
+							dispatchEvent( chatEvent );
+						});
+						stratusConnector.addEventListener( ChatEvent.STRATUSVIDEO, function( event:Event ):void
+						{
+							chatEvent = new ChatEvent( ChatEvent.STRATUSVIDEO );
+							chatEvent.targetContact = targetContact;					
+							dispatchEvent( chatEvent );
+						});
 					}
+					
 					else if( textMessage.hasComposing && textMessage.composing )
 					{
 						targetContact.composing = true;
@@ -297,8 +308,11 @@ package com.treegger.airim.controller
 						}
 					}
 					
-					chatEvent.targetContact = targetContact;					
-					dispatchEvent( chatEvent );
+					if( chatEvent )
+					{
+						chatEvent.targetContact = targetContact;					
+						dispatchEvent( chatEvent );
+					}
 				}
 			}
 		}

@@ -22,6 +22,7 @@
 		<![CDATA[
 			import com.treegger.airim.PrivateProperties;
 			import com.treegger.airim.controller.ChatController;
+			import com.treegger.airim.controller.ChatEvent;
 			import com.treegger.airim.model.Contact;
 			import com.treegger.component.AlphaButton;
 			import com.treegger.component.IOStream;
@@ -33,6 +34,7 @@
 			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
+			import mx.events.DynamicEvent;
 			
 
 			
@@ -43,9 +45,6 @@
 			private const cameraWidth:int=320;
 			private const cameraHeight:int=240;
 			
-			
-			
-			
 			private var remoteVideo:Video = new Video();
 
 
@@ -53,54 +52,52 @@
 			[Bindable]
 			public var contact:Contact;
 			
-			private var acceptIncomingRequest:Boolean = false;
 			
-			
-			private var netConnection:NetConnection;
 			private var ioStream:IOStream;
-			
 
-			private function stratusConnect():void
+			private var _stratusConnector:StratusConnector;
+			[Inject]
+			public function set stratusConnector(value:StratusConnector):void
 			{
-				var stratusConnector:StratusConnector = new StratusConnector();
-				stratusConnector.addEventListener( StratusConnector.CONNECTION_SUCCESS, function(event:Event):void
+				_stratusConnector = value;
+
+				_stratusConnector.addEventListener( "requestVideo", function( event:DynamicEvent ):void
 				{
-					netConnection = stratusConnector.netConnection;
-					chatController.sendTextMessage( contact.jidWithoutRessource, null, ChatController.MESSAGE_TYPE_STRATUS_VIDEO_REQUEST, netConnection.nearID );
-					if( contact.stratusId ) handshake( contact.stratusId );
+					requestVideo();
 				});
-				stratusConnector.addEventListener( StratusConnector.CONNECTION_CLOSE, function(event:Event):void
-				{
-					netConnection = null;
-					acceptIncomingRequest = false;
-					if( !closed ) close();
-				});				
-				//stratusConnector.connect(contact);
 			}
-			
+
 			public function startStratus():void
 			{
-				acceptIncomingRequest = true;
-				stratusConnect();
+				var that:VideoWindow = this;
+				_stratusConnector.connect( contact, function( contact:Contact, ioStream:IOStream ):void
+				{
+					that.ioStream = ioStream;
+					
+					ioStream.output.send( "remoteCall",  { remoteEvent: ChatEvent.STRATUSVIDEO } );
+					
+					attachVideo();
+
+					ioStream.output.send( "remoteCall",  { remoteEvent: "requestVideo" } );
+				});
+
 			}
-			public function requestStratus():void
+			
+			public function requestVideo():void
 			{
-				if( acceptIncomingRequest )
-				{
-					handshake( contact.stratusId );
-				}
-				else
-				{
-					Alert.show( "Video request from "+contact.name, "Accept remote call?", Alert.YES|Alert.NO, this, acceptRemoteClickHandler );
-				}
+				Alert.show( "Video request from "+contact.name, "Accept remote call?", Alert.YES|Alert.NO, this, acceptRemoteClickHandler );
 			}
 			
 			private function acceptRemoteClickHandler( event:CloseEvent ):void
 			{
 				if( event.detail == Alert.YES )
 				{
-					acceptIncomingRequest = true;
-					stratusConnect();
+					var that:VideoWindow = this;
+					_stratusConnector.connect( contact, function( contact:Contact, ioStream:IOStream ):void
+					{
+						that.ioStream = ioStream;
+						attachVideo();
+					});
 				}
 				else 
 				{
@@ -108,30 +105,28 @@
 				}
 			}
 			
-			private function handshake( stratusId:String ):void
+			private function attachVideo():void
 			{
-				trace( "Handshake remoteId " + stratusId + " net " + netConnection  );
-				if( netConnection && stratusId )
-				{
-					ioStream = new IOStream();
-					ioStream.duplexConnect( netConnection, stratusId, IOStream.VIDEO_STREAM );
-					
-					var st:SoundTransform = new SoundTransform(1);
-					ioStream.input.soundTransform = st;
-					
-					remoteVideo.smoothing = true;
-					remoteVideo.attachNetStream( ioStream.input );
-					remoteVideoDisplay.addChild( remoteVideo );
-					
-					
-					bindCamera();
-					bindMicrophone();
-				}
+				var st:SoundTransform = new SoundTransform(1);
+				ioStream.input.soundTransform = st;
+				
+				remoteVideo.smoothing = true;
+				remoteVideo.attachNetStream( ioStream.input );
+				remoteVideoDisplay.addChild( remoteVideo );
+				
+				bindCamera();
+				bindMicrophone();
 			}
 
 			private function closeHandler():void
 			{
-				
+				localVideoDisplay.attachCamera(null);
+				remoteVideoDisplay.attachCamera(null);
+				if( ioStream.output )
+				{
+					ioStream.output.attachCamera(null);
+					ioStream.output.attachAudio(null);
+				}
 			}
 			
 			
