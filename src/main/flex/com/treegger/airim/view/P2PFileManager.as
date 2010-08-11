@@ -34,11 +34,13 @@ package com.treegger.airim.view
 		public function set stratusConnector(value:StratusConnector):void
 		{
 			_stratusConnector = value;
-			_stratusConnector.addEventListener( "receiveRemoteFile", function( event:DynamicEvent ):void
+			if( !_stratusConnector.hasEventListener( "receiveRemoteFile" ) )
 			{
-				receiveRemoteFile( event.data );
-			});
-			
+				_stratusConnector.addEventListener( "receiveRemoteFile", function( event:DynamicEvent ):void
+				{
+					receiveRemoteFile( event.data );
+				});
+			}			
 		}
 
 		

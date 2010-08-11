@@ -73,7 +73,7 @@ package com.treegger.component
 		}
 		
 		
-		private function hangup():void
+		public function hangup():void
 		{
 			trace("Hanging");
 			

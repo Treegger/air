@@ -9,8 +9,11 @@ package com.treegger.component
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+	import flash.net.getClassByAlias;
+	import flash.utils.setTimeout;
 	
 	import mx.events.DynamicEvent;
+	import mx.rpc.mxml.Concurrency;
 
 	
 	public class StratusConnector extends EventDispatcher
@@ -18,8 +21,8 @@ package com.treegger.component
 		private var connectUrl:String = "rtmfp://stratus.rtmfp.net";
 		private const developerKey:String = PrivateProperties.STRATUS_DEVELOPER_KEY;
 
-		// this is the connection to rtmfp server
-		public var netConnection:NetConnection;
+		// this is the connections to rtmfp server
+		public var netConnections:Object={};
 		
 		public static const CONNECTION_SUCCESS:String="CONNECTION_SUCCESS";
 		public static const CONNECTION_FAILURE:String="CONNECTION_FAILURE";
@@ -35,11 +38,19 @@ package com.treegger.component
 		{
 		}
 		
+		private function getNetConnection( contact:Contact):NetConnection
+		{
+			return netConnections[contact.jidWithoutRessource];
+		}
+		private function setNetConnection( contact:Contact, netConnection:NetConnection ):void
+		{
+			netConnections[contact.jidWithoutRessource] = netConnection;
+		}
 
 			
 		public function connect( contact:Contact, callBack:Function ):void
 		{
-			if( netConnection )
+			if( getNetConnection( contact ) )
 			{
 				if( connecting )
 				{
@@ -56,7 +67,8 @@ package com.treegger.component
 			else
 			{
 				connecting = true;
-				netConnection = new NetConnection();
+				const netConnection:NetConnection = new NetConnection();
+				setNetConnection( contact, netConnection );
 				netConnection.addEventListener( NetStatusEvent.NET_STATUS, netConnectionHandler );
 				addEventListener( CONNECTION_SUCCESS, function( event:Event ):void
 				{
@@ -87,19 +99,12 @@ package com.treegger.component
 			{
 			 	ioStream = new IOStream();
 				contactStreams[contact.jidWithoutRessource] = ioStream;
-				ioStream.outputConnect( netConnection, IOStream.FILE_STREAM, {
+				ioStream.outputConnect( getNetConnection( contact ), IOStream.FILE_STREAM, {
 					onPeerConnect: function( remoteStream:NetStream ):Boolean
 					{
 						trace( "Peer Connect");
-						ioStream.inputConnect( netConnection, remoteStream.farID, IOStream.FILE_STREAM, { remoteCall: remoteCallHandler }, false );
-						ioStream.input.client = 
-						{
-							onPeerConnect: function( remoteStream:NetStream ):Boolean
-							{
-								callBack( contact, ioStream );
-								return true;
-							}
-						}
+						ioStream.inputConnect( getNetConnection( contact ), remoteStream.farID, IOStream.FILE_STREAM, { remoteCall: remoteCallHandler }, false );
+						setTimeout( function():void { callBack( contact, ioStream ) }, 100 );
 						return true;
 					}					
 					
@@ -111,13 +116,14 @@ package com.treegger.component
 		public function handshake( contact:Contact, remoteId:String ):void
 		{
 			
-			if( netConnection != null )
+			if( getNetConnection( contact ) != null )
 			{
 				_handshake( contact, remoteId );
 			}
 			else
 			{
-				netConnection = new NetConnection();
+				const netConnection:NetConnection = new NetConnection();
+				setNetConnection( contact, netConnection );
 				netConnection.addEventListener( NetStatusEvent.NET_STATUS, netConnectionHandler );
 				addEventListener( CONNECTION_SUCCESS, function( event:Event ):void
 				{
@@ -141,7 +147,7 @@ package com.treegger.component
 			contactStreams[contact.jidWithoutRessource] = ioStream;
 			
 			
-			ioStream.outputConnect( netConnection, IOStream.FILE_STREAM, {
+			ioStream.outputConnect( getNetConnection( contact ), IOStream.FILE_STREAM, {
 				onPeerConnect: function( remoteStream:NetStream ):Boolean
 				{
 					trace( "Peer Handshake Connect");
@@ -151,14 +157,14 @@ package com.treegger.component
 				
 				
 
-			ioStream.inputConnect( netConnection, remoteId, IOStream.FILE_STREAM, { remoteCall: remoteCallHandler }, false );
+			ioStream.inputConnect( getNetConnection( contact ), remoteId, IOStream.FILE_STREAM, { remoteCall: remoteCallHandler }, false );
 
 			
 		}
 
 		private function remoteCallHandler( data:Object ):void
 		{
-			trace( "Remote called " + data.remoteEvent + data.remoteObject );
+			trace( "Remote called " + data.remoteEvent +" / " + data.remoteObject );
 			const e:DynamicEvent = new DynamicEvent( data.remoteEvent );
 			e.data = data.remoteObject;
 			this.dispatchEvent( e );
@@ -177,7 +183,22 @@ package com.treegger.component
 				
 				case "NetStream.Connect.Closed":
 					dispatchEvent( new Event(CONNECTION_CLOSE) );
-					netConnection = null;
+					trace( event.info.stream.info );
+					for( var key:Object in netConnections )
+					{
+						trace( "JID " + key );
+						if( netConnections[ key ] == event.info.stream )
+						{
+							trace( "Found stream" );
+							netConnections[ key ] = null;
+							const ioStream:IOStream = contactStreams[key];				
+							ioStream.hangup();
+							contactStreams[key];
+							break;
+						}
+					}
+					//netConnection = null;
+					
 					break;
 			}
 		}

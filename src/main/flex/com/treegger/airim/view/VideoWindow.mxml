@@ -39,8 +39,10 @@
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.events.DynamicEvent;
+			import mx.events.FlexEvent;
 			
 			import org.swizframework.reflection.BindableMetadataHost;
 			
@@ -68,13 +70,19 @@
 			public function set stratusConnector(value:StratusConnector):void
 			{
 				_stratusConnector = value;
-
-				_stratusConnector.addEventListener( "requestVideo", function( event:DynamicEvent ):void
-				{
-					requestVideo();
-				});
+				var that:UIComponent = this;
+				_stratusConnector.addEventListener( "requestVideo_"+contact.jidWithoutRessource, requestVideoHandler );
 			}
 
+			private function requestVideoHandler( event:DynamicEvent ):void
+			{
+				if( initialized ) requestVideo();
+				else 
+				{
+					addEventListener(FlexEvent.CREATION_COMPLETE, function(event:Event):void{ requestVideo() } );
+				}
+			}
+			
 			public function startStratus():void
 			{
 				var that:VideoWindow = this;
@@ -90,14 +98,14 @@
 			{
 				ioStream.output.send( "remoteCall",  { remoteEvent: ChatEvent.STRATUSVIDEO } );
 				attachVideo();
-				ioStream.output.send( "remoteCall",  { remoteEvent: "requestVideo" } );
+				ioStream.output.send( "remoteCall",  { remoteEvent: "requestVideo_"+chatController.currentContact.jidWithoutRessource } );
 			}
 			
 			public function requestVideo():void
 			{
-				ring()
+				ring();
 				Alert.show( resourceManager.getString( 'airim', 'videoRequestFrom', [contact.name]), resourceManager.getString( 'airim', 'videoAccept' ),
-							Alert.YES|Alert.NO, this, acceptRemoteClickHandler );
+						Alert.YES|Alert.NO, this, acceptRemoteClickHandler );
 			}
 			
 			private function acceptRemoteClickHandler( event:CloseEvent ):void
@@ -133,6 +141,8 @@
 
 			private function closeHandler():void
 			{
+				_stratusConnector.removeEventListener( "requestVideo_"+contact.jidWithoutRessource, requestVideoHandler );
+
 				localVideoDisplay.attachCamera(null);
 				remoteVideoDisplay.attachCamera(null);
 				if( ioStream && ioStream.output )
@@ -248,6 +258,7 @@
 
 			private function ring():void
 			{				
+				if( ringer ) stopRing();
 				ringer = new Sound();
 				
 				ringer.addEventListener("sampleData", ringTone);
@@ -297,9 +308,18 @@
 			
 			private function creationCompleteHandler():void
 			{
+				addEventListener(Event.ENTER_FRAME, updateMicrophoneActivity );
 				const array:Array = [ resourceManager.getString('airim', 'low'), resourceManager.getString('airim', 'normal'), resourceManager.getString('airim', 'high') ]
 				buttonList.dataProvider = new ArrayCollection( array ); 
 				buttonList.selectedIndex=1;
+			}
+			
+			private function updateMicrophoneActivity(event:Event):void
+			{
+				if( microphone && microphone.activityLevel >= 0 )
+				{
+					microphoneActivityBar.height = remoteVideoDisplay.height*microphone.activityLevel/400;
+				}
 			}
 		]]>
 	</fx:Script>
@@ -309,7 +329,7 @@
 						 resize="remoteVideo.width=remoteVideoDisplay.width; remoteVideo.height=remoteVideoDisplay.height"/>
 		<s:Group right="0" bottom="0">
 			<mx:VideoDisplay id="localVideoDisplay" height="{remoteVideoDisplay.height/4}" width="{remoteVideoDisplay.width/4}" />		
-			<s:Rect  bottom="0" right="0" width="4" height="{remoteVideoDisplay.height*microphone.activityLevel/400}">
+			<s:Rect id="microphoneActivityBar" bottom="0" right="0" width="4" height="0">
 				<s:fill>
 					<s:SolidColor color="0xff0000" alpha="0.6" />
 				</s:fill>
