@@ -21,7 +21,7 @@
 		 creationComplete="creationCompleteHandler()"
 		 windowActivate="windowActivateHandler()"
 		 windowDeactivate="activated = false"
-		 title="{selectedContact.name}"
+		 title="{getWindowTitle( selectedContact.name, selectedContact.unreadContents )}"
 		 closing="closingHandler( event )"
 		 keyDown="keyDownHanler( event )"
 		 keyUp="keyUpHanler( event )"
@@ -85,6 +85,12 @@
 						selectedContact = contact;
 					}
 				}
+			}
+			
+			private function getWindowTitle( name:String, unreadContents:uint ):String
+			{
+				if( unreadContents > 0 ) return name + ' ('+unreadContents+')';
+				else return name;
 			}
 			
 			

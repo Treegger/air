@@ -89,6 +89,7 @@ package com.treegger.airim.model
 			return _show && ( _show.toLocaleLowerCase() == "dnd" );    
 		}
 		
+		[Bindable(event='hasUnreadContentChanged')]
 		public function get unreadContents():uint
 		{
 			var unread:uint = 0;
