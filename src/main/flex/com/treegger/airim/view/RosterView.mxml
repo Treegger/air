@@ -75,7 +75,7 @@
 					
 					if( NativeWindow.supportsNotification )
 					{
-						NativeApplication.nativeApplication.activeWindow.notifyUser( NotificationType.CRITICAL );
+						chatWindow.nativeWindow.notifyUser( NotificationType.CRITICAL );
 					}
 				});
 				_chatController.addEventListener( ChatEvent.STRATUSVIDEO, function( event:ChatEvent ):void
