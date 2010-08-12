@@ -72,6 +72,11 @@
 					{
 						chatWindow.selectedContact.setAllContentRead();
 					}
+					
+					if( NativeWindow.supportsNotification )
+					{
+						NativeApplication.nativeApplication.activeWindow.notifyUser( NotificationType.CRITICAL );
+					}
 				});
 				_chatController.addEventListener( ChatEvent.STRATUSVIDEO, function( event:ChatEvent ):void
 				{
@@ -147,7 +152,9 @@
 				
 				rosterList.addEventListener( "contactDoubleClick", function( event:DynamicEvent ):void
 				{
-					openChatWindowForContact( event.contact, true ).nativeWindow.orderToFront();
+					const chatWindow:ChatWindow = openChatWindowForContact( event.contact, true );
+					chatWindow.nativeWindow.orderToFront();
+					chatWindow.activate();
 					event.stopPropagation();
 				});
 				rosterList.addEventListener( "dropText", function( event:DynamicEvent ):void

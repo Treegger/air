@@ -156,13 +156,26 @@
 		private function preferencesSelectedHandler( event:Event ):void
 		{
 			openPreferencesWindow();
+			
 		}
 
+		private var preferencesWindow:PreferencesWindow;
 		private function openPreferencesWindow():void
 		{
-			const window:PreferencesWindow = new PreferencesWindow() ;
-			SwizManager.setUp(window);
-			window.open(true);
+			if( !preferencesWindow )
+			{
+				preferencesWindow = new PreferencesWindow() ;
+				
+				preferencesWindow.addEventListener(Event.CLOSE, function(event:Event):void
+				{
+					preferencesWindow = null;
+				});
+				
+				SwizManager.setUp(preferencesWindow);
+				preferencesWindow.open(true);
+				preferencesWindow.activate();
+				preferencesWindow.nativeWindow.orderToFront();
+			}
 		}
 		
 		private var exitingApplication:Boolean;
@@ -173,7 +186,7 @@
 			{
 				exitingApplication = true;
 				swizBean.chatController.sendPresence( "unavailable" );
-				swizBean.chatController.close();
+				swizBean.chatController.close(true);
 			}
 		}
 		

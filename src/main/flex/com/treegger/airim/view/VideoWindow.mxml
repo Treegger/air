@@ -319,7 +319,7 @@
 			{
 				if( microphone && microphone.activityLevel >= 0 )
 				{
-					microphoneActivityBar.height = remoteVideoDisplay.height*microphone.activityLevel/400;
+					microphoneActivityBar.height = Math.min( remoteVideoDisplay.height*microphone.activityLevel/400, localVideoDisplay.height);
 				}
 			}
 		]]>

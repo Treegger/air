@@ -13,12 +13,16 @@
 	
 	rollOver="rollOverHandler()"
 	rollOut="rollOutHandler()"
+	
+	creationComplete="creationCompleteHandler()"
 >
 	
 	<fx:Script>
 		<![CDATA[
 			import com.treegger.airim.model.Contact;
 			import com.treegger.protobuf.RosterItem;
+			
+			import flash.utils.setTimeout;
 			
 			import mx.events.DynamicEvent;
 
@@ -64,6 +68,15 @@
 				dispatchEvent( event ); 
 			}
 
+			private function creationCompleteHandler():void
+			{
+				currentState = "added";
+				setTimeout( stateToNormal, 3000 );
+			}
+			private function stateToNormal():void
+			{
+				currentState = "normal";
+			}
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -71,14 +84,15 @@
 
 	<s:states>
 		<s:State name="normal" />
+		<s:State name="added" />
 		<s:State name="hovered" />
 		<s:State name="dragHovered" />
 	</s:states>
 	
-	<s:Group>
+	<s:Group id="group">
 		<s:Rect  top="0" bottom="0" radiusX="8" radiusY="8"  width="100%">
 			<s:fill>
-				<s:SolidColor color="0xffffff" color.dragHovered="0x6677C1" alpha="1" alpha.hovered="0.9" alpha.dragHovered="0.8"/>
+				<s:SolidColor color="0xffffff" color.dragHovered="0x6677C1" color.added="0x00aa00"  alpha="1" alpha.added="0.6" alpha.hovered="0.9" alpha.dragHovered="0.8"/>
 			</s:fill>
 			<s:stroke>
 				<s:SolidColorStroke color="0x000000" color.dragHovered="0x0B2DC1" alpha=".3" alpha.hovered="0.1" alpha.dragHovered=".8" weight="1" weight.dragHovered="3"/>
@@ -88,7 +102,7 @@
 		<component:StatusBullet left="5" top="3" width="10" height="10" color="{( data as Contact ).statusColor}" closable="false"/>
 			
 		
-		<s:Label text="{(data as Contact).name}" top="3" bottom="1" left="19" right="5" color.dragHovered="0xffffff"/>
+		<s:Label text="{(data as Contact).name}" top="3" bottom="1" left="19" right="5" color.dragHovered="0xffffff" color.added="0xffffff"/>
 		
 	</s:Group>
 </s:ItemRenderer> 

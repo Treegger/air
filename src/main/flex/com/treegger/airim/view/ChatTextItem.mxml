@@ -127,7 +127,7 @@
 		</s:stroke>
 	</s:Line>
 	<s:RichEditableText id="richText"
-						right="30" left="5" top="4" bottom="2" 
+						right="35" left="5" top="4" bottom="2" 
 						clipAndEnableScrolling="false"
 						multiline="true"
 						focusEnabled="false"

@@ -106,12 +106,12 @@ package com.treegger.airim.controller
 		}
 		
 		
-		public function close():void
+		public function close( exit:Boolean = false ):void
 		{
 			pingTimer.stop();
 			wsConnector.close();
 			authenticated = false;
-			exitState = true;
+			exitState = exit;
 		}
 		
 		private var pingTimer:Timer;
@@ -462,9 +462,27 @@ package com.treegger.airim.controller
 		
 		public function authenticate( userAccount:UserAccount ):void
 		{
+			if( authenticated )
+			{
+				close();
+				connect();
+			}
+
+			
 			const authReq:AuthenticateRequest = new AuthenticateRequest();
 			
-			authReq.username = userAccount.username+'@'+userAccount.socialNetwork.toLocaleLowerCase();
+
+			const socialNetwork:String = userAccount.socialNetwork.toLocaleLowerCase();
+			var username:String = userAccount.username;
+
+
+			if( socialNetwork == 'Foursquare' )
+			{
+				username = username.replace( /\@/g, '#' );
+			}
+
+
+			authReq.username = username+'@'+socialNetwork;
 			authReq.password = userAccount.password;
 			authReq.resource = 'AirIM';
 			currentJID = authReq.username+"/" +authReq.resource;

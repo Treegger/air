@@ -265,7 +265,7 @@
 			private function focusToCurrentPannel():void
 			{
 				if( activated ) selectedContact.setAllContentRead();
-				currentChatPannel.textInput.setFocus();
+				if( currentChatPannel && currentChatPannel.textInput ) currentChatPannel.textInput.setFocus();
 			}
 			
 			private var _dropText:String;
