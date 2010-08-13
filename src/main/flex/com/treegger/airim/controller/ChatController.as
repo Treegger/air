@@ -59,6 +59,7 @@ package com.treegger.airim.controller
 		
 		private function connect():void
 		{
+			trace( "Connect" );
 			connectingState = true;
 			wsConnector = new WSConnector();
 			wsConnector.onHandshake = onSocketHandshake;
@@ -142,10 +143,14 @@ package com.treegger.airim.controller
 		private var retryConnectionCount:Number;
 		private function onSocketError( error:Error=null ):void
 		{
+			connectingState = false;
+			trace( "Socket Error... reconnecting...");
 			reconnect();
 		}
 		private function onSocketClose( event:Event=null ):void
 		{
+			connectingState = false;
+			trace( "Socket Close... reconnecting...");
 			reconnect();
 		}
 		
@@ -172,10 +177,12 @@ package com.treegger.airim.controller
 			if( delay > 1 )
 			{
 				new Notification( "Network interruption", "Connecting in " + (delay/1000) + " seconds...", 1 );
+				trace( "Connecting in "+(delay/1000)+"sec...");
 				setTimeout( connect , delay );
 			}
 			else
 			{
+				trace( "Connecting...");
 				new Notification( "Network interruption", "Reconnecting...", 1 );
 				connect();
 			}
