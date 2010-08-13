@@ -97,6 +97,11 @@
 				
 				_chatController.addEventListener( ChatEvent.ROSTER, function( event:ChatEvent ):void
 				{
+					if( NativeWindow.supportsNotification )
+					{
+						chatWindow.nativeWindow.notifyUser( NotificationType.CRITICAL );
+					}
+
 					const timer:Timer = new Timer( 3*1000, 1 );
 					timer.addEventListener(TimerEvent.TIMER, function( event:Event ):void
 					{
@@ -146,7 +151,7 @@
 			
 			private function creationCompleteHandler():void
 			{
-				infoTimer = new Timer( 1500, 1 );
+				infoTimer = new Timer( 1000, 1 );
 				infoTimer.addEventListener(TimerEvent.TIMER, infoWindowTimerHandler );
 
 				

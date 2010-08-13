@@ -201,12 +201,12 @@
 					else if( buttonList.selectedItem == resourceManager.getString('airim', 'normal') )
 					{
 						microphone.rate = 22;
-						microphone.encodeQuality = 7;
+						microphone.encodeQuality = 9;
 					}
 					else if( buttonList.selectedItem == resourceManager.getString('airim', 'low') )
 					{
 						microphone.rate = 11;
-						microphone.encodeQuality = 5;
+						microphone.encodeQuality = 7;
 					}
 				}
 				
@@ -361,7 +361,7 @@
 	
 			<s:HGroup gap="2" verticalAlign="middle" paddingRight="5">
 				<s:Label text="{resourceManager.getString('airim', 'mic')}" color="0xffffff" alpha=".5" fontSize="10"/>
-				<s:HSlider id="gainSlider" alpha=".5" minimum="0" maximum="100" value="50" stepSize="5" snapInterval="5" liveDragging="true" showDataTip="false"
+				<s:HSlider id="gainSlider" alpha=".5" minimum="0" maximum="100" value="75" stepSize="5" snapInterval="5" liveDragging="true" showDataTip="false"
 						   lineHeight="1" lineThrough="false" maxWidth="50"
 						   change="if( microphone ) microphone.gain = gainSlider.value"/>
 			</s:HGroup>
