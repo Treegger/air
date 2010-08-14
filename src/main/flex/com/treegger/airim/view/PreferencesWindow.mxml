@@ -67,23 +67,29 @@
 				
 				currentState = "disabled";
 				
-				chatController.authenticate( userAccount );
-				chatController.addEventListener( ChatEvent.AUTHENTICATION, function( event:ChatEvent ):void
+				if( accountChanged )
 				{
-					currentState = "normal";
-					accountChanged=false
+					chatController.addEventListener( ChatEvent.AUTHENTICATION, authenticationHandler );
+					chatController.authenticate( userAccount );
+				}
+			}
+			
+			private function authenticationHandler( event:ChatEvent ):void
+			{
+				chatController.removeEventListener( ChatEvent.AUTHENTICATION, authenticationHandler );
 
-					if( chatController.authenticated )
-					{
-						preferenceController.userAccount = userAccount;
-						close();
-					}
-					else
-					{
-						Alert.show( "Wrong username or password", "Unable to authenticate", mx.controls.Alert.OK, mainGroup );
-					}
-				} );
+				currentState = "normal";
+				accountChanged=false;
 				
+				if( chatController.authenticated )
+				{
+					preferenceController.userAccount = userAccount;
+					close();
+				}
+				else
+				{
+					Alert.show( "Wrong username or password", "Unable to authenticate", mx.controls.Alert.OK, mainGroup );
+				}
 			}
 			
 			
