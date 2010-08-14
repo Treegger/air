@@ -15,6 +15,9 @@
 	windowActivate="windowActivateHandler()"
 	focusEnabled="false"
 >
+	<fx:Metadata>
+		[ResourceBundle("airim")]
+	</fx:Metadata>
 	<fx:Declarations>
 		<s:Fade id="fadeIn" target="{this}" alphaFrom="0" alphaTo="1" duration="200"/>
 		<s:Fade id="fadeOut" target="{this}" alphaFrom="1" alphaTo="0" duration="500" effectEnd="close()"/>
@@ -64,12 +67,23 @@
 					}
 					nameLabel.text = contact.name;
 					nicknameLabel.text = contact.nickname;
+					statusText.text = getStatusText();
 					fadeIn.play();
 					fadeOut.pause();
 					nativeWindow.x = _nativeX;
 					nativeWindow.y = _nativeY;
 				}
 			}
+			
+			public function getStatusText():String
+			{
+				if( contact.composing ) return resourceManager.getString('airim','statusComposing');
+				else if( contact.available ) return resourceManager.getString('airim','statusAvailable');
+				else if( contact.away ) return resourceManager.getString('airim','statusAway');
+				else if( contact.dnd ) return resourceManager.getString('airim','statusDND');
+				return "Unavaiable";
+			}
+			
 			public function hideWindow():void
 			{
 				if( initialized )
@@ -96,7 +110,7 @@
 	<fx:Declarations>
 	</fx:Declarations>
 	
-	<s:Group id="group">
+	<s:Group id="group" minWidth="150">
 		
 		<s:Rect height="100%" width="100%">
 			<s:fill>
@@ -107,13 +121,14 @@
 			</s:stroke>
 		</s:Rect>
 
-		<s:HGroup gap="10" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+		<s:HGroup gap="10" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5" width="100%">
 			<mx:Image id="image" source="" width="48" height="48"
 					  horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
 
-			<s:VGroup gap="5" horizontalAlign="center">
+			<s:VGroup gap="5" horizontalAlign="center" width="100%">
 				<s:Label id="nameLabel" fontSize="14" fontWeight="bold"/>
-				<s:Label id="nicknameLabel" fontSize="12"/>			
+				<s:Label id="nicknameLabel" fontSize="12"/>
+				<s:Label id="statusText" fontSize="12" fontStyle="italic"/>
 			</s:VGroup>
 		</s:HGroup>
 		
