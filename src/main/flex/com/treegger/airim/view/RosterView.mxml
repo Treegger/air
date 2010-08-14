@@ -138,6 +138,10 @@
 				{
 					new Notification( resourceManager.getString( 'airim', 'authentication', [ preferenceController.userAccount.username, preferenceController.userAccount.socialNetwork] ), 
 									resourceManager.getString( 'airim', 'pleaseWait' ) );
+					
+					rosterGroup.visible = true;
+					rosterGroup.groupName = preferenceController.userAccount.socialNetwork;
+					
 					chatController.authenticate( preferenceController.userAccount );
 				}
 			}
@@ -256,7 +260,7 @@
 	</fx:Script>
 	
 	<s:VGroup>
-		<view:RosterGroup id="rosterGroup" groupName="Twitter"/>
+		<view:RosterGroup id="rosterGroup" visible="false"/>
 	</s:VGroup>
 
 </s:Group>
