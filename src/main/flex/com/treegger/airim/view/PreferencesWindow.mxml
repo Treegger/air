@@ -45,6 +45,7 @@
 			[Bindable]
 			private var userPreference:UserPreference;
 			
+			private var accountChanged:Boolean=false;
 			
 			private function creationCompleteHandler(event:Event):void
 			{
@@ -57,6 +58,8 @@
 			{
 				userPreference.startAtLogin = startAtLoginInput.selected;
 				NativeApplication.nativeApplication.startAtLogin = userPreference.startAtLogin; 
+				preferenceController.userPreference = userPreference;
+
 				
 				userAccount.socialNetwork = socialNetworkInput.selectedItem;
 				userAccount.username = usernameInput.text;
@@ -68,6 +71,7 @@
 				chatController.addEventListener( ChatEvent.AUTHENTICATION, function( event:ChatEvent ):void
 				{
 					currentState = "normal";
+					accountChanged=false
 
 					if( chatController.authenticated )
 					{
@@ -105,12 +109,13 @@
 			<s:ComboBox id="socialNetworkInput" width="100%"
 						dataProvider="{new ArrayCollection(['Twitter','Foursquare'])}" 
 						selectedItem="{userAccount.socialNetwork}"
+						change="accountChanged=true"
 			/>
 		</s:HGroup>
 		
 		<s:HGroup verticalAlign="middle" width="100%">
 			<s:Label width="100" text="{resourceManager.getString('airim', 'preferenceUsername' )}" fontWeight="bold" />
-			<s:TextInput id="usernameInput" width="100%" text="{userAccount.username}"  />
+			<s:TextInput id="usernameInput" width="100%" text="{userAccount.username}" change="accountChanged=true" />
 		</s:HGroup>
 		
 		
@@ -118,6 +123,7 @@
 			<s:Label width="100"  text="{resourceManager.getString('airim', 'preferencePassword')}" fontWeight="bold"/>
 			<s:TextInput id="passwordInput"  width="100%" displayAsPassword="true" 
 						 text="{userAccount.password}" 
+						 change="accountChanged=true"
 						 enter="saveHandler( event )"/>
 		</s:HGroup>
 
