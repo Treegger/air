@@ -7,7 +7,7 @@
 		 mouseMove="mouseMoveHandler()"
 		 mouseDown="rollOutItemHandler(event)"
 		 rightMouseDown="rollOutItemHandler(event)"
-		 creationComplete="creationCompleteHandler()"
+		 creationComplete="creationCompleteHandler()" xmlns:view="com.treegger.airim.view.*"
 	 >
 	
 	<fx:Metadata>
@@ -155,21 +155,21 @@
 				infoTimer.addEventListener(TimerEvent.TIMER, infoWindowTimerHandler );
 
 				
-				rosterList.addEventListener( "contactDoubleClick", function( event:DynamicEvent ):void
+				rosterGroup.addEventListener( "contactDoubleClick", function( event:DynamicEvent ):void
 				{
 					const chatWindow:ChatWindow = openChatWindowForContact( event.contact, true );
 					chatWindow.nativeWindow.orderToFront();
 					chatWindow.activate();
 					event.stopPropagation();
 				});
-				rosterList.addEventListener( "dropText", function( event:DynamicEvent ):void
+				rosterGroup.addEventListener( "dropText", function( event:DynamicEvent ):void
 				{
 					openChatWindowForContact( event.contact, true ).dropText( event.text );					
 					event.stopPropagation();
 				});
 				
-				rosterList.addEventListener( "rollOverItem", rollOverItemHandler );
-				rosterList.addEventListener( "rollOutItem", rollOutItemHandler );
+				rosterGroup.addEventListener( "rollOverItem", rollOverItemHandler );
+				rosterGroup.addEventListener( "rollOutItem", rollOutItemHandler );
 				
 			}
 
@@ -260,16 +260,8 @@
 		]]>
 	</fx:Script>
 	
-	<s:List id="rosterList" width="100%" borderVisible="false" 
-			contentBackgroundAlpha="0"
-			rollOver="event.preventDefault();event.stopPropagation();"
-			itemRenderer="com.treegger.airim.view.RosterItem"
-			dataProvider="{chatController.onlineContacts}"
-			focusEnabled="false"
-			>
-		<s:layout>
-			<s:VerticalLayout horizontalAlign="left" gap="1"/>
-		</s:layout>
-	</s:List>
+	<s:VGroup>
+		<view:RosterGroup id="rosterGroup" groupName="Twitter"/>
+	</s:VGroup>
 
 </s:Group>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:view="com.treegger.airim.view.*" 
+	xmlns:component="com.treegger.component.*"
+	
+	gap="1"
+	click="clickHandler()"
+	creationComplete="creationCompleteHandler()"
+>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.treegger.airim.controller.ChatController;
+			import com.treegger.airim.model.Contact;
+			import com.treegger.protobuf.RosterItem;
+			
+			import flash.utils.setTimeout;
+			
+			import mx.events.DynamicEvent;
+
+			[Bindable]
+			public var groupName:String;
+	
+			[Inject][Bindable]
+			public var chatController:ChatController;
+
+			
+			private function clickHandler():void
+			{
+				if( currentState=="folded" ) currentState="normal";
+				else if( currentState=="normal" ) currentState="folded";
+			}
+			
+			private function creationCompleteHandler():void
+			{
+				
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+	</fx:Declarations>
+
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hovered" />
+		<s:State name="folded" />
+	</s:states>
+	
+	<s:Group>
+		
+		<s:Rect  top="0" bottom="0" radiusX="8" radiusY="8"  width="100%">
+			<s:fill>
+				<s:SolidColor color="0x8EB9E8" alpha="1" />
+			</s:fill>
+			<s:stroke>
+				<s:SolidColorStroke color="0x000000" alpha=".3" alpha.hovered="0.1" />
+			</s:stroke>
+	
+			<s:filters>
+				<s:BevelFilter angle="90" distance="4"
+							   highlightAlpha="0.6"
+							   highlightColor="0xffffff"
+							   shadowAlpha="0.3"
+							   shadowColor="0xaaaaaa"
+							   type="inner"/>
+			</s:filters>
+	
+		</s:Rect>
+	
+		<s:Path id="arrow" rotation.folded="0" rotation="90" left="8" verticalCenter="0" 
+			data="M 0 0
+				 L 5 4
+				 L 0 8
+				 L 0 0
+				 Z">
+			 <s:fill>
+				 <s:SolidColor color="#ffffff" />
+			 </s:fill>
+		</s:Path>
+		
+		<s:Group top="4" bottom="2" left="18" right="10" >
+			<s:Label text="{groupName}" 
+					 text.folded="{groupName} ({chatController.onlineContacts.length})" 
+					 color="0xffffff" fontWeight="bold" />
+			<s:filters>
+				<s:DropShadowFilter angle="45" distance="1" alpha="0.3"/>
+			</s:filters>		
+		</s:Group>
+
+	</s:Group>
+	
+	<s:Group width="100%">
+		<s:List left="5" right="0" includeIn="normal" borderVisible="false" 
+				contentBackgroundAlpha="0"
+				rollOver="event.preventDefault();event.stopPropagation();"
+				itemRenderer="com.treegger.airim.view.RosterItem"
+				dataProvider="{chatController.onlineContacts}"
+				focusEnabled="false"
+				>
+			<s:layout>
+				<s:VerticalLayout horizontalAlign="left" gap="1"/>
+			</s:layout>
+		</s:List>
+	</s:Group>
+</s:VGroup> 
