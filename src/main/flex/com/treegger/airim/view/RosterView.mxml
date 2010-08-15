@@ -52,15 +52,13 @@
 				_chatController = value;
 
 				
-				_chatController.addEventListener( ChatEvent.HANDSHAKED, function( event:ChatEvent ):void
-				{
-					authenticate();
-				});
+				_chatController.addEventListener( ChatEvent.HANDSHAKED, authenticate )
 				
 				_chatController.addEventListener( ChatEvent.UNREAD_CONTENTS_CHANGE, function( event:ChatEvent ):void
 				{
 					callLater( dockNotify );
 				});
+				
 					
 				_chatController.addEventListener( ChatEvent.TEXTMESSAGE, function( event:ChatEvent ):void
 				{
@@ -97,6 +95,9 @@
 				
 				_chatController.addEventListener( ChatEvent.ROSTER, function( event:ChatEvent ):void
 				{
+					rosterGroup.visible = true;
+					rosterGroup.groupName = preferenceController.userAccount.socialNetwork;
+
 					const timer:Timer = new Timer( 3*1000, 1 );
 					timer.addEventListener(TimerEvent.TIMER, function( event:Event ):void
 					{
@@ -132,15 +133,14 @@
 				dockNotifier.notify( _chatController.unreadContents, NotificationType.INFORMATIONAL )
 			}
 			
-			private function authenticate():void
+			private function authenticate( event:ChatEvent ):void
 			{
+				_chatController.removeEventListener( ChatEvent.HANDSHAKED, authenticate );
 				if( preferenceController.userAccount && !chatController.authenticated )
 				{
 					new Notification( resourceManager.getString( 'airim', 'authentication', [ preferenceController.userAccount.username, preferenceController.userAccount.socialNetwork] ), 
 									resourceManager.getString( 'airim', 'pleaseWait' ) );
 					
-					rosterGroup.visible = true;
-					rosterGroup.groupName = preferenceController.userAccount.socialNetwork;
 					
 					chatController.authenticate( preferenceController.userAccount );
 				}

@@ -111,6 +111,11 @@ package com.treegger.airim.controller
 		
 		public function close( exit:Boolean = false ):void
 		{
+			wsConnector.onHandshake = null;
+			wsConnector.onMessage = null;
+			wsConnector.onError = null;
+			wsConnector.onClose = null;
+
 			pingTimer.stop();
 			wsConnector.close();
 			authenticated = false;
@@ -481,6 +486,7 @@ package com.treegger.airim.controller
 		{
 			if( authenticated )
 			{
+				sendPresence( "unavailable" );
 				close();
 				connect();
 			}
@@ -493,7 +499,7 @@ package com.treegger.airim.controller
 			var username:String = userAccount.username;
 
 
-			if( socialNetwork == 'Foursquare' )
+			if( socialNetwork == 'foursquare' )
 			{
 				username = username.replace( /\@/g, '#' );
 			}

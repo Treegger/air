@@ -175,7 +175,6 @@
 				SwizManager.setUp(preferencesWindow);
 				preferencesWindow.open(true);
 				preferencesWindow.activate();
-				preferencesWindow.nativeWindow.orderToFront();
 			}
 		}
 		
