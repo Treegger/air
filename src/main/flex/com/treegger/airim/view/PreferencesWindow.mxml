@@ -61,16 +61,19 @@
 				preferenceController.userPreference = userPreference;
 
 				
-				userAccount.socialNetwork = socialNetworkInput.selectedItem;
-				userAccount.username = usernameInput.text;
-				userAccount.password = passwordInput.text
 				
 				
 				if( accountChanged )
 				{
 					currentState = "disabled";
+					
+					const currentUserAccount:UserAccount = new UserAccount();
+					currentUserAccount.socialNetwork = socialNetworkInput.selectedItem;
+					currentUserAccount.username = usernameInput.text;
+					currentUserAccount.password = passwordInput.text
+					
 					chatController.addEventListener( ChatEvent.AUTHENTICATION, authenticationHandler );
-					chatController.authenticate( userAccount );
+					chatController.authenticate( currentUserAccount, true );
 				}
 				else
 				{
@@ -87,6 +90,9 @@
 				
 				if( chatController.authenticated )
 				{
+					userAccount.socialNetwork = socialNetworkInput.selectedItem;
+					userAccount.username = usernameInput.text;
+					userAccount.password = passwordInput.text
 					preferenceController.userAccount = userAccount;
 					close();
 				}

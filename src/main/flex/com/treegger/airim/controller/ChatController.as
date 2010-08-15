@@ -477,7 +477,7 @@ package com.treegger.airim.controller
 			
 		}
 		
-		public function authenticate( userAccount:UserAccount ):void
+		public function authenticate( userAccount:UserAccount, newSession:Boolean=false ):void
 		{
 			if( authenticated )
 			{
@@ -502,7 +502,7 @@ package com.treegger.airim.controller
 			authReq.username = username+'@'+socialNetwork;
 			authReq.password = userAccount.password;
 			authReq.resource = 'AirIM';
-			authReq.sessionId = currentSessionId;
+			if( !newSession ) authReq.sessionId = currentSessionId;
 			
 			currentJID = authReq.username+"/" +authReq.resource;
 			
