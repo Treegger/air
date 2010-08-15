@@ -25,7 +25,7 @@
 	<name>AirIM</name>
 
 	<!-- An application version designator (such as "v1", "2.5", or "Alpha 1"). Required. -->
-	<version>v0.90</version>
+	<version>0.91</version>
 
 	<!-- Description, displayed in the AIR application installer.
 	     May have multiple values for each language. See samples or xsd schema file. Optional. -->
@@ -49,7 +49,6 @@
 		<!-- The type of system chrome to use (either "standard" or "none"). Optional. Default standard. -->
 		<systemChrome>none</systemChrome>
 
-		<type>lightweight</type>
 		
 		<!-- Whether the window is transparent. Only applicable when systemChrome is none. Optional. Default false. -->
 		<transparent>true</transparent>

@@ -51,6 +51,8 @@ package com.treegger.airim.controller
 		public var exitState:Boolean = false;
 		public var connectingState:Boolean = false;
 		
+		private var currentSessionId:String;
+		
 		public function ChatController()
 		{
 			connect();
@@ -193,6 +195,14 @@ package com.treegger.airim.controller
 			if( message.hasAuthenticateResponse )
 			{
 				authenticated = message.authenticateResponse.hasSessionId;
+				if( authenticated )
+				{
+					currentSessionId = message.authenticateResponse.sessionId;
+				}
+				else
+				{
+					currentSessionId = null;
+				}
 				sendPresence();
 				dispatchEvent( new ChatEvent( ChatEvent.AUTHENTICATION ) );
 			}
@@ -492,6 +502,8 @@ package com.treegger.airim.controller
 			authReq.username = username+'@'+socialNetwork;
 			authReq.password = userAccount.password;
 			authReq.resource = 'AirIM';
+			authReq.sessionId = currentSessionId;
+			
 			currentJID = authReq.username+"/" +authReq.resource;
 			
 			currentContact = new Contact();
