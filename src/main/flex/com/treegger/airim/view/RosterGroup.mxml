@@ -5,7 +5,6 @@
 	xmlns:component="com.treegger.component.*"
 	
 	gap="1"
-	click="clickHandler()"
 	creationComplete="creationCompleteHandler()"
 >
 	
@@ -49,7 +48,7 @@
 		<s:State name="folded" />
 	</s:states>
 	
-	<s:Group>
+	<s:Group click="clickHandler()">
 		
 		<s:Rect  top="0" bottom="0" radiusX="8" radiusY="8"  width="100%">
 			<s:fill>

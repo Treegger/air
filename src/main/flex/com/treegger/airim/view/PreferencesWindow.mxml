@@ -65,12 +65,16 @@
 				userAccount.username = usernameInput.text;
 				userAccount.password = passwordInput.text
 				
-				currentState = "disabled";
 				
 				if( accountChanged )
 				{
+					currentState = "disabled";
 					chatController.addEventListener( ChatEvent.AUTHENTICATION, authenticationHandler );
 					chatController.authenticate( userAccount );
+				}
+				else
+				{
+					close();
 				}
 			}
 			
