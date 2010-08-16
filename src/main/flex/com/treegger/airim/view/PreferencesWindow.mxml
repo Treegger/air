@@ -61,9 +61,6 @@
 				NativeApplication.nativeApplication.startAtLogin = userPreference.startAtLogin; 
 				preferenceController.userPreference = userPreference;
 
-				
-				
-				
 				if( accountChanged )
 				{
 					currentState = "disabled";
@@ -72,6 +69,7 @@
 					currentUserAccount.socialNetwork = socialNetworkInput.selectedItem;
 					currentUserAccount.username = usernameInput.text;
 					currentUserAccount.password = passwordInput.text
+
 					
 					chatController.addEventListener( ChatEvent.AUTHENTICATION, authenticationHandler );
 					chatController.authenticate( currentUserAccount, true );
@@ -92,8 +90,6 @@
 				if( chatController.authenticated )
 				{
 					userAccount.socialNetwork = socialNetworkInput.selectedItem;
-					if( userAccount.socialNetwork == null ) userAccount.socialNetwork = 'Twitter';
-					
 					userAccount.username = usernameInput.text;
 					userAccount.password = passwordInput.text
 					preferenceController.userAccount = userAccount;
@@ -105,6 +101,11 @@
 				}
 			}
 			
+			private function getValue( value:String, defaultValue:String ):String
+			{
+				if( !value ) return defaultValue;
+				return value;
+			}
 			
 		]]>
 	</fx:Script>
@@ -127,7 +128,7 @@
 			<s:Label width="100" text="{resourceManager.getString('airim', 'preferencesSocialNetwork' )}" fontWeight="bold" />
 			<s:ComboBox id="socialNetworkInput" width="100%" selectedIndex="0"
 						dataProvider="{new ArrayCollection(['Twitter','Foursquare'])}" 
-						selectedItem="{userAccount.socialNetwork}"
+						selectedItem="{getValue( userAccount.socialNetwork, 'Twitter' )}"
 						change="accountChanged=true"
 			/>
 		</s:HGroup>
