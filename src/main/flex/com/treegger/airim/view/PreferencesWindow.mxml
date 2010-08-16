@@ -92,6 +92,8 @@
 				if( chatController.authenticated )
 				{
 					userAccount.socialNetwork = socialNetworkInput.selectedItem;
+					if( userAccount.socialNetwork == null ) userAccount.socialNetwork = 'Twitter';
+					
 					userAccount.username = usernameInput.text;
 					userAccount.password = passwordInput.text
 					preferenceController.userAccount = userAccount;
@@ -123,7 +125,7 @@
 		
 		<s:HGroup verticalAlign="middle" width="100%">
 			<s:Label width="100" text="{resourceManager.getString('airim', 'preferencesSocialNetwork' )}" fontWeight="bold" />
-			<s:ComboBox id="socialNetworkInput" width="100%"
+			<s:ComboBox id="socialNetworkInput" width="100%" selectedIndex="0"
 						dataProvider="{new ArrayCollection(['Twitter','Foursquare'])}" 
 						selectedItem="{userAccount.socialNetwork}"
 						change="accountChanged=true"
