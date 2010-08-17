@@ -36,6 +36,10 @@
 		import spark.components.Application;
 		import spark.filters.DropShadowFilter;
 		
+		
+		[Embed(source="icons/logo-16x16.png")]
+		private var ApplicationLogo16:Class;     
+
 		private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
 	
 		private var preferencesSet:Boolean = false;
@@ -115,7 +119,10 @@
 			}
 			else if( NativeApplication.supportsSystemTrayIcon )
 			{
-				SystemTrayIcon( NativeApplication.nativeApplication.icon ).addEventListener( ScreenMouseEvent.CLICK, onShowWindow );
+				InteractiveIcon(NativeApplication.nativeApplication.icon).bitmaps = [new ApplicationLogo16];
+				const sysTrayIcon:SystemTrayIcon = NativeApplication.nativeApplication.icon as SystemTrayIcon;
+				sysTrayIcon.tooltip = "IMonAir";
+				sysTrayIcon.addEventListener( ScreenMouseEvent.CLICK, onShowWindow );
 			}
 			
 			
@@ -156,6 +163,12 @@
 				
 			}
 			contextMenu = airMenu;
+			
+			if( NativeApplication.supportsSystemTrayIcon )
+			{
+				const sysTrayIcon:SystemTrayIcon = NativeApplication.nativeApplication.icon as SystemTrayIcon;
+				sysTrayIcon.menu = airMenu;
+			}
 			
 		}
 		
