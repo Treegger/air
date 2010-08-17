@@ -109,7 +109,7 @@
 
 	</s:Group>
 	
-	<s:VGroup width="100%" gap="1" includeIn="normal">
+	<s:Group width="100%" includeIn="normal">
 		<s:List left="5" right="0" borderVisible="false" 
 				contentBackgroundAlpha="0"
 				rollOver="event.preventDefault();event.stopPropagation();"
@@ -122,19 +122,19 @@
 			</s:layout>
 		</s:List>
 		
-		<s:Group left="5" includeInLayout="{chatController.onlineContacts.length==0}" visible="{chatController.onlineContacts.length==0}">			
-			<s:Rect  top="0" bottom="0" radiusX="8" radiusY="8"  width="100%">
-				<s:fill>
-					<s:SolidColor color="0xffffff" alpha="0.8" />
-				</s:fill>
-				<s:stroke>
-					<s:SolidColorStroke color="0x000000" alpha=".3"  weight="1" />
-				</s:stroke>
-				
-			</s:Rect>
-			<s:Label id="offlineLabel" text="{getOfflineText( chatController.contacts.length )}" alpha="1" top="3" bottom="1" left="7" right="7"/>
-		</s:Group>
-	</s:VGroup>
+	</s:Group>
 	
+	<s:Group left="5" includeInLayout="{chatController.onlineContacts.length==0}" visible="{chatController.onlineContacts.length==0}">			
+		<s:Rect  top="0" bottom="0" radiusX="8" radiusY="8"  width="100%">
+			<s:fill>
+				<s:SolidColor color="0xffffff" alpha="0.8" />
+			</s:fill>
+			<s:stroke>
+				<s:SolidColorStroke color="0x000000" alpha=".3"  weight="1" />
+			</s:stroke>
+			
+		</s:Rect>
+		<s:Label id="offlineLabel" text="{getOfflineText( chatController.contacts.length )}" alpha="1" top="3" bottom="1" left="7" right="7"/>
+	</s:Group>
 	
 </s:VGroup> 
