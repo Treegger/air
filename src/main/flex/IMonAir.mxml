@@ -3,7 +3,7 @@
    	xmlns:s="library://ns.adobe.com/flex/spark"
    	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:swiz="http://swiz.swizframework.org"
-	xmlns:view="com.treegger.airim.view.*"
+	xmlns:view="com.treegger.imonair.view.*"
 	xmlns:local="*"
 	
 	creationComplete="creationCompleteHandler()" 
@@ -15,7 +15,7 @@
 
 >
 	<fx:Metadata>
-		[ResourceBundle("airim")]
+		[ResourceBundle("imonair")]
 	</fx:Metadata>
 	
 	<fx:Script>
@@ -23,10 +23,10 @@
 		import air.update.ApplicationUpdaterUI;
 		import air.update.events.UpdateEvent;
 		
-		import com.treegger.airim.controller.ChatController;
-		import com.treegger.airim.controller.PreferencesController;
-		import com.treegger.airim.model.UserPreference;
-		import com.treegger.airim.view.PreferencesWindow;
+		import com.treegger.imonair.controller.ChatController;
+		import com.treegger.imonair.controller.PreferencesController;
+		import com.treegger.imonair.model.UserPreference;
+		import com.treegger.imonair.view.PreferencesWindow;
 		import com.treegger.component.Notification;
 		
 		import mx.controls.Alert;
@@ -56,7 +56,14 @@
 					const pref:UserPreference = preferencesController.userPreference;
 					if( pref.applicationX > 0 ) nativeWindow.x =  pref.applicationX;
 					if( pref.applicationY > 0 ) nativeWindow.y =  pref.applicationY;
-					NativeApplication.nativeApplication.startAtLogin = pref.startAtLogin; 
+					try
+					{
+						NativeApplication.nativeApplication.startAtLogin = pref.startAtLogin;
+					}
+					catch ( e:Error ) 
+					{ 
+						trace( "Cannot set startAtLogin: " + e.message ); 
+					} 
 				}
 			}
 			
@@ -127,30 +134,28 @@
 		
 		private function createMenu():void
 		{
-			var airIMmenu:NativeMenu = new NativeMenu();
+			var airMenu:NativeMenu = new NativeMenu();
 			
-			const preferenceMenuItem:NativeMenuItem = new NativeMenuItem( resourceManager.getString('airim', 'preferences' ) );
+			const preferenceMenuItem:NativeMenuItem = new NativeMenuItem( resourceManager.getString('imonair', 'preferences' ) );
 			preferenceMenuItem.addEventListener(Event.SELECT, preferencesSelectedHandler );
-			airIMmenu.addItem( preferenceMenuItem ) ;
+			airMenu.addItem( preferenceMenuItem ) ;
 			
-			
-			
-			
-			airIMmenu.addItem(new NativeMenuItem( "", true ) );
-			const quitMenuItem:NativeMenuItem = airIMmenu.addItem(new NativeMenuItem( resourceManager.getString('airim', 'quitAirIM' ) ));
-			quitMenuItem.keyEquivalent = "q";
-			quitMenuItem.addEventListener(Event.SELECT, quitApplicationHandler );
-			contextMenu = airIMmenu;
 			
 			if( NativeApplication.supportsMenu )
 			{
 				const mainMenu:NativeMenuItem = NativeApplication.nativeApplication.menu.getItemAt(0);
-				const preferenceMenuItem2:NativeMenuItem = new NativeMenuItem( resourceManager.getString('airim', 'preferences' ) );
+				const preferenceMenuItem2:NativeMenuItem = new NativeMenuItem( resourceManager.getString('imonair', 'preferences' ) );
 				preferenceMenuItem2.addEventListener(Event.SELECT, preferencesSelectedHandler );
 				mainMenu.submenu.addItemAt( preferenceMenuItem2, 2 );
-				mainMenu.submenu.items[mainMenu.submenu.items.length-1].addEventListener( Event.SELECT, teardown )
-				// = mainMenu;
 			}
+			else
+			{
+				airMenu.addItem(new NativeMenuItem( "", true ) );
+				const quitMenuItem:NativeMenuItem = airMenu.addItem(new NativeMenuItem( resourceManager.getString('imonair', 'quitApp' ) ));
+				quitMenuItem.addEventListener(Event.SELECT, function( event:Event ):void { quitApplicationHandler(); NativeApplication.nativeApplication.exit() } );
+				
+			}
+			contextMenu = airMenu;
 			
 		}
 		
@@ -194,13 +199,12 @@
 		{
 			trace( "Quit" );
 
+			teardown();
 			for each( var win:NativeWindow in NativeApplication.nativeApplication.openedWindows ) 
 			{
 				win.dispatchEvent( new Event( Event.CLOSING, false, true ) );
 				win.close();
 			}
-			teardown();
-			exit();
 		}
 		
 		
@@ -268,7 +272,7 @@
 	]]>
 	</fx:Script>
 	
-	<fx:Style source="css/AirIM.css" />
+	<fx:Style source="css/IMonAir.css" />
 	
 	<fx:Declarations>
 		<swiz:Swiz>
@@ -285,7 +289,7 @@
 					tearDownEventPhase="{ EventPhase.CAPTURING_PHASE }" 
 					tearDownEventPriority="50"
 
-					viewPackages="com.treegger.airim.view"
+					viewPackages="com.treegger.imonair.view"
 					
 					defaultDispatcher="global" />
 			</swiz:config>

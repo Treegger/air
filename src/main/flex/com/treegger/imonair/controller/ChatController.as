@@ -1,8 +1,8 @@
-package com.treegger.airim.controller
+package com.treegger.imonair.controller
 {
-	import com.treegger.airim.model.ChatContent;
-	import com.treegger.airim.model.Contact;
-	import com.treegger.airim.model.UserAccount;
+	import com.treegger.imonair.model.ChatContent;
+	import com.treegger.imonair.model.Contact;
+	import com.treegger.imonair.model.UserAccount;
 	import com.treegger.component.Notification;
 	import com.treegger.component.StratusConnector;
 	import com.treegger.protobuf.AuthenticateRequest;
@@ -39,11 +39,13 @@ package com.treegger.airim.controller
 		
 		private var roster:Roster;
 		
-		[ArrayElementType("Contact")]
+		[ArrayElementType("com.treegger.imonair.model.Contact")]
 		[Bindable]
-		public var onlineContacts:ArrayCollection;
-		[ArrayElementType("Contact")]
-		public var contacts:ArrayCollection = new ArrayCollection();;
+		public var onlineContacts:ArrayCollection = new ArrayCollection();
+		
+		[ArrayElementType("com.treegger.imonair.model.Contact")]
+		[Bindable]
+		public var contacts:ArrayCollection = new ArrayCollection();
 		
 		[Inject]
 		public var stratusConnector:StratusConnector;
@@ -83,23 +85,16 @@ package com.treegger.airim.controller
 			}
 			return unread;
 		}
-		private function contactsChangeHandler( event:CollectionEvent ):void
+		private function onlineContactsChangeHandler( event:CollectionEvent ):void
 		{
 			var contact:Contact;
-			if( event.kind == CollectionEventKind.ADD )
-			{
-				for each( contact in event.items )
-				{
-					contact.addEventListener( 'hasUnreadContentChanged', hasUnreadContentChangedHandler );
-				}
-			}
-			else if( event.kind == CollectionEventKind.REMOVE )
+			if( event.kind == CollectionEventKind.ADD || event.kind == CollectionEventKind.REMOVE || event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REPLACE ) 
 			{
 				for each( contact in event.items )
 				{
 					contact.removeEventListener( 'hasUnreadContentChanged', hasUnreadContentChangedHandler );
+					contact.addEventListener( 'hasUnreadContentChanged', hasUnreadContentChangedHandler );
 				}
-				
 			}
 		}
 		
@@ -165,8 +160,8 @@ package com.treegger.airim.controller
 		{
 			if( connectingState ) return;
 
-			onlineContacts.removeAll();
-			pingTimer.stop();
+			if( onlineContacts ) onlineContacts.removeAll();
+			if( pingTimer ) pingTimer.stop();
 			wsConnector.close();
 			authenticated = false;
 
@@ -228,8 +223,8 @@ package com.treegger.airim.controller
 							contacts.addItem( contact );
 						}
 					}
-					onlineContacts = new ArrayCollection();
-					onlineContacts.addEventListener(CollectionEvent.COLLECTION_CHANGE, contactsChangeHandler );
+					onlineContacts.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onlineContactsChangeHandler );
+					onlineContacts.addEventListener(CollectionEvent.COLLECTION_CHANGE, onlineContactsChangeHandler );
 				}
 				dispatchEvent( new ChatEvent( ChatEvent.ROSTER ) );
 			}
@@ -507,7 +502,7 @@ package com.treegger.airim.controller
 
 			authReq.username = username+'@'+socialNetwork;
 			authReq.password = userAccount.password;
-			authReq.resource = 'AirIM';
+			authReq.resource = 'IMonAir';
 			if( !newSession ) authReq.sessionId = currentSessionId;
 			
 			currentJID = authReq.username+"/" +authReq.resource;

@@ -41,6 +41,7 @@
 							return "<a href='http://"+subStr+"'>"+subStr+"</a>"	
 					});
 					
+					value = value.replace( /\n/g, "<br/>" );
 					richText.textFlow = TextFlowUtil.importFromString(value);
 				}
 			}

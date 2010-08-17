@@ -6,13 +6,13 @@
 		width="100%"
 		height="100%"
 		creationComplete="creationComplete()"
-		show="showHandler()" xmlns:view="com.treegger.airim.view.*"
+		show="showHandler()" xmlns:view="com.treegger.imonair.view.*"
 		 >
 	<fx:Script>
 		<![CDATA[
-			import com.treegger.airim.controller.ChatController;
-			import com.treegger.airim.model.ChatContent;
-			import com.treegger.airim.model.Contact;
+			import com.treegger.imonair.controller.ChatController;
+			import com.treegger.imonair.model.ChatContent;
+			import com.treegger.imonair.model.Contact;
 			import com.treegger.protobuf.TextMessage;
 			
 			import mx.events.CollectionEvent;
@@ -146,13 +146,22 @@
 						lastChatItem.percentWidth = 100;
 						areaInput.addElement( lastChatItem );
 						
-						lastChatItem.addEventListener(Event.ADDED, function(event:Event):void {  scrollingAnimation.play() } );
+						lastChatItem.addEventListener(Event.ADDED, updateScrolling );
+						lastChatItem.textGroup.addEventListener(Event.RESIZE, updateScrolling );
 				}
 				
 				
 				lastChatItem.addText( chatContent.message, chatContent.time );
 				
 			}
+			
+			
+			private function updateScrolling( event:Event ):void
+			{
+				if( event.currentTarget is ChatItem ) (event.currentTarget as ChatItem).removeEventListener(Event.ADDED, updateScrolling );
+				scrollingAnimation.play();
+			}
+			
 			
 			private function enterHandler( event:Event ):void
 			{
@@ -245,7 +254,7 @@
 	</fx:Script>
 	<fx:Declarations>
 		<s:Animate  id="scrollingAnimation" target="{areaInput}" duration="200">
-			<s:SimpleMotionPath property="verticalScrollPosition" valueTo="{areaInput.contentHeight - areaInput.height}"/>
+			<s:SimpleMotionPath id="motionPath" valueTo="{areaInput.contentHeight - areaInput.height}" property="verticalScrollPosition" />
 		</s:Animate>
 	</fx:Declarations>
 	

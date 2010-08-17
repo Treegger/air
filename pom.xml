@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.treegger.air</groupId>
-	<artifactId>airim</artifactId>
+	<artifactId>imonair</artifactId>
 	<version>1.0</version>
 
 	<name>Treegger AIR IM</name>
@@ -13,7 +13,7 @@
 	<packaging>air</packaging>
 
 	<properties>
-		<application.name>AirIM</application.name>
+		<application.name>IMonAir</application.name>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<flex.sdk.version>4.0.0.14159</flex.sdk.version>
 		<flexmojos.version>3.7.1</flexmojos.version>

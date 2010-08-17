@@ -1,4 +1,4 @@
-package com.treegger.airim.model
+package com.treegger.imonair.model
 {
 	import flash.events.EventDispatcher;
 	
@@ -49,7 +49,7 @@ package com.treegger.airim.model
 		
 		public var stratusId:String;
 		
-		[ArrayElementType("ChatContent")]
+		[ArrayElementType("com.treegger.imonair.model.ChatContent")]
 		public var chatContents:ArrayCollection;
 		
 

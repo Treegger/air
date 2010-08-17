@@ -17,7 +17,7 @@
 	alwaysInFront="true"
 >
 	<fx:Metadata>
-		[ResourceBundle("airim")]
+		[ResourceBundle("imonair")]
 	</fx:Metadata>
 	<fx:Declarations>
 		<s:Fade id="fadeIn" target="{this}" alphaFrom="0" alphaTo="1" duration="200"/>
@@ -26,8 +26,8 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import com.treegger.airim.controller.ChatController;
-			import com.treegger.airim.model.Contact;
+			import com.treegger.imonair.controller.ChatController;
+			import com.treegger.imonair.model.Contact;
 			
 			import mx.events.EffectEvent;
 			
@@ -78,10 +78,10 @@
 			
 			public function getStatusText():String
 			{
-				if( contact.composing ) return resourceManager.getString('airim','statusComposing');
-				else if( contact.available ) return resourceManager.getString('airim','statusAvailable');
-				else if( contact.away ) return resourceManager.getString('airim','statusAway');
-				else if( contact.dnd ) return resourceManager.getString('airim','statusDND');
+				if( contact.composing ) return resourceManager.getString('imonair','statusComposing');
+				else if( contact.available ) return resourceManager.getString('imonair','statusAvailable');
+				else if( contact.away ) return resourceManager.getString('imonair','statusAway');
+				else if( contact.dnd ) return resourceManager.getString('imonair','statusDND');
 				return "Unavaiable";
 			}
 			

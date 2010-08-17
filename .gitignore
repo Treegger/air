@@ -2,4 +2,4 @@ target
 libs
 .*
 src/
-main/flex/com/treegger/airim/PrivateProperties.as
+main/flex/com/treegger/imonair/PrivateProperties.as

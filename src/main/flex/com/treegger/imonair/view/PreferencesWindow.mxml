@@ -5,7 +5,7 @@
 	xmlns:mx="library://ns.adobe.com/flex/mx"
 	transparent="false"
 	systemChrome="standard"
-	title="{resourceManager.getString('airim', 'preferencesWindowTitle')}"
+	title="{resourceManager.getString('imonair', 'preferencesWindowTitle')}"
 	maximizable="false"
 	resizable="false"
 	type="normal"
@@ -16,16 +16,16 @@
 	>
 	
 	<fx:Metadata>
-		[ResourceBundle("airim")]
+		[ResourceBundle("imonair")]
 	</fx:Metadata>
 
 	<fx:Script>
 		<![CDATA[
-			import com.treegger.airim.controller.ChatController;
-			import com.treegger.airim.controller.ChatEvent;
-			import com.treegger.airim.controller.PreferencesController;
-			import com.treegger.airim.model.UserAccount;
-			import com.treegger.airim.model.UserPreference;
+			import com.treegger.imonair.controller.ChatController;
+			import com.treegger.imonair.controller.ChatEvent;
+			import com.treegger.imonair.controller.PreferencesController;
+			import com.treegger.imonair.model.UserAccount;
+			import com.treegger.imonair.model.UserPreference;
 			import com.treegger.protobuf.AuthenticateResponse;
 			import com.treegger.util.FileSerializer;
 			
@@ -58,7 +58,15 @@
 			private function saveHandler( event:Event):void
 			{
 				userPreference.startAtLogin = startAtLoginInput.selected;
-				NativeApplication.nativeApplication.startAtLogin = userPreference.startAtLogin; 
+				try 
+				{ 
+					NativeApplication.nativeApplication.startAtLogin = userPreference.startAtLogin; 
+				}
+				catch ( e:Error ) 
+				{ 
+					trace( "Cannot set startAtLogin: " + e.message ); 
+				} 
+
 				preferenceController.userPreference = userPreference;
 
 				if( accountChanged )
@@ -125,7 +133,7 @@
 		</s:HGroup>
 		
 		<s:HGroup verticalAlign="middle" width="100%">
-			<s:Label width="100" text="{resourceManager.getString('airim', 'preferencesSocialNetwork' )}" fontWeight="bold" />
+			<s:Label width="100" text="{resourceManager.getString('imonair', 'preferencesSocialNetwork' )}" fontWeight="bold" />
 			<s:ComboBox id="socialNetworkInput" width="100%" selectedIndex="0"
 						dataProvider="{new ArrayCollection(['Twitter','Foursquare'])}" 
 						selectedItem="{getValue( userAccount.socialNetwork, 'Twitter' )}"
@@ -134,13 +142,13 @@
 		</s:HGroup>
 		
 		<s:HGroup verticalAlign="middle" width="100%">
-			<s:Label width="100" text="{resourceManager.getString('airim', 'preferencesUsername' )}" fontWeight="bold" />
+			<s:Label width="100" text="{resourceManager.getString('imonair', 'preferencesUsername' )}" fontWeight="bold" />
 			<s:TextInput id="usernameInput" width="100%" text="{userAccount.username}" change="accountChanged=true" />
 		</s:HGroup>
 		
 		
 		<s:HGroup verticalAlign="middle" width="100%">
-			<s:Label width="100"  text="{resourceManager.getString('airim', 'preferencesPassword')}" fontWeight="bold"/>
+			<s:Label width="100"  text="{resourceManager.getString('imonair', 'preferencesPassword')}" fontWeight="bold"/>
 			<s:TextInput id="passwordInput"  width="100%" displayAsPassword="true" 
 						 text="{userAccount.password}" 
 						 change="accountChanged=true"
@@ -148,7 +156,7 @@
 		</s:HGroup>
 
 		<s:HGroup verticalAlign="middle" width="100%">
-			<s:Label width="100"  text="{resourceManager.getString('airim', 'preferencesStartAtLogin')}" fontWeight="bold"/>
+			<s:Label width="100"  text="{resourceManager.getString('imonair', 'preferencesStartAtLogin')}" fontWeight="bold"/>
 			<s:CheckBox id="startAtLoginInput" selected="{userPreference.startAtLogin}"  />
 		</s:HGroup>
 		

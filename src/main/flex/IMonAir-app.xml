@@ -15,21 +15,21 @@
 
 	<!-- A universally unique application identifier. Must be unique across all AIR applications.
 	     Using a reverse DNS-style name as the id is recommended. (Eg. com.example.ExampleApplication.) Required. -->
-	<id>AirIM</id>
+	<id>IMonAir</id>
 
 	<!-- Used as the filename for the application. Required. -->
-	<filename>AirIM</filename>
+	<filename>IMonAir</filename>
 
 	<!-- The name that is displayed in the AIR application installer. 
 	     May have multiple values for each language. See samples or xsd schema file. Optional. -->
-	<name>AirIM</name>
+	<name>IMonAir</name>
 
 	<!-- An application version designator (such as "v1", "2.5", or "Alpha 1"). Required. -->
-	<version>0.91</version>
+	<version>0.96</version>
 
 	<!-- Description, displayed in the AIR application installer.
 	     May have multiple values for each language. See samples or xsd schema file. Optional. -->
-	<description>AirIM Treegger.com opensource Instant Messaging desktop client.</description>
+	<description>IMonAir Treegger.com opensource Instant Messaging desktop client.</description>
 
 	<!-- Copyright information. Optional -->
 	<copyright>Treegger.com 2010</copyright>
@@ -44,7 +44,7 @@
 		<content>[This value will be overwritten by Flash Builder in the output app.xml]</content>
 		
 		<!-- The title of the main window. Optional. -->
-		<title>AirIM</title>
+		<title>IMonAir</title>
 
 		<!-- The type of system chrome to use (either "standard" or "none"). Optional. Default standard. -->
 		<systemChrome>none</systemChrome>

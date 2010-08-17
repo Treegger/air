@@ -1,7 +1,7 @@
-package com.treegger.airim.controller
+package com.treegger.imonair.controller
 {
-	import com.treegger.airim.model.UserAccount;
-	import com.treegger.airim.model.UserPreference;
+	import com.treegger.imonair.model.UserAccount;
+	import com.treegger.imonair.model.UserPreference;
 	import com.treegger.util.FileSerializer;
 
 	public class PreferencesController
@@ -10,8 +10,8 @@ package com.treegger.airim.controller
 
 		private var _userPreference:UserPreference;
 		
-		private static const USER_PREF_FILE:String = "airim.userPreferences";
-		private static const USER_ACCOUNT_FILE:String = "airim.userAccount";
+		private static const USER_PREF_FILE:String = "imonair.userPreferences";
+		private static const USER_ACCOUNT_FILE:String = "imonair.userAccount";
 		
 		public function PreferencesController()
 		{

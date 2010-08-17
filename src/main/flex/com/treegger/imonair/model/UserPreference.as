@@ -1,4 +1,4 @@
-package com.treegger.airim.model
+package com.treegger.imonair.model
 {
 	[RemoteClass]
 	[Bindable]

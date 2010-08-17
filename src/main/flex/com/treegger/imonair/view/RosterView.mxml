@@ -7,19 +7,19 @@
 		 mouseMove="mouseMoveHandler()"
 		 mouseDown="rollOutItemHandler(event)"
 		 rightMouseDown="rollOutItemHandler(event)"
-		 creationComplete="creationCompleteHandler()" xmlns:view="com.treegger.airim.view.*"
+		 creationComplete="creationCompleteHandler()" xmlns:view="com.treegger.imonair.view.*"
 	 >
 	
 	<fx:Metadata>
-		[ResourceBundle("airim")]
+		[ResourceBundle("imonair")]
 	</fx:Metadata>
 
 	<fx:Script>
 		<![CDATA[
-			import com.treegger.airim.controller.ChatController;
-			import com.treegger.airim.controller.ChatEvent;
-			import com.treegger.airim.controller.PreferencesController;
-			import com.treegger.airim.model.Contact;
+			import com.treegger.imonair.controller.ChatController;
+			import com.treegger.imonair.controller.ChatEvent;
+			import com.treegger.imonair.controller.PreferencesController;
+			import com.treegger.imonair.model.Contact;
 			import com.treegger.component.DockNotifier;
 			import com.treegger.component.Notification;
 			import com.treegger.protobuf.TextMessage;
@@ -104,15 +104,15 @@
 						const onlineContacts:int = _chatController.onlineContacts.length;
 						if( onlineContacts == 0 )
 						{
-							new Notification( resourceManager.getString('airim', 'noneOnline' ), resourceManager.getString('airim', 'maybeYouShould' ) );
+							new Notification( resourceManager.getString('imonair', 'noneOnline' ), resourceManager.getString('imonair', 'maybeYouShould' ) );
 						}
 						else if( onlineContacts == 1 )
 						{
-							new Notification( resourceManager.getString('airim', 'youHave', [ onlineContacts.toString(), ""] ) );
+							new Notification( resourceManager.getString('imonair', 'youHave', [ onlineContacts.toString()] ) );
 						}
 						else if( onlineContacts > 1 )
 						{
-							new Notification( resourceManager.getString( 'airim', 'youHave', [ onlineContacts.toString(), "s"] ) );
+							new Notification( resourceManager.getString( 'imonair', 'youHaves', [ onlineContacts.toString()] ) );
 						}
 					});
 					timer.start();
@@ -138,8 +138,8 @@
 				_chatController.removeEventListener( ChatEvent.HANDSHAKED, authenticate );
 				if( preferenceController.userAccount && !chatController.authenticated )
 				{
-					new Notification( resourceManager.getString( 'airim', 'authentication', [ preferenceController.userAccount.username, preferenceController.userAccount.socialNetwork] ), 
-									resourceManager.getString( 'airim', 'pleaseWait' ) );
+					new Notification( resourceManager.getString( 'imonair', 'authentication', [ preferenceController.userAccount.username, preferenceController.userAccount.socialNetwork] ), 
+									resourceManager.getString( 'imonair', 'pleaseWait' ) );
 					
 					
 					chatController.authenticate( preferenceController.userAccount );

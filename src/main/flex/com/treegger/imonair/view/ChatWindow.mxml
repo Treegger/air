@@ -4,7 +4,7 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 xmlns:component="com.treegger.component.*" 
-		 xmlns:view="com.treegger.airim.view.*"
+		 xmlns:view="com.treegger.imonair.view.*"
 		 
 		 
 		 transparent="false"
@@ -27,15 +27,15 @@
 		 keyUp="keyUpHanler( event )"
 		 >
 	<fx:Metadata>
-		[ResourceBundle("airim")]
+		[ResourceBundle("imonair")]
 	</fx:Metadata>
 
 	<fx:Script>
 		<![CDATA[
-			import com.treegger.airim.controller.ChatController;
-			import com.treegger.airim.controller.PreferencesController;
-			import com.treegger.airim.model.Contact;
-			import com.treegger.airim.model.UserPreference;
+			import com.treegger.imonair.controller.ChatController;
+			import com.treegger.imonair.controller.PreferencesController;
+			import com.treegger.imonair.model.Contact;
+			import com.treegger.imonair.model.UserPreference;
 			import com.treegger.component.TabEvent;
 			
 			import flash.net.navigateToURL;
@@ -57,7 +57,7 @@
 			[Inject]
 			public var preferencesController:PreferencesController;
 			
-			[ArrayElementType("Contact")]
+			[ArrayElementType("com.treegger.imonair.model.Contact")]
 			[Bindable]
 			private var activeChatContacts:ArrayCollection = new ArrayCollection();
 			
@@ -322,16 +322,16 @@
 
 		<s:Group width="100%">
 			<s:HGroup paddingTop="4" paddingBottom="4" paddingLeft="8" paddingRight="8" gap="8" left="0">
-				<s:Group click="linkToFeedback()" toolTip="{resourceManager.getString('airim','toolTipFeedback')}">
+				<s:Group click="linkToFeedback()" toolTip="{resourceManager.getString('imonair','toolTipFeedback')}">
 					<s:BitmapImage source="@Embed('icons/feedback.png')" />
 				</s:Group>
 			</s:HGroup>
 			
 			<s:HGroup paddingTop="4" paddingBottom="4" paddingLeft="8" paddingRight="8" gap="8" right="0">
-				<s:Group click="currentChatPannel.selectFile()" toolTip="{resourceManager.getString('airim','toolTipSendFile')}">
+				<s:Group click="currentChatPannel.selectFile()" toolTip="{resourceManager.getString('imonair','toolTipSendFile')}">
 					<s:BitmapImage source="@Embed('icons/folder.png')" />
 				</s:Group>
-				<s:Group click="openVideoWindow().startStratus()" toolTip="{resourceManager.getString('airim','toolTipVideo')}">
+				<s:Group click="openVideoWindow().startStratus()" toolTip="{resourceManager.getString('imonair','toolTipVideo')}">
 					<s:BitmapImage source="@Embed('icons/video.png')" />
 				</s:Group>
 			</s:HGroup>

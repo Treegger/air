@@ -1,9 +1,9 @@
-package com.treegger.airim.controller
+package com.treegger.imonair.controller
 {
 	import com.netease.protobuf.Message;
 	
 	import flash.events.Event;
-	import com.treegger.airim.model.Contact;
+	import com.treegger.imonair.model.Contact;
 
 	public class ChatEvent extends Event
 	{

@@ -1,8 +1,8 @@
 package com.treegger.component
 {
-	import com.treegger.airim.PrivateProperties;
-	import com.treegger.airim.controller.ChatController;
-	import com.treegger.airim.model.Contact;
+	import com.treegger.imonair.PrivateProperties;
+	import com.treegger.imonair.controller.ChatController;
+	import com.treegger.imonair.model.Contact;
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -28,7 +28,7 @@ package com.treegger.component
 		public static const CONNECTION_FAILURE:String="CONNECTION_FAILURE";
 		public static const CONNECTION_CLOSE:String="CONNECTION_CLOSE";
 		
-		private static const NETSTREAM_NAME:String="airim";
+		private static const NETSTREAM_NAME:String="imonair";
 
 		
 		[Inject]

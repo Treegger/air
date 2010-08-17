@@ -19,15 +19,15 @@
 	creationComplete="creationCompleteHandler()"
 >
 	<fx:Metadata>
-		[ResourceBundle("airim")]
+		[ResourceBundle("imonair")]
 	</fx:Metadata>
 	
 	<fx:Script>
 		<![CDATA[
-			import com.treegger.airim.PrivateProperties;
-			import com.treegger.airim.controller.ChatController;
-			import com.treegger.airim.controller.ChatEvent;
-			import com.treegger.airim.model.Contact;
+			import com.treegger.imonair.PrivateProperties;
+			import com.treegger.imonair.controller.ChatController;
+			import com.treegger.imonair.controller.ChatEvent;
+			import com.treegger.imonair.model.Contact;
 			import com.treegger.component.AlphaButton;
 			import com.treegger.component.IOStream;
 			import com.treegger.component.StratusConnector;
@@ -105,7 +105,7 @@
 			{
 				ring();
 				activate();
-				Alert.show( resourceManager.getString( 'airim', 'videoRequestFrom', [contact.name]), resourceManager.getString( 'airim', 'videoAccept' ),
+				Alert.show( resourceManager.getString( 'imonair', 'videoRequestFrom', [contact.name]), resourceManager.getString( 'imonair', 'videoAccept' ),
 						Alert.YES|Alert.NO, this, acceptRemoteClickHandler );
 			}
 			
@@ -160,17 +160,17 @@
 				var camera:Camera = getCamera();
 				if( camera )
 				{
-					if( buttonList.selectedItem == resourceManager.getString('airim', 'high') )
+					if( buttonList.selectedItem == resourceManager.getString('imonair', 'high') )
 					{
 						camera.setMode( cameraWidth*2, cameraHeight*2, 25 );
 						camera.setQuality( 0, 90 );
 					}
-					else if( buttonList.selectedItem == resourceManager.getString('airim', 'normal') )
+					else if( buttonList.selectedItem == resourceManager.getString('imonair', 'normal') )
 					{
 						camera.setMode( cameraWidth, cameraHeight, 15 );
 						camera.setQuality( 0, 90 );
 					}
-					else if( buttonList.selectedItem == resourceManager.getString('airim', 'low') )
+					else if( buttonList.selectedItem == resourceManager.getString('imonair', 'low') )
 					{
 						camera.setMode( cameraWidth/2, cameraHeight/2, 10 );
 						camera.setQuality( 0, 90 );
@@ -193,17 +193,17 @@
 					microphone.soundTransform = new SoundTransform(1);
 					microphone.setSilenceLevel(0);
 					microphone.gain = gainSlider.value;
-					if( buttonList.selectedItem == resourceManager.getString('airim', 'high') )
+					if( buttonList.selectedItem == resourceManager.getString('imonair', 'high') )
 					{
 						microphone.rate = 44;
 						microphone.encodeQuality = 9;
 					}
-					else if( buttonList.selectedItem == resourceManager.getString('airim', 'normal') )
+					else if( buttonList.selectedItem == resourceManager.getString('imonair', 'normal') )
 					{
 						microphone.rate = 22;
 						microphone.encodeQuality = 9;
 					}
-					else if( buttonList.selectedItem == resourceManager.getString('airim', 'low') )
+					else if( buttonList.selectedItem == resourceManager.getString('imonair', 'low') )
 					{
 						microphone.rate = 11;
 						microphone.encodeQuality = 7;
@@ -310,7 +310,7 @@
 			private function creationCompleteHandler():void
 			{
 				addEventListener(Event.ENTER_FRAME, updateMicrophoneActivity );
-				const array:Array = [ resourceManager.getString('airim', 'low'), resourceManager.getString('airim', 'normal'), resourceManager.getString('airim', 'high') ]
+				const array:Array = [ resourceManager.getString('imonair', 'low'), resourceManager.getString('imonair', 'normal'), resourceManager.getString('imonair', 'high') ]
 				buttonList.dataProvider = new ArrayCollection( array ); 
 				buttonList.selectedIndex=1;
 			}
@@ -341,7 +341,7 @@
 
 		</s:Group>
 		
-		<component:AlphaButton id="fullscreenButton" data="{resourceManager.getString('airim', 'fullScreen')}" top="1" click="toggleFullscreen()"/>
+		<component:AlphaButton id="fullscreenButton" data="{resourceManager.getString('imonair', 'fullScreen')}" top="1" click="toggleFullscreen()"/>
 		
 		<s:VGroup right="0" top="0" horizontalAlign="right">
 			<s:List id="buttonList"
@@ -360,7 +360,7 @@
 			</s:List>
 	
 			<s:HGroup gap="2" verticalAlign="middle" paddingRight="5">
-				<s:Label text="{resourceManager.getString('airim', 'mic')}" color="0xffffff" alpha=".5" fontSize="10"/>
+				<s:Label text="{resourceManager.getString('imonair', 'mic')}" color="0xffffff" alpha=".5" fontSize="10"/>
 				<s:HSlider id="gainSlider" alpha=".5" minimum="0" maximum="100" value="75" stepSize="5" snapInterval="5" liveDragging="true" showDataTip="false"
 						   lineHeight="1" lineThrough="false" maxWidth="50"
 						   change="if( microphone ) microphone.gain = gainSlider.value"/>

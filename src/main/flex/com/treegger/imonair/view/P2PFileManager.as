@@ -1,8 +1,8 @@
-package com.treegger.airim.view
+package com.treegger.imonair.view
 {
-	import com.treegger.airim.controller.ChatController;
-	import com.treegger.airim.controller.ChatEvent;
-	import com.treegger.airim.model.Contact;
+	import com.treegger.imonair.controller.ChatController;
+	import com.treegger.imonair.controller.ChatEvent;
+	import com.treegger.imonair.model.Contact;
 	import com.treegger.component.IOStream;
 	import com.treegger.component.StratusConnector;
 	
