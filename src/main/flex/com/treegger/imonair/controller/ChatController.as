@@ -482,6 +482,8 @@ package com.treegger.imonair.controller
 			if( authenticated )
 			{
 				sendPresence( "unavailable" );
+				contacts.removeAll();
+				onlineContacts.removeAll();
 				close();
 				connect();
 			}

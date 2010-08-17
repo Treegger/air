@@ -143,7 +143,7 @@
 		
 		<s:HGroup verticalAlign="middle" width="100%">
 			<s:Label width="100" text="{resourceManager.getString('imonair', 'preferencesUsername' )}" fontWeight="bold" />
-			<s:TextInput id="usernameInput" width="100%" text="{userAccount.username}" change="accountChanged=true" />
+			<s:TextInput id="usernameInput" width="100%" text="{userAccount.username}" change="accountChanged=true" enter="saveHandler( event )"/>
 		</s:HGroup>
 		
 		
@@ -157,7 +157,7 @@
 
 		<s:HGroup verticalAlign="middle" width="100%">
 			<s:Label width="100"  text="{resourceManager.getString('imonair', 'preferencesStartAtLogin')}" fontWeight="bold"/>
-			<s:CheckBox id="startAtLoginInput" selected="{userPreference.startAtLogin}"  />
+			<s:CheckBox id="startAtLoginInput" selected="{userPreference.startAtLogin}" />
 		</s:HGroup>
 		
 		<s:HGroup verticalAlign="middle" width="100%">
