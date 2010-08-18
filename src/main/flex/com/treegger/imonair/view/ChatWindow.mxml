@@ -156,11 +156,11 @@
 						const i:int = activeChatContacts.getItemIndex( selectedContact );
 						if( event.keyCode == 37 ) // arrow left 
 						{
-							selectedContact = activeChatContacts.getItemAt( ( i+1 )% activeChatContacts.length ) as Contact;
+							selectedContact = activeChatContacts.getItemAt( ( i+activeChatContacts.length-1 )% activeChatContacts.length ) as Contact;						
 						} 					
 						if( event.keyCode == 39 ) // arrow right 
 						{
-							selectedContact = activeChatContacts.getItemAt( ( i+activeChatContacts.length-1 )% activeChatContacts.length ) as Contact;						
+							selectedContact = activeChatContacts.getItemAt( ( i+1 )% activeChatContacts.length ) as Contact;
 						}
 						event.stopImmediatePropagation();
 						event.preventDefault();
