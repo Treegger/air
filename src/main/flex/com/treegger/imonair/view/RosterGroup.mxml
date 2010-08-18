@@ -37,11 +37,6 @@
 				
 
 			
-			private function clickHandler():void
-			{
-				if( currentState=="folded" )currentState="normal";
-				else if( currentState=="normal") currentState="folded";
-			}
 			
 			private function creationCompleteHandler():void
 			{
@@ -56,6 +51,22 @@
 			}
 				
 			
+			private var prevX:int = 0;
+			private var prevY:int = 0;
+			private function mouseDownHandler():void
+			{
+				prevX = NativeApplication.nativeApplication.activeWindow.x;
+				prevY = NativeApplication.nativeApplication.activeWindow.y;
+			}
+			private function mouseUpHandler():void
+			{
+				if( prevX == NativeApplication.nativeApplication.activeWindow.x && prevY == NativeApplication.nativeApplication.activeWindow.y )
+				{
+					if( currentState=="folded" )currentState="normal";
+					else if( currentState=="normal") currentState="folded";				
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -66,7 +77,7 @@
 		<s:State name="folded" />
 	</s:states>
 	
-	<s:Group click="clickHandler()">
+	<s:Group mouseUp="mouseUpHandler()" mouseDown="mouseDownHandler()">
 		
 		<s:Rect  top="0" bottom="0" radiusX="8" radiusY="8"  width="100%">
 			<s:fill>
