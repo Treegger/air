@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		width="10" height="10" xmlns:component="com.treegger.component.*"
+		mouseOver="mouseOverHandler(event)"
+		>
+	<fx:Metadata>
+		[Event(name="close", type="flash.events.Event")]		
+	</fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			import com.treegger.imonair.model.Contact;
+			
+			[Bindable]
+			public var closable:Boolean;
+			
+			[Bindable]
+			public var contact:Contact;
+			
+			
+			
+			
+			private function clickCloseHandler():void
+			{
+				if( closable )
+				{
+					dispatchEvent( new Event("close") );
+				}
+			}
+			
+			private var isDown:Boolean;
+			private function mouseDownHandler( event:Event ):void
+			{
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				isDown = true;
+			}
+			private function mouseUpHandler( event:Event ):void
+			{
+				event.preventDefault();
+				event.stopImmediatePropagation();				
+				if( isDown )
+				{
+					clickCloseHandler();					
+				}
+			}
+			
+			private function mouseOverHandler( event:Event ):void
+			{
+				isDown = false;
+				if( closable ){
+					currentState = 'hoveredClosable'; 
+					event.preventDefault();
+				}
+			}
+
+		]]>
+	</fx:Script>
+	
+	
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="hoveredClosable" />
+	</s:states>
+	
+	
+	<component:StatusBullet includeInLayout="{contact.statusColor!=0x0000ff &amp;&amp;  contact.statusColor!=0xff00ff }" visible="{contact.statusColor!=0x0000ff &amp;&amp; contact.statusColor!=0xff00ff }" 
+							width="10" height="10" color="{contact.statusColor}"/>
+	
+	<mx:Image includeInLayout="{contact.statusColor==0x0000ff}" visible="{contact.statusColor==0x0000ff}" 
+			  source="@Embed('icons/chat-10x10.png')" width="10" height="10" horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
+	
+	<mx:Image includeInLayout="{contact.statusColor==0xff00ff}" visible="{contact.statusColor==0xff00ff}" 
+			  source="@Embed('icons/composing-10x10.png')" width="10" height="10" horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
+	
+	<s:Group includeIn="hoveredClosable" mouseDown="mouseDownHandler( event )" mouseUp="mouseUpHandler( event )">
+		<s:Ellipse width="{width}" height="{height}">
+			<s:fill>
+				<s:SolidColor color="0x888888" alpha="1" />
+			</s:fill>
+		</s:Ellipse>
+		
+		<s:Line xFrom="3" yFrom="3" xTo="7" yTo="7">
+			<s:stroke>
+				<s:SolidColorStroke color="0xdddddd" alpha="1" weight="2" />
+			</s:stroke>
+		</s:Line>
+		
+		<s:Line xFrom="3" yFrom="7" xTo="7" yTo="3">
+			<s:stroke>
+				<s:SolidColorStroke color="0xdddddd" alpha="1" weight="2" />
+			</s:stroke>
+		</s:Line>
+		
+	</s:Group>
+
+</s:ItemRenderer>

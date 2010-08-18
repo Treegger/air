@@ -99,7 +99,7 @@
 			</s:stroke>
 		</s:Rect>
 
-		<component:StatusBullet left="5" top="3" width="10" height="10" color="{( data as Contact ).statusColor}" closable="false"/>
+		<view:ContactStatus left="5" top="3" width="10" height="10" contact="{( data as Contact )}" />
 			
 		
 		<s:Label text="{(data as Contact).name}" top="3" bottom="1" left="19" right="5" color.dragHovered="0xffffff" color.added="0xffffff"/>

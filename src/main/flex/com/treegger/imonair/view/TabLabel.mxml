@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:component="com.treegger.component.*" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:component="com.treegger.component.*" xmlns:view="com.treegger.imonair.view.*" 
 		 >
 	<fx:Metadata>
 		[Event(name="close", type="flash.events.Event")]		
@@ -31,7 +31,7 @@
 		]]>
 	</fx:Script>
 
-	<component:StatusBullet color="{contact.statusColor}"  top="3" width="10" height="10" 
+	<view:ContactStatus contact="{contact}"  top="3" width="10" height="10" 
 		closable="true" close="closeHandler()"/>
 	<s:Label text="{contact.name}" top="3" bottom="1" left="14"/>
 </s:Group>
