@@ -135,7 +135,6 @@
 			
 			private function authenticate( event:ChatEvent ):void
 			{
-				_chatController.removeEventListener( ChatEvent.HANDSHAKED, authenticate );
 				if( preferenceController.userAccount && !chatController.authenticated )
 				{
 					new Notification( resourceManager.getString( 'imonair', 'authentication', [ preferenceController.userAccount.username, preferenceController.userAccount.socialNetwork] ), 

@@ -1,10 +1,10 @@
 package com.treegger.imonair.controller
 {
+	import com.treegger.component.Notification;
+	import com.treegger.component.StratusConnector;
 	import com.treegger.imonair.model.ChatContent;
 	import com.treegger.imonair.model.Contact;
 	import com.treegger.imonair.model.UserAccount;
-	import com.treegger.component.Notification;
-	import com.treegger.component.StratusConnector;
 	import com.treegger.protobuf.AuthenticateRequest;
 	import com.treegger.protobuf.Ping;
 	import com.treegger.protobuf.Presence;
@@ -27,14 +27,12 @@ package com.treegger.imonair.controller
 	import mx.collections.ArrayCollection;
 	import mx.events.CollectionEvent;
 	import mx.events.CollectionEventKind;
+	import mx.events.DynamicEvent;
 
 	public class ChatController extends EventDispatcher
 	{
 		public static const MESSAGE_TYPE_STRATUS_REQUEST:String = "stratusRequest";
 
-		public static const MESSAGE_TYPE_STRATUS_VIDEO_REQUEST:String = "stratusVideoRequest";
-		public static const MESSAGE_TYPE_STRATUS_FILE_REQUEST:String = "stratusFileRequest";
-		
 		private var wsConnector:WSConnector; 
 		
 		private var roster:Roster;
@@ -47,8 +45,29 @@ package com.treegger.imonair.controller
 		[Bindable]
 		public var contacts:ArrayCollection = new ArrayCollection();
 		
+		private var _stratusConnector:StratusConnector;
 		[Inject]
-		public var stratusConnector:StratusConnector;
+		public function set stratusConnector(value:StratusConnector):void
+		{
+			_stratusConnector = value;
+			var chatEvent:ChatEvent;
+			stratusConnector.addEventListener( ChatEvent.STRATUSFILE, function( event:DynamicEvent ):void
+			{
+				chatEvent = new ChatEvent( ChatEvent.STRATUSFILE );
+				chatEvent.targetContact = event.contact;					
+				dispatchEvent( chatEvent );
+			});
+			stratusConnector.addEventListener( ChatEvent.STRATUSVIDEO, function( event:DynamicEvent ):void
+			{
+				chatEvent = new ChatEvent( ChatEvent.STRATUSVIDEO );
+				chatEvent.targetContact = event.contact;					
+				dispatchEvent( chatEvent );
+			});
+		}
+		public function get stratusConnector():StratusConnector
+		{
+			return _stratusConnector;
+		}
 		
 		public var exitState:Boolean = false;
 		public var connectingState:Boolean = false;
@@ -160,7 +179,14 @@ package com.treegger.imonair.controller
 		{
 			if( connectingState ) return;
 
-			if( onlineContacts ) onlineContacts.removeAll();
+			if( onlineContacts )
+			{
+				for each( var contact:Contact in onlineContacts )
+				{
+					contact.type = 'unavailable';
+				}
+				onlineContacts.removeAll();
+			}
 			if( pingTimer ) pingTimer.stop();
 			wsConnector.close();
 			authenticated = false;
@@ -272,27 +298,7 @@ package com.treegger.imonair.controller
 					if( textMessage.type == MESSAGE_TYPE_STRATUS_REQUEST )
 					{
 						stratusConnector.handshake( targetContact, textMessage.thread );
-						var that:ChatController = this;
-						if( !stratusConnector.hasEventListener( ChatEvent.STRATUSFILE ) )
-						{
-							stratusConnector.addEventListener( ChatEvent.STRATUSFILE, function( event:Event ):void
-							{
-								chatEvent = new ChatEvent( ChatEvent.STRATUSFILE );
-								chatEvent.targetContact = targetContact;					
-								dispatchEvent( chatEvent );
-							});
-						}
-						if( !stratusConnector.hasEventListener( ChatEvent.STRATUSVIDEO ) )
-						{
-							stratusConnector.addEventListener( ChatEvent.STRATUSVIDEO, function( event:Event ):void
-							{
-								chatEvent = new ChatEvent( ChatEvent.STRATUSVIDEO );
-								chatEvent.targetContact = targetContact;					
-								dispatchEvent( chatEvent );
-							});
-						}
 					}
-					
 					else if( textMessage.hasComposing && textMessage.composing )
 					{
 						targetContact.composing = true;

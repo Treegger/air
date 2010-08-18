@@ -34,8 +34,10 @@ package com.treegger.component
 		[Inject]
 		public var chatController:ChatController;
 		
+		private var that:StratusConnector;
 		public function StratusConnector()
 		{
+			that = this;
 		}
 		
 		private function getNetConnection( contact:Contact):NetConnection
@@ -95,7 +97,7 @@ package com.treegger.component
 					onPeerConnect: function( remoteStream:NetStream ):Boolean
 					{
 						trace( "Peer Connect");
-						ioStream.inputConnect( getNetConnection( contact ), remoteStream.farID, NETSTREAM_NAME, { remoteCall: remoteCallHandler }, false );
+						ioStream.inputConnect( getNetConnection( contact ), remoteStream.farID, NETSTREAM_NAME, new StratusClientCallHandler( that, contact ), false );
 						setTimeout( function():void { callBack( contact, ioStream ) }, 100 );
 						return true;
 					}					
@@ -151,19 +153,10 @@ package com.treegger.component
 			}, false );
 				
 				
-
-			ioStream.inputConnect( getNetConnection( contact ), remoteId, NETSTREAM_NAME, { remoteCall: remoteCallHandler }, false );
-
-			
+	
+			ioStream.inputConnect( getNetConnection( contact ), remoteId, NETSTREAM_NAME, new StratusClientCallHandler( that, contact ), false );
 		}
 
-		private function remoteCallHandler( data:Object ):void
-		{
-			trace( "Remote called " + data.remoteEvent +" / " + data.remoteObject );
-			const e:DynamicEvent = new DynamicEvent( data.remoteEvent );
-			e.data = data.remoteObject;
-			this.dispatchEvent( e );
-		}
 		
 		private function netConnectionHandler(event:NetStatusEvent):void
 		{
@@ -221,6 +214,6 @@ package com.treegger.component
 		
 		
 		
-		
 	}
+	
 }
