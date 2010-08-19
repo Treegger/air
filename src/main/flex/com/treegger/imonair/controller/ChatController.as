@@ -232,6 +232,21 @@ package com.treegger.imonair.controller
 				sendPresence();
 				dispatchEvent( new ChatEvent( ChatEvent.AUTHENTICATION ) );
 			}
+			else if( message.hasBindResponse )
+			{
+				authenticated = message.bindResponse.hasSessionId;
+				if( authenticated )
+				{
+					currentSessionId = message.bindResponse.sessionId;
+				}
+				else
+				{
+					currentSessionId = null;
+				}
+				sendPresence();
+				dispatchEvent( new ChatEvent( ChatEvent.AUTHENTICATION ) );
+				
+			}
 			else if( message.hasRoster )
 			{
 				roster = message.roster;
