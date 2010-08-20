@@ -77,10 +77,12 @@
 					currentUserAccount.socialNetwork = socialNetworkInput.selectedItem;
 					currentUserAccount.username = usernameInput.text;
 					currentUserAccount.password = passwordInput.text
-
+					preferenceController.userAccount = currentUserAccount;
 					
 					chatController.addEventListener( ChatEvent.AUTHENTICATION, authenticationHandler );
-					chatController.authenticate( currentUserAccount, true );
+					chatController.disconnect( true );
+					chatController.connect();
+					chatController.authenticate( currentUserAccount );
 				}
 				else
 				{
@@ -97,10 +99,6 @@
 				
 				if( chatController.authenticated )
 				{
-					userAccount.socialNetwork = socialNetworkInput.selectedItem;
-					userAccount.username = usernameInput.text;
-					userAccount.password = passwordInput.text
-					preferenceController.userAccount = userAccount;
 					close();
 				}
 				else
@@ -143,7 +141,8 @@
 		
 		<s:HGroup verticalAlign="middle" width="100%">
 			<s:Label width="100" text="{resourceManager.getString('imonair', 'preferencesUsername' )}" fontWeight="bold" />
-			<s:TextInput id="usernameInput" width="100%" text="{userAccount.username}" change="accountChanged=true" enter="saveHandler( event )"/>
+			<s:TextInput id="usernameInput" width="100%" text="{userAccount.username}" change="accountChanged=true" enter="saveHandler( event )"
+						 editable="true" editable.disabled="false"/>
 		</s:HGroup>
 		
 		
@@ -152,7 +151,8 @@
 			<s:TextInput id="passwordInput"  width="100%" displayAsPassword="true" 
 						 text="{userAccount.password}" 
 						 change="accountChanged=true"
-						 enter="saveHandler( event )"/>
+						 enter="saveHandler( event )"
+						 editable="true" editable.disabled="false"/>
 		</s:HGroup>
 
 		<s:HGroup verticalAlign="middle" width="100%">

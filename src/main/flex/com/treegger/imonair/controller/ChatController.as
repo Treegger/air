@@ -80,7 +80,7 @@ package com.treegger.imonair.controller
 		}
 		
 		
-		private function connect():void
+		public function connect():void
 		{
 			trace( "Connect" );
 			connectingState = true;
@@ -498,14 +498,20 @@ package com.treegger.imonair.controller
 			
 		}
 		
+		public function disconnect( newSession:Boolean=false ):void
+		{
+			sendPresence( "unavailable" );
+			contacts.removeAll();
+			onlineContacts.removeAll();
+			if( newSession ) currentSessionId = null;
+			close();			
+		}
+		
 		public function authenticate( userAccount:UserAccount, newSession:Boolean=false ):void
 		{
 			if( authenticated )
 			{
-				sendPresence( "unavailable" );
-				contacts.removeAll();
-				onlineContacts.removeAll();
-				close();
+				disconnect( newSession );
 				connect();
 			}
 
@@ -526,7 +532,7 @@ package com.treegger.imonair.controller
 			authReq.username = username+'@'+socialNetwork;
 			authReq.password = userAccount.password;
 			authReq.resource = 'IMonAir';
-			if( !newSession ) authReq.sessionId = currentSessionId;
+			authReq.sessionId = currentSessionId;
 			
 			currentJID = authReq.username+"/" +authReq.resource;
 			
