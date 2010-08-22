@@ -164,20 +164,21 @@ package com.treegger.imonair.controller
 		private var retryConnectionCount:Number;
 		private function onSocketError( error:Error=null ):void
 		{
-			connectingState = false;
 			trace( "Socket Error... reconnecting...");
-			reconnect();
+			if( connectingState ) setTimeout( reconnect, 1000*60 );
+			else reconnect();
+			connectingState = false;
 		}
 		private function onSocketClose( event:Event=null ):void
 		{
-			connectingState = false;
 			trace( "Socket Close... reconnecting...");
-			reconnect();
+			if( connectingState ) setTimeout( reconnect, 1000*60 );
+			else reconnect();
+			connectingState = false;
 		}
 		
 		private function reconnect():void
 		{
-			if( connectingState ) return;
 
 			if( onlineContacts )
 			{
