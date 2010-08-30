@@ -25,11 +25,12 @@
 	<name>IMonAir</name>
 
 	<!-- An application version designator (such as "v1", "2.5", or "Alpha 1"). Required. -->
-	<version>0.96</version>
+	<version>1.0</version>
 
 	<!-- Description, displayed in the AIR application installer.
 	     May have multiple values for each language. See samples or xsd schema file. Optional. -->
-	<description>IMonAir Treegger.com opensource Instant Messaging desktop client.</description>
+	<description>IMonAir opensource Instant Messaging desktop client. 
+	Tests, advice and build provided by Swift-Tools.com</description>
 
 	<!-- Copyright information. Optional -->
 	<copyright>Treegger.com 2010</copyright>
