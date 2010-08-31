@@ -535,11 +535,11 @@ package com.treegger.imonair.controller
 			authReq.resource = 'IMonAir';
 			authReq.sessionId = currentSessionId;
 			
-			currentJID = authReq.username+"/" +authReq.resource;
+			currentJID = authReq.username.toLowerCase()+"/" +authReq.resource;
 			
 			currentContact = new Contact();
 			currentContact.name = userAccount.username;  
-			currentContact.jidWithoutRessource = authReq.username;  
+			currentContact.jidWithoutRessource = authReq.username.toLowerCase();  
 			
 			const wsMessage:WebSocketMessage = new WebSocketMessage();
 			wsMessage.authenticateRequest = authReq;
