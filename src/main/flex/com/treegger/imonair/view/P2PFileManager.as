@@ -38,31 +38,23 @@ package com.treegger.imonair.view
 		public function set stratusConnector(value:StratusConnector):void
 		{
 			_stratusConnector = value;
-			if( !_stratusConnector.hasEventListener( "receiveRemoteFile" ) )
+			_stratusConnector.addEventListener( "receiveRemoteFile_"+contact.screenname, function( event:DynamicEvent ):void
 			{
-				_stratusConnector.addEventListener( "receiveRemoteFile", function( event:DynamicEvent ):void
-				{
-					receiveRemoteFile( event.data );
-				});
-			}			
-			if( !_stratusConnector.hasEventListener( "askPermissionRemoteFile" ) )
+				receiveRemoteFile( event.data );
+			});
+			_stratusConnector.addEventListener( "askPermissionRemoteFile_"+contact.screenname, function( event:DynamicEvent ):void
 			{
-				_stratusConnector.addEventListener( "askPermissionRemoteFile", function( event:DynamicEvent ):void
-				{
-					askPermissionRemoteFile( event.data );
-				});
-			}			
-			if( !_stratusConnector.hasEventListener( "givePermissionRemoteFile" ) )
+				askPermissionRemoteFile( event.data );
+			});
+			_stratusConnector.addEventListener( "givePermissionRemoteFile_"+contact.screenname, function( event:DynamicEvent ):void
 			{
-				_stratusConnector.addEventListener( "givePermissionRemoteFile", function( event:DynamicEvent ):void
-				{
-					givePermissionRemoteFile( event.data );
-				});
-			}			
+				givePermissionRemoteFile( event.data );
+			});
 		}
 
 		
 		public var contact:Contact;
+		public var currentContact:Contact;
 		
 		private var file:FileReference;
 		
@@ -98,7 +90,7 @@ package com.treegger.imonair.view
 		{
 			trace("File load complete: " + file.name );
 			
-			ioStream.output.send( "remoteCall", { remoteEvent: "receiveRemoteFile", remoteObject: { name: file.name, data: file.data } } );
+			ioStream.output.send( "remoteCall", { remoteEvent: "receiveRemoteFile_"+currentContact.screenname, remoteObject: { name: file.name, data: file.data } } );
 		}
 		private function ioErrorHandler(event:IOErrorEvent):void
 		{
@@ -116,7 +108,7 @@ package com.treegger.imonair.view
 		}
 		private function remoteCallAskPermission():void
 		{
-			ioStream.output.send( "remoteCall", { remoteEvent: "askPermissionRemoteFile", remoteObject: { name: file.name } } );
+			ioStream.output.send( "remoteCall", { remoteEvent: "askPermissionRemoteFile_"+currentContact.screenname, remoteObject: { name: file.name } } );
 		}
 		
 		public function askPermissionRemoteFile( remoteObject:Object ):void
@@ -135,7 +127,7 @@ package com.treegger.imonair.view
 				_stratusConnector.connect( contact, function( contact:Contact, ioStream:IOStream ):void
 				{
 					that.ioStream = ioStream;
-					that.ioStream.output.send( "remoteCall", { remoteEvent: "givePermissionRemoteFile", remoteObject: {} } );
+					that.ioStream.output.send( "remoteCall", { remoteEvent: "givePermissionRemoteFile_"+currentContact.screenname, remoteObject: {} } );
 				});
 
 			}

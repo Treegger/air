@@ -59,26 +59,31 @@
 			}
 			
 			
-			private var fileManager:P2PFileManager;
-			public function requestDownloadFile():void
+			private static var fileManagers:Object = {};
+			
+			private function getFileManager( contact:Contact ):P2PFileManager
 			{
+				var fileManager:P2PFileManager = fileManagers[contact.screenname];
 				if( fileManager == null )
 				{
 					fileManager = new P2PFileManager();
-					SwizManager.setUp( fileManager );
 					fileManager.contact = contact;
-					addElement( fileManager );
-				}				
+					fileManager.currentContact = chatController.currentContact;
+					SwizManager.setUp( fileManager );
+					fileManagers[contact.screenname] = fileManager;
+				}
+				return fileManager;
+			}
+			
+			public function requestDownloadFile():void
+			{
+				var fileManager:P2PFileManager = getFileManager( contact );
+				if( !contains( fileManager ) ) addElement( fileManager );
 			}
 			public function selectFile():void
 			{
-				if( fileManager == null )
-				{
-					fileManager = new P2PFileManager();
-					SwizManager.setUp( fileManager );
-					fileManager.contact = contact;
-					addElement( fileManager );
-				}
+				var fileManager:P2PFileManager = getFileManager( contact );
+				if( !contains( fileManager ) ) addElement( fileManager );
 				fileManager.selectFile();
 			}
 			
