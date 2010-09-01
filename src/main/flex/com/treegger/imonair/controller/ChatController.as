@@ -437,7 +437,7 @@ package com.treegger.imonair.controller
 		public function requestVCard( contact:Contact ):void
 		{
 			const vcardRequest:VCardRequest = new VCardRequest();
-			vcardRequest.username = contact.jidWithoutRessource;
+			vcardRequest.username = contact.screenname;
 			
 			const wsMessage:WebSocketMessage = new WebSocketMessage();
 			wsMessage.vcardRequest = vcardRequest;

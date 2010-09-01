@@ -13,6 +13,12 @@ package com.treegger.imonair.model
 		
 		public var jidWithoutRessource:String;
 		
+		public function get screenname():String
+		{
+			var i:int = jidWithoutRessource.indexOf('@');
+			if( i > 0 ) return jidWithoutRessource.substr( 0, i );
+			return jidWithoutRessource;
+		}
 		
 		private var _type:String;
 		public function set type( value:String ):void
