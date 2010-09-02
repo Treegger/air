@@ -23,11 +23,11 @@
 		import air.update.ApplicationUpdaterUI;
 		import air.update.events.UpdateEvent;
 		
+		import com.treegger.component.Notification;
 		import com.treegger.imonair.controller.ChatController;
 		import com.treegger.imonair.controller.PreferencesController;
 		import com.treegger.imonair.model.UserPreference;
 		import com.treegger.imonair.view.PreferencesWindow;
-		import com.treegger.component.Notification;
 		
 		import mx.controls.Alert;
 		
@@ -40,7 +40,7 @@
 		[Embed(source="icons/logo-16x16.png")]
 		private var ApplicationLogo16:Class;     
 
-		private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
+		private var appUpdater:ApplicationUpdaterUI;
 	
 		private var preferencesSet:Boolean = false;
 		
@@ -92,6 +92,8 @@
 			nativeApplication.addEventListener(Event.ACTIVATE, onApplicationActivate); 
 			nativeApplication.addEventListener(Event.DEACTIVATE, onApplicationDeactivate);
 			nativeApplication.addEventListener(Event.EXITING, quitApplicationHandler );
+			nativeApplication.addEventListener(Event.NETWORK_CHANGE, networkChangeHandler );
+			
 			
 			addEventListener(Event.CLOSING, function( event:Event ):void
 			{
@@ -137,6 +139,8 @@
 			
 			checkForUpdate();
 		}
+		
+
 		
 		
 		private function createMenu():void
@@ -208,6 +212,7 @@
 			}
 		}
 		
+		
 		private function quitApplicationHandler( event:Event = null ):void
 		{
 			trace( "Quit" );
@@ -220,6 +225,11 @@
 			}
 		}
 		
+		
+		private function networkChangeHandler( event:Event ):void
+		{
+			checkForUpdate();
+		}
 		
 		private function onUserIdle(e:Event):void 
 		{ 
@@ -259,7 +269,8 @@
 		
 		
 		private function checkForUpdate():void {
-			setApplicationVersion(); 			
+			setApplicationVersion();
+			appUpdater = new ApplicationUpdaterUI();
 			appUpdater.updateURL = "http://ws.treegger.com/air/update.xml"; 
 			appUpdater.isCheckForUpdateVisible = false; // We won't ask permission to check for an update
 			appUpdater.addEventListener(UpdateEvent.INITIALIZED, onUpdate); 
