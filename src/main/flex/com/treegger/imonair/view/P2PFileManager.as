@@ -56,38 +56,40 @@ package com.treegger.imonair.view
 		public var contact:Contact;
 		public var currentContact:Contact;
 		
-		private var file:FileReference;
 		
 		private var ioStream:IOStream;
 		
+		private var files:Object = {};
 		
 		public function selectFile():void
 		{
 			// Creating a new FileReference to start choosing your file
-			file = new FileReference;
+			var file:FileReference = new FileReference;
 			
 			// Adding eventListeners
 			file.addEventListener(Event.SELECT, selectHandler);
 			file.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
 			file.addEventListener(ProgressEvent.PROGRESS, progressHandler);
-			file.addEventListener( Event.COMPLETE, completeHandler);
+			file.addEventListener( Event.COMPLETE, completeHandler );
 			file.browse();
 		}
 		
 		private function selectHandler( event:Event ):void
 		{
-			file = FileReference( event.target );
+			var file:FileReference = FileReference( event.target );
+			files[file.name] = file;
 			var that:P2PFileManager = this;
 			_stratusConnector.connect( contact, function( contact:Contact, ioStream:IOStream ):void
 			{
 				that.ioStream = ioStream;
-				sendFile();
+				sendFile(file);
 			});
 		}
 		
 		
 		private function completeHandler(event:Event):void
 		{
+			var file:FileReference = FileReference( event.target );
 			trace("File load complete: " + file.name );
 			
 			ioStream.output.send( "remoteCall", { remoteEvent: "receiveRemoteFile_"+currentContact.screenname, remoteObject: { name: file.name, data: file.data } } );
@@ -101,46 +103,50 @@ package com.treegger.imonair.view
 		{
 		}
 		
-		private function sendFile():void
+		private function sendFile(file:FileReference):void
 		{
 			ioStream.output.send( "remoteCall",  { remoteEvent: ChatEvent.STRATUSFILE } );
-			setTimeout( remoteCallAskPermission, 500 );
-		}
-		private function remoteCallAskPermission():void
-		{
-			ioStream.output.send( "remoteCall", { remoteEvent: "askPermissionRemoteFile_"+currentContact.screenname, remoteObject: { name: file.name } } );
+			setTimeout( function():void
+			{
+				ioStream.output.send( "remoteCall", { remoteEvent: "askPermissionRemoteFile_"+currentContact.screenname, remoteObject: { name: file.name } } );	
+			}, 500 );
 		}
 		
 		public function askPermissionRemoteFile( remoteObject:Object ):void
 		{
+			var that:P2PFileManager = this;
 			Alert.show( resourceManager.getString('imonair', 'fileTranserAcceptFile', [remoteObject.name]), 
 						resourceManager.getString('imonair', 'fileTransferRequest', [contact.name]), 
-						Alert.YES|Alert.NO, parent as Sprite, acceptRemoteClickHandler );
-			
+						Alert.YES|Alert.NO, parent as Sprite, 
+
+						function( event:CloseEvent ):void
+						{
+							if( event.detail == Alert.YES )
+							{
+								_stratusConnector.connect( contact, function( contact:Contact, ioStream:IOStream ):void
+								{
+									that.ioStream = ioStream;
+									that.ioStream.output.send( "remoteCall", { remoteEvent: "givePermissionRemoteFile_"+currentContact.screenname, remoteObject: {name:remoteObject.name} } );
+								});
+								
+							}
+							else 
+							{
+								close();
+							}
+						}
+			);
 		}
 		
-		private function acceptRemoteClickHandler( event:CloseEvent ):void
-		{
-			if( event.detail == Alert.YES )
-			{
-				var that:P2PFileManager = this;
-				_stratusConnector.connect( contact, function( contact:Contact, ioStream:IOStream ):void
-				{
-					that.ioStream = ioStream;
-					that.ioStream.output.send( "remoteCall", { remoteEvent: "givePermissionRemoteFile_"+currentContact.screenname, remoteObject: {} } );
-				});
-
-			}
-			else 
-			{
-				close();
-			}
-		}
-
 		public function givePermissionRemoteFile( remoteObject:Object ):void
 		{
-			trace( "Loading file " + file.name );
-			file.load();
+			trace( "Loading file " + remoteObject.name );
+			var file:FileReference = files[remoteObject.name] as FileReference;
+			if( file )
+			{
+				file.load();
+			}
+			files[remoteObject.name] = null;
 		}
 		
 		
