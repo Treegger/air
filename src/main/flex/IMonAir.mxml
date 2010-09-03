@@ -321,6 +321,6 @@
 	</fx:Declarations>
 
 	
-	<view:RosterView id="rosterView" resize="height = rosterView.height+10; width = rosterView.width+10;" />
+	<view:RosterView id="rosterView" updateComplete="height = rosterView.height+20; width = rosterView.width+10;" />
 	
 </s:WindowedApplication>

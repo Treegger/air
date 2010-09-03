@@ -4,6 +4,8 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		width="10" height="10" xmlns:component="com.treegger.component.*"
 		mouseOver="mouseOverHandler(event)"
+		autoDrawBackground="false" 
+
 		>
 	<fx:Metadata>
 		[Event(name="close", type="flash.events.Event")]		

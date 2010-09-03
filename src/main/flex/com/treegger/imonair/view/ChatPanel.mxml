@@ -172,8 +172,8 @@
 			{
 				if( textInput.text )
 				{
-					const text:String = textInput.text;
-					chatController.sendTextMessage( contact.jidWithoutRessource, toXML( text ) , null );
+					const text:String = toXML( textInput.text );
+					chatController.sendTextMessage( contact.jidWithoutRessource, text , null );
 					const chatContent:ChatContent = new ChatContent();
 					chatContent.from = chatController.currentContact.name;
 					chatContent.message = text;
@@ -213,30 +213,34 @@
 			private var composingTimer:Timer;
 			private function compose( event:KeyboardEvent ):void
 			{
-				if( !event.ctrlKey && !event.altKey )
+				if( !event.ctrlKey && !event.altKey && event.keyCode == 13 ) enterHandler( event )
+				else
 				{
-					if( textInput.text )
+					if( !event.ctrlKey && !event.altKey )
 					{
-						if( !composing && event.keyCode != 13 )
+						if( textInput.text )
 						{
-							trace( "Composing...." );
-							composing = true;
-							chatController.sendStateNotificationMessage( contact.jidWithoutRessource, true, false, false, false );
+							if( !composing && event.keyCode != 13 )
+							{
+								trace( "Composing...." );
+								composing = true;
+								chatController.sendStateNotificationMessage( contact.jidWithoutRessource, true, false, false, false );
+							}
+							if( composingTimer )
+							{
+								trace( "ResetTimer" );
+								composingTimer.reset();
+								composingTimer.repeatCount = 1;
+								composingTimer.start();
+							}
 						}
-						if( composingTimer )
+						else
 						{
-							trace( "ResetTimer" );
-							composingTimer.reset();
-							composingTimer.repeatCount = 1;
-							composingTimer.start();
+							trace( "Stoped Composing" );
+							composing = false;
+							//composing:Boolean, paused:Boolean, active:Boolean, gone:Boolean 
+							chatController.sendStateNotificationMessage( contact.jidWithoutRessource, false, false, true, false );
 						}
-					}
-					else
-					{
-						trace( "Stoped Composing" );
-						composing = false;
-						//composing:Boolean, paused:Boolean, active:Boolean, gone:Boolean 
-						chatController.sendStateNotificationMessage( contact.jidWithoutRessource, false, false, true, false );
 					}
 				}
 			}
@@ -282,13 +286,13 @@
 		</s:Scroller>
 	</s:Group>
 	
-	
-	<s:TextInput id="textInput" width="100%" focusEnabled="true"
-				 keyDown="compose( event )"
-				 enter="enterHandler( event )"
-				 nativeDragEnter="dragEnterHandler(event)" 
-				 nativeDragDrop="dropHandler(event)"
-				 focusIn="textInput.selectRange( textInput.text.length, textInput.text.length)"
-				 
-				 />
+	<s:RichEditableText  id="textInput" width="100%" focusEnabled="true" verticalCenter="0"
+				paddingRight="3" paddingLeft="3" paddingTop="3" paddingBottom="3"
+				backgroundColor="#ffffff"
+				heightInLines="{NaN}"
+				keyDown="compose( event )"
+				nativeDragEnter="dragEnterHandler(event)" 
+				nativeDragDrop="dropHandler(event)"
+				focusIn="textInput.selectRange( textInput.text.length, textInput.text.length)"
+				/>
 </s:VGroup>
