@@ -164,9 +164,10 @@
 			private function updateScrolling( event:Event ):void
 			{
 				if( event.currentTarget is ChatItem ) (event.currentTarget as ChatItem).removeEventListener(Event.ADDED, updateScrolling );
+				callLater( function():void {
 				scrollingAnimation.play();
+				});
 			}
-			
 			
 			private function enterHandler( event:Event ):void
 			{
@@ -293,6 +294,7 @@
 				keyDown="compose( event )"
 				nativeDragEnter="dragEnterHandler(event)" 
 				nativeDragDrop="dropHandler(event)"
+				resize="updateScrolling(event)"
 				focusIn="textInput.selectRange( textInput.text.length, textInput.text.length)"
 				/>
 </s:VGroup>
