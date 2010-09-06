@@ -67,15 +67,16 @@
 		<s:State name="hoveredClosable" />
 	</s:states>
 	
-	
-	<component:StatusBullet includeInLayout="{contact.statusColor!=0x0000ff &amp;&amp;  contact.statusColor!=0xff00ff }" visible="{contact.statusColor!=0x0000ff &amp;&amp; contact.statusColor!=0xff00ff }" 
-							width="10" height="10" color="{contact.statusColor}"/>
-	
-	<mx:Image includeInLayout="{contact.statusColor==0x0000ff}" visible="{contact.statusColor==0x0000ff}" 
-			  source="@Embed('icons/chat-10x10.png')" width="10" height="10" horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
-	
-	<mx:Image includeInLayout="{contact.statusColor==0xff00ff}" visible="{contact.statusColor==0xff00ff}" 
-			  source="@Embed('icons/composing-10x10.png')" width="10" height="10" horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
+	<s:Group includeIn="normal">		
+		<component:StatusBullet includeInLayout="{contact.statusColor!=0x0000ff &amp;&amp;  contact.statusColor!=0xff00ff }" visible="{contact.statusColor!=0x0000ff &amp;&amp; contact.statusColor!=0xff00ff }" 
+								width="10" height="10" color="{contact.statusColor}"/>
+		
+		<mx:Image includeInLayout="{contact.statusColor==0x0000ff}" visible="{contact.statusColor==0x0000ff}" 
+				  source="@Embed('icons/chat-10x10.png')" width="10" height="10" horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
+		
+		<mx:Image includeInLayout="{contact.statusColor==0xff00ff}" visible="{contact.statusColor==0xff00ff}" 
+				  source="@Embed('icons/composing-10x10.png')" width="10" height="10" horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
+	</s:Group>
 	
 	<s:Group includeIn="hoveredClosable" mouseDown="mouseDownHandler( event )" mouseUp="mouseUpHandler( event )">
 		<s:Ellipse width="{width}" height="{height}">

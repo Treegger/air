@@ -97,12 +97,12 @@ package com.treegger.component
 					onPeerConnect: function( remoteStream:NetStream ):Boolean
 					{
 						trace( "Peer Connect");
-						ioStream.inputConnect( getNetConnection( contact ), remoteStream.farID, NETSTREAM_NAME, new StratusClientCallHandler( that, contact ), false );
+						ioStream.inputConnect( getNetConnection( contact ), remoteStream.farID, NETSTREAM_NAME, new StratusClientCallHandler( that, contact ), true );
 						setTimeout( function():void { callBack( contact, ioStream ) }, 100 );
 						return true;
 					}					
 					
-				}, false );
+				}, true );
 			}
 		}
 		
@@ -150,11 +150,11 @@ package com.treegger.component
 					trace( "Peer Handshake Connect");
 					return true;
 				}
-			}, false );
+			}, true );
 				
 				
 	
-			ioStream.inputConnect( getNetConnection( contact ), remoteId, NETSTREAM_NAME, new StratusClientCallHandler( that, contact ), false );
+			ioStream.inputConnect( getNetConnection( contact ), remoteId, NETSTREAM_NAME, new StratusClientCallHandler( that, contact ), true );
 		}
 
 		
