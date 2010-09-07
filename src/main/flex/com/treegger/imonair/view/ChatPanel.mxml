@@ -151,7 +151,6 @@
 						lastChatItem.percentWidth = 100;
 						areaInput.addElement( lastChatItem );
 						
-						lastChatItem.addEventListener(Event.ADDED, updateScrolling );
 						lastChatItem.textGroup.addEventListener(Event.RESIZE, updateScrolling );
 				}
 				
@@ -163,7 +162,7 @@
 			
 			private function updateScrolling( event:Event ):void
 			{
-				if( event.currentTarget is ChatItem ) (event.currentTarget as ChatItem).removeEventListener(Event.ADDED, updateScrolling );
+				if( event.currentTarget is ChatItem ) (event.currentTarget as ChatItem).removeEventListener(Event.RESIZE, updateScrolling );
 				callLater( function():void {
 				scrollingAnimation.play();
 				});
@@ -181,10 +180,12 @@
 					chatContent.read = true;
 					chatContent.time = new Date();
 					contact.chatContents.addItem( chatContent );
-					textInput.text = "";
 				}
+				textInput.text = "";
 				composing = false;
 				composingTimer.reset();
+				event.preventDefault();
+				event.stopImmediatePropagation();
 			}
 			
 			
