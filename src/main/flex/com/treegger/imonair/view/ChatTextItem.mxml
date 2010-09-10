@@ -30,7 +30,7 @@
 			{
 				if( value )
 				{
-					value = value.replace( /(http[s]?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}(\/[^ ]*)*/g,  
+					value = value.replace( /(http[s]?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}[:0-9]{0,6}(\/[^ ]*)*/g,  
 					function( subStr:String, match1:String, match2:String, match3:String, match4:String, index:int, fullString:String ):String
 					{
 						if( match1 )
