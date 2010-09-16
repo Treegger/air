@@ -1,5 +1,7 @@
 package com.treegger.imonair.model
 {
+	import com.treegger.protobuf.Presence;
+	
 	import flash.events.EventDispatcher;
 	
 	import mx.collections.ArrayCollection;
@@ -13,6 +15,56 @@ package com.treegger.imonair.model
 		
 		public var jidWithoutRessource:String;
 		
+		private var presences:ArrayCollection = new ArrayCollection();
+		
+		public function resetPresences():void
+		{
+			presences.removeAll();
+		}
+		public function addPresence( presence:Presence ):void
+		{
+			var i:int=0;
+			for each( var p:Presence in presences )
+			{
+				if( p.from == presence.from )
+				{
+					presences.removeItemAt( i );
+					break;
+				}
+				i++
+			}
+			if( ! ( presence.hasType && presence.type.toLowerCase() == "unavailable" ) )
+			{
+				presences.addItem( presence );
+			}
+			
+			dispatchEvent( new Event( 'statusColorChanged' ) );
+		}
+		public function get significantePresence():Presence
+		{
+			var presence:Presence;
+			for each( presence in presences )
+			{
+				if( ( !presence.hasType || presence.type == "" ) 
+					&& ( !presence.hasShow || presence.show == "" ) )
+					return presence;
+					
+			}
+			
+			for each( presence in presences )
+			{
+				if( presence.hasShow && presence.show.length > 0 )
+					return presence;
+			}
+			
+			for each( presence in presences )
+			{
+				return presence;
+			}
+			
+			return null;
+		}
+		
 		public function get screenname():String
 		{
 			var i:int = jidWithoutRessource.indexOf('@');
@@ -20,34 +72,26 @@ package com.treegger.imonair.model
 			return jidWithoutRessource;
 		}
 		
-		private var _type:String;
-		public function set type( value:String ):void
+		public function get type():String
 		{
-			_type = value;
-			dispatchEvent( new Event( 'statusColorChanged' ) );
+			const presence:Presence = significantePresence;
+			if( presence && presence.hasType ) return presence.type;
+			return "";
 		}
-		
-		public var _status:String;
-		public function set status( value:String ):void
-		{
-			_status = value;
-			dispatchEvent( new Event( 'statusColorChanged' ) );
-		}
+
 		public function get status():String
 		{
-			return _status;
+			const presence:Presence = significantePresence;
+			if( presence && presence.hasStatus ) return presence.status;
+			return "";
 		}
 		
 		
-		private var _show:String;
-		public function set show( value:String ):void
-		{
-			_show = value;
-			dispatchEvent( new Event( 'statusColorChanged' ) );
-		}
 		public function get show():String
 		{
-			return _show;
+			const presence:Presence = significantePresence;
+			if( presence && presence.hasShow ) return presence.show.toLocaleLowerCase();
+			return "";
 		}
 		
 		public var vCardFetched:Boolean;
@@ -83,16 +127,16 @@ package com.treegger.imonair.model
 		
 		public function get available():Boolean
 		{
-			return !( away || dnd ) && _type != "unavailable";
+			return !( away || dnd ) && type != "unavailable";
 		}
 		
 		public function get away():Boolean
 		{
-			return _show && ( _show.toLocaleLowerCase() == "away" || _show.toLocaleLowerCase() == "xa" );    
+			return show && ( show == "away" || show == "xa" );    
 		}
 		public function get dnd():Boolean
 		{
-			return _show && ( _show.toLocaleLowerCase() == "dnd" );    
+			return show && ( show == "dnd" );    
 		}
 		
 		[Bindable(event='hasUnreadContentChanged')]

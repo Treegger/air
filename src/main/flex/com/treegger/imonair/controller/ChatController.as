@@ -184,7 +184,7 @@ package com.treegger.imonair.controller
 			{
 				for each( var contact:Contact in onlineContacts )
 				{
-					contact.type = 'unavailable';
+					contact.resetPresences();
 				}
 				onlineContacts.removeAll();
 			}
@@ -277,24 +277,18 @@ package com.treegger.imonair.controller
 			 		
 				var online:Boolean = onlineContacts.contains( contact );
 			
-				
-				if( presence.hasType && presence.type.toLowerCase() == "unavailable" )
+				if( contact )
 				{
-					if( contact )
-					{
-						contact.status = presence.status;
-						contact.type = presence.type;
-						contact.show = presence.show;
-					}
-					if( online )
-						onlineContacts.removeItemAt(onlineContacts.getItemIndex( contact ) );
+					contact.addPresence( presence );
+				}
+				
+				if( contact.significantePresence )
+				{
+					if( !online ) onlineContacts.addItem( contact );
 				}
 				else
 				{
-					contact.status = presence.status;
-					contact.type = presence.type;
-					contact.show = presence.show;
-					if( !online ) onlineContacts.addItem( contact );
+					if( online ) onlineContacts.removeItemAt(onlineContacts.getItemIndex( contact ) );
 				}
 			}
 			else if( message.hasVcardResponse )
