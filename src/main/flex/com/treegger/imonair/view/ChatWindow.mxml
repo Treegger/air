@@ -61,7 +61,7 @@
 			[Bindable]
 			private var activeChatContacts:ArrayCollection = new ArrayCollection();
 			
-			[Bindable]
+			[Bindable(event='selectedContactChanged')]
 			private var selectedActiveChatContactIndex:int;
 			
 			
