@@ -23,6 +23,8 @@ package com.treegger.imonair.model
 		}
 		public function addPresence( presence:Presence ):void
 		{
+			composing = false;
+
 			var i:int=0;
 			for each( var p:Presence in presences )
 			{
