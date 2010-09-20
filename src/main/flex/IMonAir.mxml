@@ -106,7 +106,7 @@
 					swizBean.preferencesController.userPreference = pref;
 				}	
 
-				if( !exitingApplication )
+				if( !teardownFinish )
 				{
 					nativeWindow.visible=false;
 					event.preventDefault()
@@ -200,13 +200,13 @@
 			}
 		}
 		
-		private var exitingApplication:Boolean;
+		private var teardownFinish:Boolean = false;
 		private function teardown( event:Event = null ):void
 		{
 			trace( "Teardown" );
-			if( !exitingApplication )
+			if( !teardownFinish )
 			{
-				exitingApplication = true;
+				teardownFinish = true;
 				swizBean.chatController.sendPresence( "unavailable" );
 				swizBean.chatController.close(true);
 			}
