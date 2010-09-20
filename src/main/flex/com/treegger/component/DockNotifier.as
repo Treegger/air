@@ -10,11 +10,14 @@ package com.treegger.component
 	import flash.events.ErrorEvent;
 	import flash.filters.BevelFilter;
 	import flash.filters.DropShadowFilter;
+	import flash.media.SoundTransform;
 	import flash.text.engine.ElementFormat;
 	import flash.text.engine.FontDescription;
 	import flash.text.engine.TextBlock;
 	import flash.text.engine.TextElement;
 	import flash.text.engine.TextLine;
+	
+	import mx.core.SoundAsset;
 
 	public class DockNotifier
 	{
@@ -25,6 +28,9 @@ package com.treegger.component
 
 		[Embed(source="icons/logo-16x16.png")]
 		private var ApplicationLogo16:Class;     
+		
+		[Embed(source="audio/beep.mp3")]
+		private var beepClass:Class;
 
 		private var previousCount:uint = 0;
 		
@@ -34,8 +40,6 @@ package com.treegger.component
 		
 		public function notify( unseenCount:uint, notificationType:String = null ):void
 		{
-			
-			
 			if( NativeApplication.supportsDockIcon )
 			{
 				setDockIcon( unseenCount, notificationType );
@@ -46,16 +50,26 @@ package com.treegger.component
 			}
 		}
 		
+		private function playBeep():void
+		{
+			var beepSound:SoundAsset = SoundAsset( new beepClass() );
+			var trans:SoundTransform = new SoundTransform( 0.3 );
+			beepSound.play(0,0,trans);
+		}
+		
 		private function setSystemTrayIcon( unseenCount:uint ):void
 		{
 			if( previousCount != unseenCount )
 			{
+				
 				previousCount = unseenCount;
 				var bitmap:BitmapData = new BitmapData(16, 16, true, 0x00000000);  
 				bitmap.draw( (new ApplicationLogo16).bitmapData );
 				
 				if( unseenCount >  0 )
 				{
+					playBeep();
+
 					var sprite:Sprite = new Sprite(); 
 					sprite.width = 16; 
 					sprite.height = 16; 
@@ -86,6 +100,7 @@ package com.treegger.component
 				
 				if( unseenCount >  0 )
 				{
+					playBeep();
 					
 					var sprite:Sprite = new Sprite(); 
 					sprite.width = 128; 
