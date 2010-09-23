@@ -70,7 +70,7 @@
 				if( !activeChatContacts.contains( contact ) )
 				{
 					activeChatContacts.addItem( contact );
-					selectedContact = contact;
+					if( !_selectedContact ) selectedContact = contact;
 				}
 			}
 			

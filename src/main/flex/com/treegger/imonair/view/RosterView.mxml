@@ -155,6 +155,7 @@
 				rosterGroup.addEventListener( "contactDoubleClick", function( event:DynamicEvent ):void
 				{
 					const chatWindow:ChatWindow = openChatWindowForContact( event.contact, true );
+					chatWindow.selectedContact = event.contact;
 					chatWindow.nativeWindow.orderToFront();
 					chatWindow.activate();
 					event.stopPropagation();
