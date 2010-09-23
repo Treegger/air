@@ -47,7 +47,7 @@
 					richText.textFlow = TextFlowUtil.importFromString(value);
 				}
 			}
-			
+
 			private function selectionChangeHandler( event:Event ):void
 			{
 				var anchorPos:int = richText.selectionAnchorPosition;
@@ -87,7 +87,7 @@
 					NativeDragManager.doDrag( richText, transfer, getImage( textSelection ), null, allowedActions );					
 				}
 			}
-			
+
 			private function getImage( text:String ):BitmapData
 			{
 				var image:BitmapData;

@@ -40,7 +40,7 @@
 	</fx:Script>
 	
 	<fx:Declarations>
-		<s:Fade id="fadeIn" target="{this}" alphaFrom="0.1" alphaTo="1" duration="200" />
+		<s:Fade id="fadeIn" target="{this}" alphaFrom="0.1" alphaTo="1" duration="300" />
 	</fx:Declarations>
 	
 	<mx:Image id="image" source="@Embed('icons/default-avatar-32x32.png')" width="32" height="32" horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>

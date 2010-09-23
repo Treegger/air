@@ -21,8 +21,8 @@
 		 creationComplete="creationCompleteHandler()"
 		 windowActivate="windowActivateHandler()"
 		 windowDeactivate="activated = false"
-		 title="{getWindowTitle( selectedContact.name, selectedContact.unreadContents )}"
 		 closing="closingHandler( event )"
+	
 		 keyDown="keyDownHanler( event )"
 		 keyUp="keyUpHanler( event )"
 		 >
@@ -40,6 +40,7 @@
 			
 			import flash.net.navigateToURL;
 			
+			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.core.mx_internal;
 			import mx.events.CloseEvent;
@@ -51,19 +52,27 @@
 			
 
 			
-			[Inject][Bindable]
+			[Inject]
 			public var chatController:ChatController;
 
 			[Inject]
 			public var preferencesController:PreferencesController;
 			
 			[ArrayElementType("com.treegger.imonair.model.Contact")]
-			[Bindable]
 			private var activeChatContacts:ArrayCollection = new ArrayCollection();
 			
 			[Bindable(event='selectedContactChanged')]
 			private var selectedActiveChatContactIndex:int;
 			
+			private function initializeHandler():void
+			{
+				//BindingUtils.bindSetter( function( unread:Number ):void {title = getWindowTitle( contact.name, unread )},
+				//	contact, "unreadContents", false, true );
+			}
+			public function cleanup():void
+			{
+				chatPanelStack.removeAllElements();
+			}
 			
 			public function addChatContact( contact:Contact ):void
 			{
@@ -135,10 +144,13 @@
 					const pref:UserPreference = preferencesController.userPreference;
 					pref.chatWindowX = nativeWindow.x;
 					pref.chatWindowY = nativeWindow.y;
-					pref.chatWindowHeight = nativeWindow.height;
-					pref.chatWindowWidth = nativeWindow.width;
+					pref.chatWindowHeight = height;
+					pref.chatWindowWidth = width;
 					preferencesController.userPreference = pref;
 				}
+				
+				nativeWindow.visible=false;
+				event.preventDefault();
 			}
 
 			private var ctrlKeyPressed:Boolean = false;
@@ -184,7 +196,6 @@
 			{
 				trace( "Tab Close for contact " +contact.name );
 				getChatPanel( contact ).leaveConversation();
-
 				const index:int = activeChatContacts.getItemIndex( contact );
 				activeChatContacts.removeItemAt( index );
 				if( activeChatContacts.length == 0 )
@@ -211,7 +222,7 @@
 				currentChatPannel.dropText( event.dropText );
 			}
 			
-			private const chatPanels:Object = {};
+			private static const chatPanels:Object = {};
 			private function getChatPanel( contact:Contact ):ChatPanel
 			{
 				return chatPanels[contact.jidWithoutRessource] as ChatPanel
@@ -221,14 +232,17 @@
 				chatPanels[contact.jidWithoutRessource] = currentChatPannel;
 			}
 			
-			[Bindable]
 			public var currentChatPannel:ChatPanel;
 			
 			private var _selectedContact:Contact;
-			[Bindable( event='selectedContactChanged' )]
 			public function set selectedContact( contact:Contact ):void
 			{
+				BindingUtils.bindSetter( function( unread:Number ):void {title = getWindowTitle( contact.name, unread )},
+					contact, "unreadContents", false, true );
+				
 				_selectedContact = contact;
+				
+				
 				selectedActiveChatContactIndex = activeChatContacts.getItemIndex( contact );
 				
 				if( initialized )
@@ -255,6 +269,7 @@
 					chatPanelStack.removeAllElements();
 					chatPanelStack.addElement( currentChatPannel );
 				}
+				
 				dispatchEvent( new Event( 'selectedContactChanged' ) );
 			}
 			public function get selectedContact():Contact 
@@ -264,6 +279,7 @@
 			
 			private function focusToCurrentPannel():void
 			{
+					
 				if( activated ) selectedContact.setAllContentRead();
 				if( currentChatPannel && currentChatPannel.textInput ) currentChatPannel.textInput.setFocus();
 			}
@@ -298,20 +314,18 @@
 					if( pref.chatWindowY > 0 ) nativeWindow.y = pref.chatWindowY;
 					if( pref.chatWindowHeight > 0 )
 					{
-						nativeWindow.height = pref.chatWindowHeight;
 						height = pref.chatWindowHeight;
 					}
 					if( pref.chatWindowWidth > 0 )
 					{
-						nativeWindow.width = pref.chatWindowWidth;
 						width = pref.chatWindowWidth;
 					}
-					
 				}
 			}
 				
 			private function creationCompleteHandler():void
 			{
+				tabBar.dataProvider = activeChatContacts;
 				windowShowHandler();
 				if( _selectedContact )
 				{
@@ -345,17 +359,17 @@
 				</s:Group>
 			</s:HGroup>
 		</s:Group>
-		
+
 		<s:Group id="chatPanelStack" width="100%" height="100%">
 		</s:Group>		
-		
 		<component:TabBar id="tabBar" width="100%" gap="0" focusEnabled="false"
-						  dataProvider="{activeChatContacts}"
 						  selectedIndex="{selectedActiveChatContactIndex}"
 						  tabClose="tabCloseHandler( event )"
 						  tabClick="tabClickHandler( event )"
 						  tabDropText="tabDropTextHandler( event )"
+						  updateComplete="if( currentChatPannel ) currentChatPannel.updateScrolling()"
 						  />
+
 	</s:VGroup>
 	
 </s:Window>

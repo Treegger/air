@@ -42,22 +42,31 @@
 				
 				if( !contact.vCardFetched ) chatController.requestVCard( contact ); 
 				
-				_contact.chatContents.addEventListener(CollectionEvent.COLLECTION_CHANGE, function(event:CollectionEvent):void
-				{
-					if( event.kind == CollectionEventKind.ADD )
-					{
-						for each( var chatContent:ChatContent in event.items )
-						{
-							pushContent( chatContent );
-						}
-					}
-				});
+				_contact.chatContents.addEventListener(CollectionEvent.COLLECTION_CHANGE, collectionChangeHandler);
 			}
+			
+			private function collectionChangeHandler(event:CollectionEvent):void
+			{
+				if( event.kind == CollectionEventKind.ADD )
+				{
+					for each( var chatContent:ChatContent in event.items )
+					{
+						pushContent( chatContent );
+					}
+				}
+			}
+			
 			public function get contact():Contact
 			{
 				return _contact;
 			}
 			
+			public function cleanup():void
+			{
+				composingTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, pauseCompose );
+				_contact.chatContents.removeEventListener(CollectionEvent.COLLECTION_CHANGE, collectionChangeHandler);
+				removeAllElements();
+			}
 			
 			private static var fileManagers:Object = {};
 			
@@ -149,8 +158,8 @@
 						}
 						
 						lastChatItem.percentWidth = 100;
+						if( areaInput.numElements > 100 ) areaInput.removeElementAt(0); 
 						areaInput.addElement( lastChatItem );
-						
 						lastChatItem.textGroup.addEventListener(Event.RESIZE, updateScrolling );
 				}
 				
@@ -160,9 +169,9 @@
 			}
 			
 			
-			private function updateScrolling( event:Event ):void
+			public function updateScrolling( event:Event = null ):void
 			{
-				if( event.currentTarget is ChatItem ) (event.currentTarget as ChatItem).removeEventListener(Event.RESIZE, updateScrolling );
+				if( event && event.currentTarget is ChatItem ) (event.currentTarget as ChatItem).removeEventListener(Event.RESIZE, updateScrolling );
 				callLater( function():void {
 				scrollingAnimation.play();
 				});
@@ -258,13 +267,14 @@
 			{
 				trace( "Leave" );
 				composing = false;
-				chatController.sendStateNotificationMessage( contact.jidWithoutRessource, false, false, false, true );				
+				chatController.sendStateNotificationMessage( contact.jidWithoutRessource, false, false, false, true );
+				//cleanup();
 			}
 			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:Animate  id="scrollingAnimation" target="{areaInput}" duration="200">
+		<s:Animate  id="scrollingAnimation" target="{areaInput}" duration="300">
 			<s:SimpleMotionPath id="motionPath" valueTo="{areaInput.contentHeight - areaInput.height}" property="verticalScrollPosition" />
 		</s:Animate>
 	</fx:Declarations>

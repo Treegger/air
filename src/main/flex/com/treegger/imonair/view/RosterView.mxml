@@ -16,11 +16,11 @@
 
 	<fx:Script>
 		<![CDATA[
+			import com.treegger.component.Notification;
 			import com.treegger.imonair.controller.ChatController;
 			import com.treegger.imonair.controller.ChatEvent;
 			import com.treegger.imonair.controller.PreferencesController;
 			import com.treegger.imonair.model.Contact;
-			import com.treegger.component.Notification;
 			import com.treegger.protobuf.TextMessage;
 			
 			import flash.sampler.NewObjectSample;
@@ -177,13 +177,20 @@
 				if( !chatWindow )
 				{
 					chatWindow = new ChatWindow();
-					chatWindow.addEventListener( Event.CLOSE, function( event:Event ):void{ chatWindow = null; } );
+					chatWindow.addEventListener( Event.CLOSE, chatWindowCloseHandler );
 					SwizManager.setUp( chatWindow );
 				}
-				
 				chatWindow.addChatContact( contact );
 				chatWindow.open( activate );
+				chatWindow.visible = true;
 				return chatWindow;
+			}
+			
+			private function chatWindowCloseHandler( event:Event ):void
+			{
+				chatWindow.removeEventListener(Event.CLOSE, chatWindowCloseHandler );
+				chatWindow.cleanup();
+				chatWindow = null;	
 			}
 			
 			

@@ -109,7 +109,7 @@
 				if( !teardownFinish )
 				{
 					nativeWindow.visible=false;
-					event.preventDefault()
+					event.preventDefault();
 				}
 			}); 
 			
