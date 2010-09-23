@@ -4,7 +4,8 @@ package com.treegger.imonair.model
 	[Bindable]
 	public class UserPreference
 	{
-		public var startAtLogin:Boolean=true;		
+		public var startAtLogin:Boolean=true;
+		public var soundEffectsLevel:Number=50;
 
 		public var applicationX:int;
 		public var applicationY:int;
