@@ -58,6 +58,7 @@
 			private function saveHandler( event:Event):void
 			{
 				userPreference.startAtLogin = startAtLoginInput.selected;
+				userPreference.soundEffectsLevel = soundEffectsLevelSlider.value;
 				try 
 				{ 
 					NativeApplication.nativeApplication.startAtLogin = userPreference.startAtLogin; 
@@ -159,7 +160,15 @@
 			<s:Label width="100"  text="{resourceManager.getString('imonair', 'preferencesStartAtLogin')}" fontWeight="bold"/>
 			<s:CheckBox id="startAtLoginInput" selected="{userPreference.startAtLogin}" />
 		</s:HGroup>
-		
+
+		<s:HGroup verticalAlign="middle" width="100%">
+			<s:Label width="100"  text="{resourceManager.getString('imonair', 'preferencesSoundEffectsLevel')}" fontWeight="bold"/>
+			<s:HSlider id="soundEffectsLevelSlider" width="100" minimum="0" maximum="100" value="{userPreference.soundEffectsLevel}" stepSize="5" snapInterval="5" liveDragging="true" showDataTip="true"
+					   lineHeight="1" lineThrough="false" maxWidth="50"
+					   />
+
+		</s:HGroup>
+
 		<s:HGroup verticalAlign="middle" width="100%">
 			<s:Group width="100"/>
 			<s:Button label="Save" click="saveHandler( event )" />
