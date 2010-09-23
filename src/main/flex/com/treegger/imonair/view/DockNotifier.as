@@ -1,5 +1,7 @@
-package com.treegger.component
+package com.treegger.imonair.view
 {
+	import com.treegger.imonair.controller.PreferencesController;
+	
 	import flash.desktop.DockIcon;
 	import flash.desktop.InteractiveIcon;
 	import flash.desktop.NativeApplication;
@@ -34,6 +36,9 @@ package com.treegger.component
 
 		private var previousCount:uint = 0;
 		
+		[Inject]
+		public var preferenceController:PreferencesController;
+		
 		public function DockNotifier()
 		{
 		}
@@ -53,7 +58,7 @@ package com.treegger.component
 		private function playBeep():void
 		{
 			var beepSound:SoundAsset = SoundAsset( new beepClass() );
-			var trans:SoundTransform = new SoundTransform( 0.3 );
+			var trans:SoundTransform = new SoundTransform( (preferenceController.userPreference.soundEffectsLevel)/100.0 );
 			beepSound.play(0,0,trans);
 		}
 		

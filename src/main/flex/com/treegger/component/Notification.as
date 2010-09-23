@@ -36,8 +36,7 @@ package com.treegger.component
 		
 		[Embed(source="icons/logo-48x48.png")]
 		private var ApplicationLogo48:Class;     
-
-
+		
 		public function Notification( message:String, subMessage:String = null, duration:uint=3 )
 		{
 			this.duration = duration;

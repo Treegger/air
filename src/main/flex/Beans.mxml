@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <swiz:BeanProvider 
 	xmlns:fx="http://ns.adobe.com/mxml/2009"
-	xmlns:swiz="http://swiz.swizframework.org" xmlns:service="com.treegger.service.*" xmlns:controller="com.treegger.imonair.controller.*" xmlns:component="com.treegger.component.*" >
+	xmlns:swiz="http://swiz.swizframework.org" xmlns:service="com.treegger.service.*" xmlns:controller="com.treegger.imonair.controller.*" xmlns:component="com.treegger.component.*" xmlns:view="com.treegger.imonair.view.*" >
 	
 	<controller:PreferencesController id="preferencesController"/>
 	<controller:ChatController id="chatController" />
-	<component:DockNotifier />
+	<view:DockNotifier />
 	<component:StratusConnector />
 	
 	

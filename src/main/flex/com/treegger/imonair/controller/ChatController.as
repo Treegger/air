@@ -495,10 +495,10 @@ package com.treegger.imonair.controller
 		
 		public function disconnect( newSession:Boolean=false ):void
 		{
+			if( newSession ) currentSessionId = null;
 			sendPresence( "unavailable" );
 			contacts.removeAll();
 			onlineContacts.removeAll();
-			if( newSession ) currentSessionId = null;
 			close();			
 		}
 		
@@ -526,7 +526,7 @@ package com.treegger.imonair.controller
 
 			authReq.username = username+'@'+socialNetwork;
 			authReq.password = userAccount.password;
-			authReq.resource = 'IMonAir';
+			authReq.resource = 'IMonAir-'+ ( new Date().time % 1024*16 ).toString( 32 );
 			authReq.sessionId = currentSessionId;
 			
 			currentJID = authReq.username.toLowerCase()+"/" +authReq.resource;

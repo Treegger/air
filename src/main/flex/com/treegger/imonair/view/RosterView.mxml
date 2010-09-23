@@ -20,7 +20,6 @@
 			import com.treegger.imonair.controller.ChatEvent;
 			import com.treegger.imonair.controller.PreferencesController;
 			import com.treegger.imonair.model.Contact;
-			import com.treegger.component.DockNotifier;
 			import com.treegger.component.Notification;
 			import com.treegger.protobuf.TextMessage;
 			
