@@ -41,6 +41,7 @@
 			import flash.net.navigateToURL;
 			
 			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.core.mx_internal;
 			import mx.events.CloseEvent;
@@ -61,8 +62,6 @@
 			[ArrayElementType("com.treegger.imonair.model.Contact")]
 			private var activeChatContacts:ArrayCollection = new ArrayCollection();
 			
-			[Bindable(event='selectedContactChanged')]
-			private var selectedActiveChatContactIndex:int;
 			
 			private function initializeHandler():void
 			{
@@ -125,7 +124,7 @@
 			
 			private function closingHandler( event:Event ):void
 			{
-				if( activeChatContacts.length > 0 )
+				if( activeChatContacts.length > 0 && selectedContact )
 				{
 					tabCloseForContact( selectedContact );					
 				}
@@ -149,7 +148,6 @@
 					preferencesController.userPreference = pref;
 				}
 				
-				nativeWindow.visible=false;
 				event.preventDefault();
 			}
 
@@ -200,7 +198,9 @@
 				activeChatContacts.removeItemAt( index );
 				if( activeChatContacts.length == 0 )
 				{
-					close();
+					//close();
+					_selectedContact = null;
+					nativeWindow.visible=false;
 				}
 				else
 				{
@@ -235,15 +235,17 @@
 			public var currentChatPannel:ChatPanel;
 			
 			private var _selectedContact:Contact;
+			private var contactWatcher:ChangeWatcher;
 			public function set selectedContact( contact:Contact ):void
 			{
-				BindingUtils.bindSetter( function( unread:Number ):void {title = getWindowTitle( contact.name, unread )},
-					contact, "unreadContents", false, true );
-				
-				_selectedContact = contact;
-				
-				
-				selectedActiveChatContactIndex = activeChatContacts.getItemIndex( contact );
+				if( _selectedContact != contact )
+				{
+					if( contactWatcher ) contactWatcher.unwatch();
+					contactWatcher = BindingUtils.bindSetter( function( unread:Number ):void {title = getWindowTitle( contact.name, unread )},
+						contact, "unreadContents", false, true );
+					
+					_selectedContact = contact;
+				}
 				
 				if( initialized )
 				{
@@ -268,9 +270,12 @@
 					
 					chatPanelStack.removeAllElements();
 					chatPanelStack.addElement( currentChatPannel );
+					
+					//dispatchEvent( new Event( 'selectedContactChanged' ) );
+					var selectedActiveChatContactIndex:Number = activeChatContacts.getItemIndex( contact );
+					tabBar.selectedIndex = selectedActiveChatContactIndex;
 				}
-				
-				dispatchEvent( new Event( 'selectedContactChanged' ) );
+					
 			}
 			public function get selectedContact():Contact 
 			{ 
@@ -280,7 +285,7 @@
 			private function focusToCurrentPannel():void
 			{
 					
-				if( activated ) selectedContact.setAllContentRead();
+				if( activated && selectedContact ) selectedContact.setAllContentRead();
 				if( currentChatPannel && currentChatPannel.textInput ) currentChatPannel.textInput.setFocus();
 			}
 			
@@ -363,7 +368,6 @@
 		<s:Group id="chatPanelStack" width="100%" height="100%">
 		</s:Group>		
 		<component:TabBar id="tabBar" width="100%" gap="0" focusEnabled="false"
-						  selectedIndex="{selectedActiveChatContactIndex}"
 						  tabClose="tabCloseHandler( event )"
 						  tabClick="tabClickHandler( event )"
 						  tabDropText="tabDropTextHandler( event )"
