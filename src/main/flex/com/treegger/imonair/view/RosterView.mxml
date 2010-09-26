@@ -162,7 +162,9 @@
 				});
 				rosterGroup.addEventListener( "dropText", function( event:DynamicEvent ):void
 				{
-					openChatWindowForContact( event.contact, true ).dropText( event.text );					
+					const chatWindow:ChatWindow = openChatWindowForContact( event.contact, true );
+					chatWindow.selectedContact = event.contact;					
+					chatWindow.getChatPanel( event.contact ).dropText( event.text );					
 					event.stopPropagation();
 				});
 				

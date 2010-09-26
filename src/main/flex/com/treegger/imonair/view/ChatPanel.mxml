@@ -15,6 +15,8 @@
 			import com.treegger.imonair.model.Contact;
 			import com.treegger.protobuf.TextMessage;
 			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			
@@ -22,6 +24,8 @@
 			
 			import spark.components.Label;
 
+			
+			private var photoURLChangeWatcher:ChangeWatcher;
 			
 			private var _chatController:ChatController;
 			[Inject]
@@ -148,7 +152,14 @@
 						
 						if( chatContent.from == contact.name )
 						{
-							lastChatItem.photoURL = contact.photoURL;
+							if( contact.photoURL == null && photoURLChangeWatcher == null )
+							{
+								photoURLChangeWatcher = BindingUtils.bindSetter( updateChatItemPhoto, contact, "photoURL", false, true ); 
+							}
+							else
+							{
+								lastChatItem.photoURL = contact.photoURL;
+							}
 							lastChatItem.backgroundColor = 0xFF7B00;
 						}
 						else
@@ -165,9 +176,24 @@
 				
 				
 				lastChatItem.addText( chatContent.message, chatContent.time );
-				
 			}
+
 			
+			private function updateChatItemPhoto( photoURL:String ):void
+			{
+				if( photoURL )
+				{
+					for( var i:int=0; i<areaInput.numElements; i++ )
+					{
+						var chatItem:ChatItem = areaInput.getElementAt( i ) as ChatItem;
+						if( chatItem && chatItem.photoURL == null )
+						{
+							chatItem.photoURL = photoURL;
+						}
+					}
+					photoURLChangeWatcher.unwatch();
+				}
+			}
 			
 			public function updateScrolling( event:Event = null ):void
 			{

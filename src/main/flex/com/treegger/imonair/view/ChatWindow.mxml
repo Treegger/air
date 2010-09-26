@@ -222,14 +222,23 @@
 				currentChatPannel.dropText( event.dropText );
 			}
 			
-			private static const chatPanels:Object = {};
-			private function getChatPanel( contact:Contact ):ChatPanel
+			private static var chatPanels:Object = {};
+			public function getChatPanel( contact:Contact ):ChatPanel
 			{
-				return chatPanels[contact.jidWithoutRessource] as ChatPanel
+				var chatPanel:ChatPanel = chatPanels[contact.jidWithoutRessource] as ChatPanel
+				if( chatPanel == null )
+				{
+					chatPanel = new ChatPanel();
+					SwizManager.setUp( chatPanel );
+					chatPanel.contact = contact;
+					setChatPanel( contact, chatPanel );
+				}
+				return chatPanel;
+	
 			}
 			private function setChatPanel( contact:Contact, chatPanel:ChatPanel ):void
 			{
-				chatPanels[contact.jidWithoutRessource] = currentChatPannel;
+				chatPanels[contact.jidWithoutRessource] = chatPanel;
 			}
 			
 			public var currentChatPannel:ChatPanel;
@@ -250,23 +259,16 @@
 				if( initialized )
 				{
 					currentChatPannel = getChatPanel( contact );
-					if( currentChatPannel == null )
-					{
-						currentChatPannel = new ChatPanel();
-						SwizManager.setUp( currentChatPannel );
-						currentChatPannel.contact = contact;
-						setChatPanel( contact, currentChatPannel );
-					}
-					
 
 					callLater( focusToCurrentPannel );
 					
-					
+					/*
 					if( _dropText )
 					{
 						currentChatPannel.dropText( _dropText );
 						_dropText = null;
 					}
+					*/
 					
 					chatPanelStack.removeAllElements();
 					chatPanelStack.addElement( currentChatPannel );
@@ -289,6 +291,7 @@
 				if( currentChatPannel && currentChatPannel.textInput ) currentChatPannel.textInput.setFocus();
 			}
 			
+			/*
 			private var _dropText:String;
 			public function dropText( text:String ):void
 			{
@@ -298,6 +301,7 @@
 				}
 				else _dropText = text;
 			}
+			*/
 
 			public var activated:Boolean = false;
 			private var preferencesSet:Boolean = false;
