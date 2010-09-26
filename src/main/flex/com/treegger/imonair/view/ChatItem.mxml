@@ -19,10 +19,15 @@
 			[Bindable]
 			public var title:String;
 
-
+			private var _photoURL:String;
 			public function set photoURL(value:String):void
 			{
+				_photoURL = value;
 				if( value ) image.source = value;
+			}
+			public function get photoURL():String
+			{
+				return _photoURL;
 			}
 			
 			public function addText( text:String, date:Date ):void
