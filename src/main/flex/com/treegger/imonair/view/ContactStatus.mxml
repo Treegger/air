@@ -71,7 +71,7 @@
 		<component:StatusBullet includeInLayout="{ !contact.composing &amp;&amp;  !contact.hasUnreadContent }" visible="{ !contact.composing &amp;&amp;  !contact.hasUnreadContent }" 
 								width="10" height="10" color="{contact.statusColor}"/>
 		
-		<mx:Image includeInLayout="{contact.hasUnreadContent}" visible="{contact.hasUnreadContent}" 
+		<mx:Image includeInLayout="{ !contact.composing &amp;&amp; contact.hasUnreadContent }" visible="{!contact.composing &amp;&amp; contact.hasUnreadContent}" 
 				  source="@Embed('icons/chat-10x10.png')" width="10" height="10" horizontalCenter="0" verticalCenter="0" smoothBitmapContent="true"/>
 		
 		<mx:Image includeInLayout="{contact.composing}" visible="{contact.composing}" 
