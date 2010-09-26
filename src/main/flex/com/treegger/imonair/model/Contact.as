@@ -40,7 +40,7 @@ package com.treegger.imonair.model
 				presences.addItem( presence );
 			}
 			
-			dispatchEvent( new Event( 'statusColorChanged' ) );
+			dispatchEvent( new Event( 'stateChanged' ) );
 		}
 		public function get significantePresence():Presence
 		{
@@ -111,7 +111,7 @@ package com.treegger.imonair.model
 			chatContents = new ArrayCollection();
 			chatContents.addEventListener(CollectionEvent.COLLECTION_CHANGE, function( event:CollectionEvent ):void
 			{
-				dispatchEvent( new Event( 'statusColorChanged' ) );
+				dispatchEvent( new Event( 'stateChanged' ) );
 				dispatchEvent( new Event( 'hasUnreadContentChanged' ) );
 			});
 		}
@@ -123,15 +123,17 @@ package com.treegger.imonair.model
 			{
 				chatContent.read = true;
 			}
-			dispatchEvent( new Event( 'statusColorChanged' ) );
+			dispatchEvent( new Event( 'stateChanged' ) );
 			dispatchEvent( new Event( 'hasUnreadContentChanged' ) );
 		}
 		
+		[Bindable(event='stateChanged')]
 		public function get available():Boolean
 		{
-			return !( away || dnd ) && type != "unavailable";
+			return significantePresence && !( away || dnd );
 		}
 		
+		[Bindable(event='stateChanged')]
 		public function get away():Boolean
 		{
 			return show && ( show == "away" || show == "xa" );    
@@ -153,10 +155,11 @@ package com.treegger.imonair.model
 		}
 
 		private var _composing:Boolean = false;
+		[Bindable(event='stateChanged')]
 		public function set composing( value:Boolean ):void
 		{
 			_composing = value;
-			dispatchEvent( new Event( 'statusColorChanged' ) );
+			dispatchEvent( new Event( 'stateChanged' ) );
 		}
 		public function get composing():Boolean
 		{
@@ -173,7 +176,7 @@ package com.treegger.imonair.model
 			return false;
 		}
 		
-		[Bindable(event='statusColorChanged')]
+		[Bindable(event='stateChanged')]
 		public function get statusColor():uint
 		{
 			if( composing ) return 0xff00ff;
